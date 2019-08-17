@@ -87,6 +87,11 @@ struct JsonFileFinder
         if (strstr(str.c_str(), clangMarker) == NULL)
             return;
         
+        // do not grab our own merged json file!
+        const char* analyzerMarker = "{\"ClangBuildAnalyzerMarker\":\"BigJsonFile\",";
+        if (strstr(str.c_str(), analyzerMarker) != NULL)
+            return;
+        
         files.insert(std::make_pair(f->path, str));
         printf("    debug: reading %s\n", f->path);
     }
@@ -130,6 +135,40 @@ static int RunStop(int argc, const char* argv[])
     jsonFiles.endTime = stopTime;
     cf_traverse(artifactsDir.c_str(), JsonFileFinder::Callback, &jsonFiles);
     
+    if (jsonFiles.files.empty())
+    {
+        printf("%sERROR: no clang -ftime-trace .json files found under '%s'.%s\n", col::kRed, artifactsDir.c_str(), col::kReset);
+        return 1;
+    }
+    
+    // create a big json file out of all the found ones
+    std::string bigJson;
+    bigJson.reserve(4*1024*1024);
+    bigJson += "{\"ClangBuildAnalyzerMarker\":\"BigJsonFile\",\n";
+    bigJson += "\"files\":{\n";
+    size_t jsonIndex = 0;
+    for (const auto& kvp : jsonFiles.files)
+    {
+        bigJson += "\"";
+        bigJson += kvp.first;
+        bigJson += "\":\n";
+        bigJson += kvp.second;
+        if (jsonIndex != jsonFiles.files.size()-1)
+            bigJson += ",";
+        bigJson += "\n";
+        ++jsonIndex;
+    }
+    bigJson += "\n}}\n";
+    
+    FILE* fout = fopen(outFile.c_str(), "wb");
+    if (!fout)
+    {
+        printf("%sERROR: failed to write result file '%s'.%s\n", col::kRed, outFile.c_str(), col::kReset);
+        return 1;
+    }
+    fwrite(bigJson.data(), 1, bigJson.size(), fout);
+    fclose(fout);
+
     double tDuration = stm_sec(stm_since(tStart));
     printf("%s  done in %.1fs. Run 'ClangBuildAnalyzer --analyze %s' to analyze it.%s\n", col::kYellow, tDuration, outFile.c_str(), col::kReset);
 
