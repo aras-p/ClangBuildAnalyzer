@@ -11,6 +11,7 @@
 		2B09931F23080F2200344A93 /* ini.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B09931D23080F2200344A93 /* ini.c */; };
 		2B09932223080F2800344A93 /* INIReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B09932023080F2800344A93 /* INIReader.cpp */; };
 		2B09932523080F6400344A93 /* Colors.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B09932323080F6400344A93 /* Colors.cpp */; };
+		2B099329230837BF00344A93 /* json.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B099327230837BF00344A93 /* json.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -36,6 +37,8 @@
 		2B09932323080F6400344A93 /* Colors.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Colors.cpp; sourceTree = "<group>"; };
 		2B09932423080F6400344A93 /* Colors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Colors.h; sourceTree = "<group>"; };
 		2B0993262308259400344A93 /* cute_files.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cute_files.h; sourceTree = "<group>"; };
+		2B099327230837BF00344A93 /* json.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = json.c; sourceTree = "<group>"; };
+		2B099328230837BF00344A93 /* json.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = json.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -80,6 +83,8 @@
 		2B09931A23080EF500344A93 /* external */ = {
 			isa = PBXGroup;
 			children = (
+				2B099327230837BF00344A93 /* json.c */,
+				2B099328230837BF00344A93 /* json.h */,
 				2B0993262308259400344A93 /* cute_files.h */,
 				2B09931C23080F0E00344A93 /* inih */,
 				2B09931B23080F0900344A93 /* sokol_time.h */,
@@ -154,6 +159,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2B099329230837BF00344A93 /* json.c in Sources */,
 				2B09931F23080F2200344A93 /* ini.c in Sources */,
 				2B09932523080F6400344A93 /* Colors.cpp in Sources */,
 				2B09931523080DB300344A93 /* main.cpp in Sources */,
