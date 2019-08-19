@@ -1,3 +1,4 @@
+#include "BuildEvents.h"
 #include "Colors.h"
 
 #include <stdio.h>
@@ -176,6 +177,42 @@ static int RunStop(int argc, const char* argv[])
 }
 
 
+static int RunAnalyze(int argc, const char* argv[])
+{
+    if (argc < 3)
+    {
+        printf("%sERROR: --analyze requires <filename> to be passed.%s\n", col::kRed, col::kReset);
+        return 1;
+    }
+    
+    uint64_t tStart = stm_now();
+    
+    std::string inFile = argv[2];
+    printf("%sAnalyzing build trace from '%s'...%s\n", col::kYellow, inFile.c_str(), col::kReset);
+
+    // read file
+    FILE* ff = fopen(inFile.c_str(), "rb");
+    if (!ff)
+    {
+        printf("%sERROR: failed to open file '%s'.%s\n", col::kRed, inFile.c_str(), col::kReset);
+        return 1;
+    }
+    fseek(ff, 0, SEEK_END);
+    size_t fsize = ftell(ff);
+    fseek(ff, 0, SEEK_SET);
+    std::string inFileStr;
+    inFileStr.resize(fsize);
+    fread(&inFileStr[0], 1, fsize, ff);
+    fclose(ff);
+    
+    std::vector<BuildEvent> events = ParseBuildEvents(inFileStr);
+    
+    double tDuration = stm_sec(stm_since(tStart));
+    printf("%s  done in %.1fs.%s\n", col::kYellow, tDuration, col::kReset);
+    
+    return 0;
+}
+
 
 static int ProcessCommands(int argc, const char* argv[])
 {
@@ -183,8 +220,8 @@ static int ProcessCommands(int argc, const char* argv[])
         return RunStart(argc, argv);
     if (strcmp(argv[1], "--stop") == 0)
         return RunStop(argc, argv);
-    //if (strcmp(argv[1], "--analyze") == 0)
-    //    return RunAnalyze(argc, argv);
+    if (strcmp(argv[1], "--analyze") == 0)
+        return RunAnalyze(argc, argv);
     
     printf("%sUnsupported command line arguments%s\n", col::kRed, col::kReset);
     PrintUsage();
