@@ -4,7 +4,16 @@
 
 using json = nlohmann::json;
 
-static void FindParentChildrenIndices(std::vector<BuildEvent>& events)
+static void DebugPrintEvents(const BuildEvents& events)
+{
+    for (size_t i = 0; i < events.size(); ++i)
+    {
+        const BuildEvent& event = events[i];
+        printf("%4zi: t=%i t1=%7llu t2=%7llu par=%4i ch=%4zi det=%s\n", i, event.type, event.ts, event.ts+event.dur, event.parent, event.children.size(), event.detail.substr(0,130).c_str());
+    }
+}
+
+static void FindParentChildrenIndices(BuildEvents& events)
 {
     for (int i = 0, n = (int)events.size(); i != n; ++i)
     {
@@ -20,22 +29,25 @@ static void FindParentChildrenIndices(std::vector<BuildEvent>& events)
             }
         }
     }
-    // debug print
-    /*
-    if (events.size() < 200)
-    {
-        for (size_t i = 0; i < events.size(); ++i)
-        {
-            const BuildEvent& event = events[i];
-            printf("%4zi: t=%i t1=%7llu t2=%7llu par=%4i ch=%4zi det=%s\n", i, event.type, event.ts, event.ts+event.dur, event.parent, event.children.size(), event.detail.substr(0,130).c_str());
-        }
-    }
-     */
 }
 
-std::vector<BuildEvent> ParseBuildEvents(const std::string& jsonText)
+static void AddEvents(BuildEvents& res, const BuildEvents& add)
 {
-    std::vector<BuildEvent> res;
+    int offset = (int)res.size();
+    res.insert(res.end(), add.begin(), add.end());
+    for (size_t i = offset, n = res.size(); i != n; ++i)
+    {
+        BuildEvent& ev = res[i];
+        if (ev.parent >= 0)
+            ev.parent += offset;
+        for (auto& ch : ev.children)
+            ch += offset;
+    }
+}
+
+BuildEvents ParseBuildEvents(const std::string& jsonText)
+{
+    BuildEvents res;
     
     json js = json::parse(jsonText); //@TODO: exceptions
     const auto& jsFiles = js.find("files");
@@ -57,8 +69,9 @@ std::vector<BuildEvent> ParseBuildEvents(const std::string& jsonText)
             res.clear(); return res;
         }
         
-        std::vector<BuildEvent> fileEvents;
+        BuildEvents fileEvents;
         fileEvents.reserve(jsFileEvents->size());
+        std::string curOptModule;
         for (const auto& jsEvent : *jsFileEvents)
         {
             if (!jsEvent.is_object())
@@ -105,7 +118,7 @@ std::vector<BuildEvent> ParseBuildEvents(const std::string& jsonText)
             else if (name == "CodeGen Function")
                 continue;
             else if (name == "OptModule")
-                continue;
+                event.type = BuildEventType::kOptModule;
             else if (name == "OptFunction")
                 event.type = BuildEventType::kOptFunction;
             else if (name == "RunPass")
@@ -138,7 +151,17 @@ std::vector<BuildEvent> ParseBuildEvents(const std::string& jsonText)
         }
         
         FindParentChildrenIndices(fileEvents);
+        if (!fileEvents.empty())
+        {
+            if (fileEvents.back().parent != -1)
+            {
+                printf("%sERROR: the last trace event should be root; was not in '%s'.%s\n", col::kRed, curFileName.c_str(), col::kReset);
+                res.clear(); return res;
+            }
+        }
+        AddEvents(res, fileEvents);
     }
     
+    //DebugPrintEvents(res);
     return res;
 }

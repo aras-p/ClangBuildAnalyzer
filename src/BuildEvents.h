@@ -14,6 +14,7 @@ enum class BuildEventType
     kParseClass,
     kInstantiateClass,
     kInstantiateFunction,
+    kOptModule,
     kOptFunction,
 };
 
@@ -27,4 +28,6 @@ struct BuildEvent
     std::vector<int> children;
 };
 
-std::vector<BuildEvent> ParseBuildEvents(const std::string& jsonText);
+typedef std::vector<BuildEvent> BuildEvents;
+
+BuildEvents ParseBuildEvents(const std::string& jsonText);

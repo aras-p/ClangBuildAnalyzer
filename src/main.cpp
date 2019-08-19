@@ -1,5 +1,7 @@
+#include "Analysis.h"
 #include "BuildEvents.h"
 #include "Colors.h"
+#include "Utils.h"
 
 #include <stdio.h>
 #include <string>
@@ -205,7 +207,14 @@ static int RunAnalyze(int argc, const char* argv[])
     fread(&inFileStr[0], 1, fsize, ff);
     fclose(ff);
     
-    std::vector<BuildEvent> events = ParseBuildEvents(inFileStr);
+    BuildEvents events = ParseBuildEvents(inFileStr);
+    if (events.empty())
+    {
+        printf("%s  no trace events found.%s\n", col::kYellow, col::kReset);
+        return 1;
+    }
+    
+    DoAnalysis(events);
     
     double tDuration = stm_sec(stm_since(tStart));
     printf("%s  done in %.1fs.%s\n", col::kYellow, tDuration, col::kReset);
@@ -231,6 +240,7 @@ static int ProcessCommands(int argc, const char* argv[])
 int main(int argc, const char* argv[])
 {
     col::Initialize();
+    utils::Initialize();
     stm_setup();
     
     if (argc < 2)
