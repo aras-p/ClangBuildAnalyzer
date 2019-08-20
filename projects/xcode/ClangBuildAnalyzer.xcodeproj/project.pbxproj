@@ -14,6 +14,10 @@
 		2B09932C2309600400344A93 /* BuildEvents.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B09932B2309600400344A93 /* BuildEvents.cpp */; };
 		2B6FBE06230B0D8100095E82 /* Analysis.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B6FBE05230B0D8100095E82 /* Analysis.cpp */; };
 		2B6FBE09230B280400095E82 /* Utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B6FBE07230B280400095E82 /* Utils.cpp */; };
+		2B6FBE17230BB90300095E82 /* ItaniumDemangle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B6FBE13230BB90300095E82 /* ItaniumDemangle.cpp */; };
+		2B6FBE18230BB90300095E82 /* Demangle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B6FBE14230BB90300095E82 /* Demangle.cpp */; };
+		2B6FBE19230BB90300095E82 /* MicrosoftDemangle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B6FBE15230BB90300095E82 /* MicrosoftDemangle.cpp */; };
+		2B6FBE1A230BB90300095E82 /* MicrosoftDemangleNodes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B6FBE16230BB90300095E82 /* MicrosoftDemangleNodes.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -46,6 +50,17 @@
 		2B6FBE05230B0D8100095E82 /* Analysis.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Analysis.cpp; sourceTree = "<group>"; };
 		2B6FBE07230B280400095E82 /* Utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Utils.cpp; sourceTree = "<group>"; };
 		2B6FBE08230B280400095E82 /* Utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Utils.h; sourceTree = "<group>"; };
+		2B6FBE0C230BB8FB00095E82 /* MicrosoftDemangleNodes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MicrosoftDemangleNodes.h; path = include/MicrosoftDemangleNodes.h; sourceTree = "<group>"; };
+		2B6FBE0D230BB8FB00095E82 /* StringView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StringView.h; path = include/StringView.h; sourceTree = "<group>"; };
+		2B6FBE0E230BB8FB00095E82 /* DemangleConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DemangleConfig.h; path = include/DemangleConfig.h; sourceTree = "<group>"; };
+		2B6FBE0F230BB8FB00095E82 /* ItaniumDemangle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ItaniumDemangle.h; path = include/ItaniumDemangle.h; sourceTree = "<group>"; };
+		2B6FBE10230BB8FB00095E82 /* Utility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Utility.h; path = include/Utility.h; sourceTree = "<group>"; };
+		2B6FBE11230BB8FB00095E82 /* Demangle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Demangle.h; path = include/Demangle.h; sourceTree = "<group>"; };
+		2B6FBE12230BB8FB00095E82 /* MicrosoftDemangle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MicrosoftDemangle.h; path = include/MicrosoftDemangle.h; sourceTree = "<group>"; };
+		2B6FBE13230BB90300095E82 /* ItaniumDemangle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ItaniumDemangle.cpp; path = lib/ItaniumDemangle.cpp; sourceTree = "<group>"; };
+		2B6FBE14230BB90300095E82 /* Demangle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Demangle.cpp; path = lib/Demangle.cpp; sourceTree = "<group>"; };
+		2B6FBE15230BB90300095E82 /* MicrosoftDemangle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MicrosoftDemangle.cpp; path = lib/MicrosoftDemangle.cpp; sourceTree = "<group>"; };
+		2B6FBE16230BB90300095E82 /* MicrosoftDemangleNodes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MicrosoftDemangleNodes.cpp; path = lib/MicrosoftDemangleNodes.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -96,9 +111,10 @@
 		2B09931A23080EF500344A93 /* external */ = {
 			isa = PBXGroup;
 			children = (
-				2B09932D2309664800344A93 /* json.hpp */,
-				2B0993262308259400344A93 /* cute_files.h */,
+				2B6FBE0B230BB8DF00095E82 /* llvm-Demangle */,
 				2B09931C23080F0E00344A93 /* inih */,
+				2B0993262308259400344A93 /* cute_files.h */,
+				2B09932D2309664800344A93 /* json.hpp */,
 				2B09931B23080F0900344A93 /* sokol_time.h */,
 			);
 			path = external;
@@ -113,6 +129,24 @@
 				2B09931E23080F2200344A93 /* ini.h */,
 			);
 			path = inih;
+			sourceTree = "<group>";
+		};
+		2B6FBE0B230BB8DF00095E82 /* llvm-Demangle */ = {
+			isa = PBXGroup;
+			children = (
+				2B6FBE14230BB90300095E82 /* Demangle.cpp */,
+				2B6FBE13230BB90300095E82 /* ItaniumDemangle.cpp */,
+				2B6FBE15230BB90300095E82 /* MicrosoftDemangle.cpp */,
+				2B6FBE16230BB90300095E82 /* MicrosoftDemangleNodes.cpp */,
+				2B6FBE11230BB8FB00095E82 /* Demangle.h */,
+				2B6FBE0E230BB8FB00095E82 /* DemangleConfig.h */,
+				2B6FBE0F230BB8FB00095E82 /* ItaniumDemangle.h */,
+				2B6FBE12230BB8FB00095E82 /* MicrosoftDemangle.h */,
+				2B6FBE0C230BB8FB00095E82 /* MicrosoftDemangleNodes.h */,
+				2B6FBE0D230BB8FB00095E82 /* StringView.h */,
+				2B6FBE10230BB8FB00095E82 /* Utility.h */,
+			);
+			path = "llvm-Demangle";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -171,6 +205,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2B6FBE17230BB90300095E82 /* ItaniumDemangle.cpp in Sources */,
 				2B09932C2309600400344A93 /* BuildEvents.cpp in Sources */,
 				2B09931F23080F2200344A93 /* ini.c in Sources */,
 				2B6FBE09230B280400095E82 /* Utils.cpp in Sources */,
@@ -178,6 +213,9 @@
 				2B09931523080DB300344A93 /* main.cpp in Sources */,
 				2B09932223080F2800344A93 /* INIReader.cpp in Sources */,
 				2B6FBE06230B0D8100095E82 /* Analysis.cpp in Sources */,
+				2B6FBE1A230BB90300095E82 /* MicrosoftDemangleNodes.cpp in Sources */,
+				2B6FBE18230BB90300095E82 /* Demangle.cpp in Sources */,
+				2B6FBE19230BB90300095E82 /* MicrosoftDemangle.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

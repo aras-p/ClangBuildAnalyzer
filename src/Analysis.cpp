@@ -1,6 +1,7 @@
 #include "Analysis.h"
 #include "Colors.h"
 #include "Utils.h"
+#include "external/llvm-Demangle/include/Demangle.h"
 #include <algorithm>
 #include <assert.h>
 #include <string>
@@ -227,7 +228,7 @@ void Analysis::EndAnalysis()
 		for (size_t i = 0, n = std::min<size_t>(config.functionCount, indices.size()); i != n; ++i)
 		{
 			const auto& e = functions[indices[i]];
-            std::string dname = e.name; //@TODO demangler::Demangle(e.name);
+            std::string dname = llvm::demangle(e.name);
 			if (dname.size() > config.maxFunctionName)
 				dname = dname.substr(0, config.maxFunctionName-2) + "...";
 			printf("%s%6i%s ms: %s (%s)\n", col::kBold, e.ms, col::kReset, dname.c_str(), e.obj.c_str());
