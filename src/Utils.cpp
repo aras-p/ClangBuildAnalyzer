@@ -1,3 +1,5 @@
+// Clang Build Analyzer https://github.com/aras-p/ClangBuildAnalyzer
+// SPDX-License-Identifier: Unlicense
 #include "Utils.h"
 #ifdef _MSC_VER
 #include <windows.h>

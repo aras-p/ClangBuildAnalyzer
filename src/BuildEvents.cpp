@@ -1,3 +1,5 @@
+// Clang Build Analyzer https://github.com/aras-p/ClangBuildAnalyzer
+// SPDX-License-Identifier: Unlicense
 #include "BuildEvents.h"
 #include "Colors.h"
 #include "external/json.hpp"
