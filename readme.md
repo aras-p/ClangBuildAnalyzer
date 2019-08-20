@@ -8,6 +8,6 @@ License for the Clang Build Analyzer itself is [Unlicense](https://unlicense.org
 includes several external library source files (all under `src/external`), each with their own license:
 
 * `cute_files.h` from [RandyGaul/cute_headers](https://github.com/RandyGaul/cute_headers): zlib or public domain,
-* `json.hpp` from [nlohmann/json](https://github.com/nlohmann/json): MIT,
+* `sajson.h` from [chadaustin/sajson](https://github.com/chadaustin/sajson): MIT,
 * `sokol_time.h` from [floooh/sokol](https://github.com/floooh/sokol): zlib/libpng,
 * `llvm-Demangle`, part of [LLVM](https://llvm.org/): Apache-2.0 with LLVM-exception.
