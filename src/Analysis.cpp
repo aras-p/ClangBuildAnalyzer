@@ -4,6 +4,7 @@
 #include "Colors.h"
 #include "Utils.h"
 #include "external/llvm-Demangle/include/Demangle.h"
+#include "external/inih/cpp/INIReader.h"
 #include <algorithm>
 #include <assert.h>
 #include <string>
@@ -15,8 +16,8 @@ struct Config
 	int fileParseCount = 10;
 	int fileCodegenCount = 10;
 	int functionCount = 30;
-	int headerCount = 5;
-	int headerChainCount = 10;
+	int headerCount = 10;
+	int headerChainCount = 5;
 
 	int minFileTime = 10;
 
@@ -322,20 +323,18 @@ void Analysis::FindExpensiveHeaders()
 
 void Analysis::ReadConfig()
 {
-    /* //@TODO
 	INIReader ini("ClangBuildAnalyzer.ini");
 
-	config.fileParseCount	= ini.GetInteger("counts", "fileParse",		config.fileParseCount);
-	config.fileCodegenCount = ini.GetInteger("counts", "fileCodegen",	config.fileCodegenCount);
-	config.functionCount	= ini.GetInteger("counts", "function",		config.functionCount);
-	config.headerCount		= ini.GetInteger("counts", "header",		config.headerCount);
-	config.headerChainCount = ini.GetInteger("counts", "headerChain",	config.headerChainCount);
+	config.fileParseCount	= (int)ini.GetInteger("counts", "fileParse",	config.fileParseCount);
+	config.fileCodegenCount = (int)ini.GetInteger("counts", "fileCodegen",	config.fileCodegenCount);
+	config.functionCount	= (int)ini.GetInteger("counts", "function",		config.functionCount);
+	config.headerCount		= (int)ini.GetInteger("counts", "header",		config.headerCount);
+	config.headerChainCount = (int)ini.GetInteger("counts", "headerChain",	config.headerChainCount);
 
-	config.minFileTime		= ini.GetInteger("minTimes", "file",		config.minFileTime);
+	config.minFileTime		= (int)ini.GetInteger("minTimes", "file",		config.minFileTime);
 
-	config.maxFunctionName	= ini.GetInteger("misc", "maxFunctionLength",	config.maxFunctionName);
-	config.onlyRootHeaders	= ini.GetBoolean("misc", "onlyRootHeaders",		config.onlyRootHeaders);
-     */
+	config.maxFunctionName	= (int)ini.GetInteger("misc", "maxFunctionLength",config.maxFunctionName);
+	config.onlyRootHeaders	=      ini.GetBoolean("misc", "onlyRootHeaders",config.onlyRootHeaders);
 }
 
 
