@@ -17,12 +17,23 @@ struct Config
 	int headerChainCount = 10;
 
 	int minFileTime = 10;
-	int minFunctionTime = 3;
 
 	int maxFunctionName = 70;
 
 	bool onlyRootHeaders = true;
 };
+
+struct pair_hash
+{
+    template <class T1, class T2>
+    std::size_t operator () (const std::pair<T1,T2>& p) const
+    {
+        auto h1 = std::hash<T1>{}(p.first);
+        auto h2 = std::hash<T2>{}(p.second);
+        return h1 + 0x9e3779b9 + (h2<<6) + (h2>>2);
+    }
+};
+
 
 struct Analysis
 {
@@ -40,12 +51,6 @@ struct Analysis
 	void FindExpensiveHeaders();
 	void ReadConfig();
 
-	struct FunctionEntry
-	{
-		std::string name;
-		std::string obj;
-		int ms;
-	};
 	struct FileEntry
 	{
 		std::string file;
@@ -65,7 +70,9 @@ struct Analysis
 	};
 
 
-	std::vector<FunctionEntry> functions;
+    // key is (name,objfile), value is milliseconds
+    typedef std::pair<std::string,std::string> StringPair;
+	std::unordered_map<StringPair, int, pair_hash> functions;
 	std::vector<FileEntry> parseFiles;
 	std::vector<FileEntry> codegenFiles;
 	int totalParseMs = 0;
@@ -98,14 +105,8 @@ void Analysis::ProcessEvent(const BuildEvents& events, int eventIndex)
 
 	if (event.type == BuildEventType::kOptFunction)
 	{
-        if (ms >= config.minFunctionTime)
-        {
-            FunctionEntry fe;
-            fe.name = event.detail;
-            fe.ms = ms;
-            fe.obj = FindPath(events, eventIndex);
-            functions.emplace_back(fe);
-        }
+        auto funKey = std::make_pair(event.detail, FindPath(events, eventIndex));
+        functions[funKey] += ms;
 	}
 
 	if (event.type == BuildEventType::kFrontend)
@@ -215,23 +216,29 @@ void Analysis::EndAnalysis()
 
 	if (!functions.empty())
 	{
-		std::vector<int> indices;
-		indices.resize(functions.size());
-		for (size_t i = 0; i < functions.size(); ++i)
-			indices[i] = int(i);
+        std::vector<std::pair<StringPair, int>> functionsArray;
+        std::vector<int> indices;
+        functionsArray.reserve(functions.size());
+		indices.reserve(functions.size());
+        for (const auto& fn : functions)
+        {
+            functionsArray.emplace_back(std::make_pair(fn.first, fn.second));
+            indices.emplace_back(indices.size());
+        }
+        
 		std::sort(indices.begin(), indices.end(), [&](int indexA, int indexB) {
-			const auto& a = functions[indexA];
-			const auto& b = functions[indexB];
-			return a.ms > b.ms;
+			const auto& a = functionsArray[indexA];
+			const auto& b = functionsArray[indexB];
+			return a.second > b.second;
 			});
 		printf("%s%s**** Functions that took longest to compile%s:\n", col::kBold, col::kMagenta, col::kReset);
 		for (size_t i = 0, n = std::min<size_t>(config.functionCount, indices.size()); i != n; ++i)
 		{
-			const auto& e = functions[indices[i]];
-            std::string dname = llvm::demangle(e.name);
+			const auto& e = functionsArray[indices[i]];
+            std::string dname = llvm::demangle(e.first.first);
 			if (dname.size() > config.maxFunctionName)
 				dname = dname.substr(0, config.maxFunctionName-2) + "...";
-			printf("%s%6i%s ms: %s (%s)\n", col::kBold, e.ms, col::kReset, dname.c_str(), e.obj.c_str());
+			printf("%s%6i%s ms: %s (%s)\n", col::kBold, e.second, col::kReset, dname.c_str(), e.first.second.c_str());
 		}
 		printf("\n");
 	}
@@ -299,7 +306,6 @@ void Analysis::ReadConfig()
 	config.headerChainCount = ini.GetInteger("counts", "headerChain",	config.headerChainCount);
 
 	config.minFileTime		= ini.GetInteger("minTimes", "file",		config.minFileTime);
-	config.minFunctionTime	= ini.GetInteger("minTimes", "function",	config.minFunctionTime);
 
 	config.maxFunctionName	= ini.GetInteger("misc", "maxFunctionLength",	config.maxFunctionName);
 	config.onlyRootHeaders	= ini.GetBoolean("misc", "onlyRootHeaders",		config.onlyRootHeaders);
