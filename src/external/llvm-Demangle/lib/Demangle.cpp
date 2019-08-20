@@ -10,7 +10,7 @@
 ///
 //===----------------------------------------------------------------------===//
 
-#include "llvm/Demangle/Demangle.h"
+#include "../include/Demangle.h"
 #include <cstdlib>
 
 static bool isItaniumEncoding(const std::string &MangledName) {

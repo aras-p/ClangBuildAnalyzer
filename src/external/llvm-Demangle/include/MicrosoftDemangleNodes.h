@@ -13,8 +13,8 @@
 #ifndef LLVM_SUPPORT_MICROSOFTDEMANGLENODES_H
 #define LLVM_SUPPORT_MICROSOFTDEMANGLENODES_H
 
-#include "llvm/Demangle/DemangleConfig.h"
-#include "llvm/Demangle/StringView.h"
+#include "DemangleConfig.h"
+#include "StringView.h"
 #include <array>
 #include <cstdint>
 #include <string>

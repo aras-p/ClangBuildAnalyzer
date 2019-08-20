@@ -10,8 +10,8 @@
 // file does not yet support:
 //   - C++ modules TS
 
-#include "llvm/Demangle/Demangle.h"
-#include "llvm/Demangle/ItaniumDemangle.h"
+#include "../include/Demangle.h"
+#include "../include/ItaniumDemangle.h"
 
 #include <cassert>
 #include <cctype>

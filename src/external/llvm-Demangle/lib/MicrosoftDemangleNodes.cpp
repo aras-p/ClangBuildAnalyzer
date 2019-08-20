@@ -10,9 +10,9 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "llvm/Demangle/MicrosoftDemangleNodes.h"
-#include "llvm/Demangle/DemangleConfig.h"
-#include "llvm/Demangle/Utility.h"
+#include "../include/MicrosoftDemangleNodes.h"
+#include "../include/DemangleConfig.h"
+#include "../include/Utility.h"
 #include <cctype>
 #include <string>
 
