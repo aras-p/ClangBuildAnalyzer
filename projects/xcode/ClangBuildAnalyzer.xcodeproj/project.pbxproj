@@ -18,6 +18,7 @@
 		2B6FBE18230BB90300095E82 /* Demangle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B6FBE14230BB90300095E82 /* Demangle.cpp */; };
 		2B6FBE19230BB90300095E82 /* MicrosoftDemangle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B6FBE15230BB90300095E82 /* MicrosoftDemangle.cpp */; };
 		2B6FBE1A230BB90300095E82 /* MicrosoftDemangleNodes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B6FBE16230BB90300095E82 /* MicrosoftDemangleNodes.cpp */; };
+		2B6FBE1C230BC62600095E82 /* Allocator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B6FBE1B230BC62600095E82 /* Allocator.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -61,6 +62,7 @@
 		2B6FBE14230BB90300095E82 /* Demangle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Demangle.cpp; path = lib/Demangle.cpp; sourceTree = "<group>"; };
 		2B6FBE15230BB90300095E82 /* MicrosoftDemangle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MicrosoftDemangle.cpp; path = lib/MicrosoftDemangle.cpp; sourceTree = "<group>"; };
 		2B6FBE16230BB90300095E82 /* MicrosoftDemangleNodes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MicrosoftDemangleNodes.cpp; path = lib/MicrosoftDemangleNodes.cpp; sourceTree = "<group>"; };
+		2B6FBE1B230BC62600095E82 /* Allocator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Allocator.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -93,7 +95,7 @@
 		2B09931323080D9500344A93 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				2B09931A23080EF500344A93 /* external */,
+				2B6FBE1B230BC62600095E82 /* Allocator.cpp */,
 				2B6FBE05230B0D8100095E82 /* Analysis.cpp */,
 				2B6FBE04230B0D8100095E82 /* Analysis.h */,
 				2B09932B2309600400344A93 /* BuildEvents.cpp */,
@@ -103,6 +105,7 @@
 				2B09931423080DB300344A93 /* main.cpp */,
 				2B6FBE07230B280400095E82 /* Utils.cpp */,
 				2B6FBE08230B280400095E82 /* Utils.h */,
+				2B09931A23080EF500344A93 /* external */,
 			);
 			name = src;
 			path = ../../src;
@@ -216,6 +219,7 @@
 				2B6FBE1A230BB90300095E82 /* MicrosoftDemangleNodes.cpp in Sources */,
 				2B6FBE18230BB90300095E82 /* Demangle.cpp in Sources */,
 				2B6FBE19230BB90300095E82 /* MicrosoftDemangle.cpp in Sources */,
+				2B6FBE1C230BC62600095E82 /* Allocator.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

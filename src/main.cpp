@@ -98,7 +98,7 @@ struct JsonFileFinder
             return;
         
         files.insert(std::make_pair(f->path, str));
-        printf("    debug: reading %s\n", f->path);
+        //printf("    debug: reading %s\n", f->path);
     }
 
     static void Callback(cf_file_t* f, void* userData)
