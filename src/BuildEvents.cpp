@@ -31,10 +31,11 @@ static void FindParentChildrenIndices(BuildEvents& events)
     }
 }
 
-static void AddEvents(BuildEvents& res, const BuildEvents& add)
+static void AddEvents(BuildEvents& res, BuildEvents& add)
 {
     int offset = (int)res.size();
-    res.insert(res.end(), add.begin(), add.end());
+    std::move(add.begin(), add.end(), std::back_inserter(res));
+    add.clear();
     for (size_t i = offset, n = res.size(); i != n; ++i)
     {
         BuildEvent& ev = res[i];
@@ -47,8 +48,10 @@ static void AddEvents(BuildEvents& res, const BuildEvents& add)
 
 struct JsonTraverser
 {
+    JsonTraverser(BuildEvents& outEvents) : resultEvents(outEvents) { }
+    
     std::string curFileName;
-    BuildEvents resultEvents;
+    BuildEvents& resultEvents;
     BuildEvents fileEvents;
 
     void ParseRoot(const sajson::value& node)
@@ -116,6 +119,24 @@ struct JsonTraverser
         AddEvents(resultEvents, fileEvents);
     }
     
+    static bool StrEqual(const sajson::string& s1, const sajson::string& s2)
+    {
+        if (s1.length() != s2.length())
+            return false;
+        if (memcmp(s1.data(), s2.data(), s2.length()) != 0)
+            return false;
+        return true;
+    }
+    
+    const sajson::string kPid = sajson::literal("pid");
+    const sajson::string kTid = sajson::literal("tid");
+    const sajson::string kPh = sajson::literal("ph");
+    const sajson::string kName = sajson::literal("name");
+    const sajson::string kTs = sajson::literal("ts");
+    const sajson::string kDur = sajson::literal("dur");
+    const sajson::string kArgs = sajson::literal("args");
+    const sajson::string kDetail = sajson::literal("detail");
+
     void ParseEvent(const sajson::value& node)
     {
         if (node.get_type() != sajson::TYPE_OBJECT)
@@ -125,89 +146,105 @@ struct JsonTraverser
             return;
         }
         
-        const auto& nodePid = node.get_value_of_key(sajson::literal("pid"));
-        if (nodePid.get_type() == sajson::TYPE_INTEGER && nodePid.get_integer_value() != 1)
-            return;
-        const auto& nodeTid = node.get_value_of_key(sajson::literal("tid"));
-        if (nodeTid.get_type() == sajson::TYPE_INTEGER && nodeTid.get_integer_value() != 0)
-            return;
-        const auto& nodePh = node.get_value_of_key(sajson::literal("ph"));
-        if (nodePh.get_type() != sajson::TYPE_STRING || strcmp(nodePh.as_cstring(), "X") != 0)
-            return;
-
-        const auto& nodeName = node.get_value_of_key(sajson::literal("name"));
-        if (nodeName.get_type() != sajson::TYPE_STRING)
-            return;
-
-        const char* name = nodeName.as_cstring();
         BuildEvent event;
-        if (!strcmp(name, "ExecuteCompiler"))
-            event.type = BuildEventType::kCompiler;
-        else if (!strcmp(name, "Frontend"))
-            event.type = BuildEventType::kFrontend;
-        else if (!strcmp(name, "Backend"))
-            event.type = BuildEventType::kBackend;
-        else if (!strcmp(name, "Source"))
-            event.type = BuildEventType::kParseFile;
-        else if (!strcmp(name, "ParseTemplate"))
-            event.type = BuildEventType::kParseTemplate;
-        else if (!strcmp(name, "ParseClass"))
-            event.type = BuildEventType::kParseClass;
-        else if (!strcmp(name, "InstantiateClass"))
-            event.type = BuildEventType::kInstantiateClass;
-        else if (!strcmp(name, "InstantiateFunction"))
-            event.type = BuildEventType::kInstantiateFunction;
-        else if (!strcmp(name, "PerformPendingInstantiations"))
-            ;
-        else if (!strcmp(name, "CodeGen Function"))
-            ;
-        else if (!strcmp(name, "OptModule"))
-            event.type = BuildEventType::kOptModule;
-        else if (!strcmp(name, "OptFunction"))
-            event.type = BuildEventType::kOptFunction;
-        else if (!strcmp(name, "RunPass"))
-            ;
-        else if (!strcmp(name, "RunLoopPass"))
-            ;
-        else
+        for (size_t i = 0, n = node.get_length(); i != n; ++i)
         {
-            printf("%sWARN: unknown trace event '%s' in '%s', skipping.%s\n", col::kYellow, name, curFileName.c_str(), col::kReset);
+            const auto& nodeKey = node.get_object_key(i);
+            const auto& nodeVal = node.get_object_value(i);
+            if (StrEqual(nodeKey, kPid))
+            {
+                if (nodeVal.get_type() == sajson::TYPE_INTEGER && nodeVal.get_integer_value() != 1)
+                    return;
+            }
+            else if (StrEqual(nodeKey, kTid))
+            {
+                if (nodeVal.get_type() == sajson::TYPE_INTEGER && nodeVal.get_integer_value() != 0)
+                    return;
+            }
+            else if (StrEqual(nodeKey, kPh))
+            {
+                if (nodeVal.get_type() != sajson::TYPE_STRING || strcmp(nodeVal.as_cstring(), "X") != 0)
+                    return;
+            }
+            else if (StrEqual(nodeKey, kName))
+            {
+                if (nodeVal.get_type() != sajson::TYPE_STRING)
+                    return;
+                const char* name = nodeVal.as_cstring();
+                if (!strcmp(name, "ExecuteCompiler"))
+                    event.type = BuildEventType::kCompiler;
+                else if (!strcmp(name, "Frontend"))
+                    event.type = BuildEventType::kFrontend;
+                else if (!strcmp(name, "Backend"))
+                    event.type = BuildEventType::kBackend;
+                else if (!strcmp(name, "Source"))
+                    event.type = BuildEventType::kParseFile;
+                else if (!strcmp(name, "ParseTemplate"))
+                    event.type = BuildEventType::kParseTemplate;
+                else if (!strcmp(name, "ParseClass"))
+                    event.type = BuildEventType::kParseClass;
+                else if (!strcmp(name, "InstantiateClass"))
+                    event.type = BuildEventType::kInstantiateClass;
+                else if (!strcmp(name, "InstantiateFunction"))
+                    event.type = BuildEventType::kInstantiateFunction;
+                else if (!strcmp(name, "PerformPendingInstantiations"))
+                    ;
+                else if (!strcmp(name, "CodeGen Function"))
+                    ;
+                else if (!strcmp(name, "OptModule"))
+                    event.type = BuildEventType::kOptModule;
+                else if (!strcmp(name, "OptFunction"))
+                    event.type = BuildEventType::kOptFunction;
+                else if (!strcmp(name, "RunPass"))
+                    ;
+                else if (!strcmp(name, "RunLoopPass"))
+                    ;
+                else
+                {
+                    printf("%sWARN: unknown trace event '%s' in '%s', skipping.%s\n", col::kYellow, name, curFileName.c_str(), col::kReset);
+                }
+                if (event.type== BuildEventType::kUnknown)
+                    return;
+            }
+            else if (StrEqual(nodeKey, kTs))
+            {
+                if (nodeVal.get_type() != sajson::TYPE_INTEGER)
+                    return;
+                event.ts = nodeVal.get_integer_value();
+            }
+            else if (StrEqual(nodeKey, kDur))
+            {
+                if (nodeVal.get_type() != sajson::TYPE_INTEGER)
+                    return;
+                event.dur = nodeVal.get_integer_value();
+            }
+            else if (StrEqual(nodeKey, kArgs))
+            {
+                if (nodeVal.get_type() == sajson::TYPE_OBJECT && nodeVal.get_length() == 1)
+                {
+                    const auto& nodeDetail = nodeVal.get_object_value(0);
+                    if (nodeDetail.get_type() == sajson::TYPE_STRING)
+                        event.detail = nodeDetail.as_string();
+                }
+            }
         }
-        if (event.type== BuildEventType::kUnknown)
-            return;
         
-        const auto& nodeTs = node.get_value_of_key(sajson::literal("ts"));
-        const auto& nodeDur = node.get_value_of_key(sajson::literal("dur"));
-        if (nodeTs.get_type() != sajson::TYPE_INTEGER || nodeDur.get_type() != sajson::TYPE_INTEGER)
-            return;
-        
-        event.ts = nodeTs.get_integer_value();
-        event.dur = nodeDur.get_integer_value();
-        
-        const auto& nodeArgs = node.get_value_of_key(sajson::literal("args"));
-        if (nodeArgs.get_type() == sajson::TYPE_OBJECT)
-        {
-            const auto& nodeDetail = nodeArgs.get_value_of_key(sajson::literal("detail"));
-            if (nodeDetail.get_type() == sajson::TYPE_STRING)
-                event.detail = nodeDetail.as_string();
-        }
         if (event.detail.empty() && event.type == BuildEventType::kCompiler)
             event.detail = curFileName;
-        fileEvents.push_back(event);
+        fileEvents.emplace_back(event);
     }
 };
 
-BuildEvents ParseBuildEvents(std::string& jsonText)
+void ParseBuildEvents(std::string& jsonText, BuildEvents& outEvents)
 {
     const sajson::document& doc = sajson::parse(sajson::dynamic_allocation(), sajson::mutable_string_view(jsonText.size(), &jsonText[0]));
     if (!doc.is_valid())
     {
         printf("%sERROR: JSON parse error %s.%s\n", col::kRed, doc.get_error_message_as_cstring(), col::kReset);
-        return BuildEvents();
+        return;
     }
     
-    JsonTraverser traverser;
+    JsonTraverser traverser(outEvents);
     traverser.ParseRoot(doc.get_root());
-    //DebugPrintEvents(sax.resultEvents);
-    return traverser.resultEvents;
+    //DebugPrintEvents(outEvents);
 }

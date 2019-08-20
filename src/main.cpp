@@ -209,7 +209,9 @@ static int RunAnalyze(int argc, const char* argv[])
     fread(&inFileStr[0], 1, fsize, ff);
     fclose(ff);
     
-    BuildEvents events = ParseBuildEvents(inFileStr);
+    BuildEvents events;
+    events.reserve(2048);
+    ParseBuildEvents(inFileStr, events);
     if (events.empty())
     {
         printf("%s  no trace events found.%s\n", col::kYellow, col::kReset);

@@ -32,4 +32,4 @@ struct BuildEvent
 
 typedef std::vector<BuildEvent> BuildEvents;
 
-BuildEvents ParseBuildEvents(std::string& jsonText);
+void ParseBuildEvents(std::string& jsonText, BuildEvents& outEvents);
