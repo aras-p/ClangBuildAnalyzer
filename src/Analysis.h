@@ -4,4 +4,4 @@
 
 #include "BuildEvents.h"
 
-void DoAnalysis(const BuildEvents& events);
+void DoAnalysis(const BuildEvents& events, BuildNames& names);

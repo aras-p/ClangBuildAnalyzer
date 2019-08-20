@@ -25,11 +25,12 @@ struct BuildEvent
     BuildEventType type = BuildEventType::kUnknown;
     uint64_t ts = 0;
     uint64_t dur = 0;
-    std::string detail;
+    int detailIndex;
     int parent = -1;
     std::vector<int> children;
 };
 
+typedef std::vector<std::string> BuildNames;
 typedef std::vector<BuildEvent> BuildEvents;
 
-void ParseBuildEvents(std::string& jsonText, BuildEvents& outEvents);
+void ParseBuildEvents(std::string& jsonText, BuildEvents& outEvents, BuildNames& outNames);

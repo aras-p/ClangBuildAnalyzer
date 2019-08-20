@@ -3,13 +3,14 @@
 #include "BuildEvents.h"
 #include "Colors.h"
 #include "external/sajson.h"
+#include <unordered_map>
 
-static void DebugPrintEvents(const BuildEvents& events)
+static void DebugPrintEvents(const BuildEvents& events, const BuildNames& names)
 {
     for (size_t i = 0; i < events.size(); ++i)
     {
         const BuildEvent& event = events[i];
-        printf("%4zi: t=%i t1=%7llu t2=%7llu par=%4i ch=%4zi det=%s\n", i, event.type, event.ts, event.ts+event.dur, event.parent, event.children.size(), event.detail.substr(0,130).c_str());
+        printf("%4zi: t=%i t1=%7llu t2=%7llu par=%4i ch=%4zi det=%s\n", i, event.type, event.ts, event.ts+event.dur, event.parent, event.children.size(), names[event.detailIndex].substr(0,130).c_str());
     }
 }
 
@@ -48,11 +49,29 @@ static void AddEvents(BuildEvents& res, BuildEvents& add)
 
 struct JsonTraverser
 {
-    JsonTraverser(BuildEvents& outEvents) : resultEvents(outEvents) { }
+    JsonTraverser(BuildEvents& outEvents, BuildNames& outNames)
+    : resultEvents(outEvents), resultNames(outNames)
+    {
+        NameToIndex(""); // make sure zero index is empty
+    }
     
     std::string curFileName;
     BuildEvents& resultEvents;
+    BuildNames& resultNames;
     BuildEvents fileEvents;
+
+    std::unordered_map<std::string, int> nameToIndex;
+    
+    int NameToIndex(const std::string& name)
+    {
+        auto it = nameToIndex.find(name);
+        if (it != nameToIndex.end())
+            return it->second;
+        int index = (int)nameToIndex.size();
+        nameToIndex.insert(std::make_pair(name, index));
+        resultNames.push_back(name);
+        return index;
+    }
 
     void ParseRoot(const sajson::value& node)
     {
@@ -224,18 +243,18 @@ struct JsonTraverser
                 {
                     const auto& nodeDetail = nodeVal.get_object_value(0);
                     if (nodeDetail.get_type() == sajson::TYPE_STRING)
-                        event.detail = nodeDetail.as_string();
+                        event.detailIndex = NameToIndex(nodeDetail.as_string());
                 }
             }
         }
         
-        if (event.detail.empty() && event.type == BuildEventType::kCompiler)
-            event.detail = curFileName;
+        if (event.detailIndex == 0 && event.type == BuildEventType::kCompiler)
+            event.detailIndex = NameToIndex(curFileName);
         fileEvents.emplace_back(event);
     }
 };
 
-void ParseBuildEvents(std::string& jsonText, BuildEvents& outEvents)
+void ParseBuildEvents(std::string& jsonText, BuildEvents& outEvents, BuildNames& outNames)
 {
     const sajson::document& doc = sajson::parse(sajson::dynamic_allocation(), sajson::mutable_string_view(jsonText.size(), &jsonText[0]));
     if (!doc.is_valid())
@@ -244,7 +263,7 @@ void ParseBuildEvents(std::string& jsonText, BuildEvents& outEvents)
         return;
     }
     
-    JsonTraverser traverser(outEvents);
+    JsonTraverser traverser(outEvents, outNames);
     traverser.ParseRoot(doc.get_root());
-    //DebugPrintEvents(outEvents);
+    //DebugPrintEvents(outEvents, outEvents);
 }

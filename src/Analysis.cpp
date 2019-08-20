@@ -39,28 +39,48 @@ struct pair_hash
 
 struct Analysis
 {
-	Analysis()
+	Analysis(const BuildEvents& events_, BuildNames& buildNames_)
+    : events(events_)
+    , buildNames(buildNames_)
+    , buildNamesDone(buildNames_.size(), 0)
 	{
+        buildNamesDone.resize(buildNames.size());
 		functions.reserve(256);
 		parseFiles.reserve(64);
 		codegenFiles.reserve(64);
 		headerMap.reserve(256);
 	}
+    
+    const BuildEvents& events;
+    BuildNames& buildNames;
+    std::vector<char> buildNamesDone;
+    
+    const std::string& GetBuildName(int index)
+    {
+        if (!buildNamesDone[index])
+        {
+            buildNames[index] = utils::GetNicePath(buildNames[index]);
+            buildNamesDone[index] = 1;
+        }
+        return buildNames[index];
+    }
 
-	void ProcessEvent(const BuildEvents& events, int eventIndex);
+	void ProcessEvent(int eventIndex);
 	void EndAnalysis();
 
 	void FindExpensiveHeaders();
 	void ReadConfig();
+    
+    int FindPath(int eventIndex) const;
 
 	struct FileEntry
 	{
-		std::string file;
+		int file;
 		int ms;
 	};
 	struct IncludeChain
 	{
-		std::vector<std::string> files;
+		std::vector<int> files;
 		int ms = 0;
 	};
 	struct IncludeEntry
@@ -73,8 +93,8 @@ struct Analysis
 
 
     // key is (name,objfile), value is milliseconds
-    typedef std::pair<std::string,std::string> StringPair;
-	std::unordered_map<StringPair, int, pair_hash> functions;
+    typedef std::pair<int,int> IndexPair;
+	std::unordered_map<IndexPair, int, pair_hash> functions;
 	std::vector<FileEntry> parseFiles;
 	std::vector<FileEntry> codegenFiles;
 	int totalParseMs = 0;
@@ -87,27 +107,27 @@ struct Analysis
 	Config config;
 };
 
-static std::string FindPath(const BuildEvents& events, int eventIndex)
+int Analysis::FindPath(int eventIndex) const
 {
     while(eventIndex >= 0)
     {
         const BuildEvent& ev = events[eventIndex];
         if (ev.type == BuildEventType::kCompiler || ev.type == BuildEventType::kFrontend || ev.type == BuildEventType::kBackend || ev.type == BuildEventType::kOptModule)
-            if (!ev.detail.empty())
-                return utils::GetNicePath(ev.detail);
+            if (ev.detailIndex != 0)
+                return ev.detailIndex;
         eventIndex = ev.parent;
     }
-    return "<unknown>";
+    return 0;
 }
 
-void Analysis::ProcessEvent(const BuildEvents& events, int eventIndex)
+void Analysis::ProcessEvent(int eventIndex)
 {
     const BuildEvent& event = events[eventIndex];
     const int ms = int(event.dur / 1000);
 
 	if (event.type == BuildEventType::kOptFunction)
 	{
-        auto funKey = std::make_pair(event.detail, FindPath(events, eventIndex));
+        auto funKey = std::make_pair(event.detailIndex, FindPath(eventIndex));
         functions[funKey] += ms;
 	}
 
@@ -118,7 +138,7 @@ void Analysis::ProcessEvent(const BuildEvents& events, int eventIndex)
 		if (ms >= config.minFileTime)
 		{
 			FileEntry fe;
-            fe.file = FindPath(events, eventIndex);
+            fe.file = FindPath(eventIndex);
 			fe.ms = ms;
 			parseFiles.emplace_back(fe);
 		}
@@ -129,14 +149,14 @@ void Analysis::ProcessEvent(const BuildEvents& events, int eventIndex)
 		if (ms >= config.minFileTime)
 		{
             FileEntry fe;
-            fe.file = FindPath(events, eventIndex);
+            fe.file = FindPath(eventIndex);
             fe.ms = ms;
             codegenFiles.emplace_back(fe);
 		}
 	}
 	if (event.type == BuildEventType::kParseFile)
 	{
-        std::string path = utils::GetNicePath(event.detail);
+        std::string path = GetBuildName(event.detailIndex);
         if (utils::IsHeader(path))
         {
             IncludeEntry& e = headerMap[path];
@@ -154,9 +174,9 @@ void Analysis::ProcessEvent(const BuildEvents& events, int eventIndex)
                 const BuildEvent& ev2 = events[parseIndex];
                 if (ev2.type != BuildEventType::kParseFile)
                     break;
-                std::string path = utils::GetNicePath(ev2.detail);
-                chain.files.push_back(path);
-                bool isHeader = utils::IsHeader(path);
+                std::string ev2path = GetBuildName(ev2.detailIndex);
+                chain.files.push_back(ev2.detailIndex);
+                bool isHeader = utils::IsHeader(ev2path);
                 hasHeaderBefore |= isHeader;
                 hasNonHeaderBefore |= !isHeader;
                 parseIndex = ev2.parent;
@@ -165,7 +185,7 @@ void Analysis::ProcessEvent(const BuildEvents& events, int eventIndex)
             // only add top-level source path if there was no non-header file down below
             // the include chain (the top-level might be lump/unity file)
             if (!hasNonHeaderBefore)
-                chain.files.push_back(FindPath(events, eventIndex));
+                chain.files.push_back(FindPath(eventIndex));
             e.root |= !hasHeaderBefore;
             e.includePaths.push_back(chain);
         }
@@ -198,7 +218,7 @@ void Analysis::EndAnalysis()
 		for (size_t i = 0, n = std::min<size_t>(config.fileParseCount, indices.size()); i != n; ++i)
 		{
 			const auto& e = parseFiles[indices[i]];
-			printf("%s%6i%s ms: %s\n", col::kBold, e.ms, col::kReset, e.file.c_str());
+			printf("%s%6i%s ms: %s\n", col::kBold, e.ms, col::kReset, GetBuildName(e.file).c_str());
 		}
 		printf("\n");
 	}
@@ -217,14 +237,14 @@ void Analysis::EndAnalysis()
 		for (size_t i = 0, n = std::min<size_t>(config.fileCodegenCount, indices.size()); i != n; ++i)
 		{
 			const auto& e = codegenFiles[indices[i]];
-			printf("%s%6i%s ms: %s\n", col::kBold, e.ms, col::kReset, e.file.c_str());
+			printf("%s%6i%s ms: %s\n", col::kBold, e.ms, col::kReset, GetBuildName(e.file).c_str());
 		}
 		printf("\n");
 	}
 
 	if (!functions.empty())
 	{
-        std::vector<std::pair<StringPair, int>> functionsArray;
+        std::vector<std::pair<IndexPair, int>> functionsArray;
         std::vector<int> indices;
         functionsArray.reserve(functions.size());
 		indices.reserve(functions.size());
@@ -243,10 +263,10 @@ void Analysis::EndAnalysis()
 		for (size_t i = 0, n = std::min<size_t>(config.functionCount, indices.size()); i != n; ++i)
 		{
 			const auto& e = functionsArray[indices[i]];
-            std::string dname = llvm::demangle(e.first.first);
+            std::string dname = llvm::demangle(GetBuildName(e.first.first));
 			if (dname.size() > config.maxFunctionName)
 				dname = dname.substr(0, config.maxFunctionName-2) + "...";
-			printf("%s%6i%s ms: %s (%s)\n", col::kBold, e.second, col::kReset, dname.c_str(), e.first.second.c_str());
+			printf("%s%6i%s ms: %s (%s)\n", col::kBold, e.second, col::kReset, dname.c_str(), GetBuildName(e.first.second).c_str());
 		}
 		printf("\n");
 	}
@@ -270,7 +290,7 @@ void Analysis::EndAnalysis()
 				printf("  ");
                 for (auto it = chain.files.rbegin(), itEnd = chain.files.rend(); it != itEnd; ++it)
 				{
-                    printf("%s ", utils::GetFilename(*it).c_str());
+                    printf("%s ", utils::GetFilename(GetBuildName(*it)).c_str());
 				}
 				printf(" (%i ms)\n", chain.ms);
 				++pathCount;
@@ -319,11 +339,11 @@ void Analysis::ReadConfig()
 }
 
 
-void DoAnalysis(const BuildEvents& events)
+void DoAnalysis(const BuildEvents& events, BuildNames& names)
 {
-    Analysis a;
+    Analysis a(events, names);
     a.ReadConfig();
     for (int i = 0, n = (int)events.size(); i != n; ++i)
-        a.ProcessEvent(events, i);
+        a.ProcessEvent(i);
     a.EndAnalysis();
 }
