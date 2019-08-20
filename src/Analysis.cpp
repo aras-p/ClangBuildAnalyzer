@@ -137,30 +137,36 @@ void Analysis::ProcessEvent(const BuildEvents& events, int eventIndex)
 	if (event.type == BuildEventType::kParseFile)
 	{
         std::string path = utils::GetNicePath(event.detail);
-
-		IncludeEntry& e = headerMap[path];
-		e.ms += ms;
-		++e.count;
-
-		// record chain of ParseFile entries leading up to this one
-        IncludeChain chain;
-        int parseIndex = event.parent;
-        bool hasHeaderBeforeIt = false;
-        while(parseIndex >= 0)
+        if (utils::IsHeader(path))
         {
-            const BuildEvent& ev2 = events[parseIndex];
-            if (ev2.type != BuildEventType::kParseFile)
-                break;
-            std::string path = utils::GetNicePath(ev2.detail);
-            chain.files.push_back(path);
-            //chain.ms += //@TODO add exclusive duration
-            //@TODO hasHeaderBeforeIt |= utils::IsHeader(path);
-            parseIndex = ev2.parent;
-        }
-        
-        if (!chain.files.empty())
-        {
-            e.root |= !hasHeaderBeforeIt;
+            IncludeEntry& e = headerMap[path];
+            e.ms += ms;
+            ++e.count;
+
+            // record chain of ParseFile entries leading up to this one
+            IncludeChain chain;
+            chain.ms = ms;
+            int parseIndex = event.parent;
+            bool hasHeaderBefore = false;
+            bool hasNonHeaderBefore = false;
+            while(parseIndex >= 0)
+            {
+                const BuildEvent& ev2 = events[parseIndex];
+                if (ev2.type != BuildEventType::kParseFile)
+                    break;
+                std::string path = utils::GetNicePath(ev2.detail);
+                chain.files.push_back(path);
+                bool isHeader = utils::IsHeader(path);
+                hasHeaderBefore |= isHeader;
+                hasNonHeaderBefore |= !isHeader;
+                parseIndex = ev2.parent;
+            }
+
+            // only add top-level source path if there was no non-header file down below
+            // the include chain (the top-level might be lump/unity file)
+            if (!hasNonHeaderBefore)
+                chain.files.push_back(FindPath(events, eventIndex));
+            e.root |= !hasHeaderBefore;
             e.includePaths.push_back(chain);
         }
 	}
@@ -253,7 +259,7 @@ void Analysis::EndAnalysis()
 		for (const auto& e : expensiveHeaders)
 		{
 			const auto& es = headerMap[e.first];
-			printf("-%s%6i%s ms: %s%s%s (included %i times, avg %i ms), included via:\n", col::kBold, e.second, col::kReset, col::kBold, e.first.c_str(), col::kReset, es.count, e.second / es.count);
+			printf("%s%i%s ms: %s%s%s (included %i times, avg %i ms), included via:\n", col::kBold, e.second, col::kReset, col::kBold, e.first.c_str(), col::kReset, es.count, e.second / es.count);
 			int pathCount = 0;
 
 			auto sortedIncludeChains = es.includePaths;
@@ -285,8 +291,6 @@ void Analysis::FindExpensiveHeaders()
 	expensiveHeaders.reserve(headerMap.size());
 	for (const auto& kvp : headerMap)
 	{
-		if (kvp.second.includePaths.empty())
-			continue; // not included by anything (just a source file)
 		if (config.onlyRootHeaders && !kvp.second.root)
 			continue;
 		expensiveHeaders.push_back(std::make_pair(kvp.first, kvp.second.ms));

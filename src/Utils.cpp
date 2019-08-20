@@ -8,6 +8,7 @@
 #endif
 
 static std::string s_CurrentDir;
+static std::string s_Root = "./";
 
 inline char ToLower(char c) { return (c >= 'A' && c <= 'Z') ? (c + 'a' - 'A') : c; }
 inline char ToUpper(char c) { return (c >= 'a' && c <= 'z') ? (c - ('a' - 'A')) : c; }
@@ -108,6 +109,8 @@ std::string utils::GetNicePath(const char* path)
 		utils::ForwardSlashify(res);
 		return res;
 	}
+    if (ptr[0] == '.' && ptr[1] == '/')
+        ptr += 2;
 
 	std::string res = ptr;
 	utils::ForwardSlashify(res);
@@ -121,6 +124,8 @@ std::string utils::GetNicePath(const std::string& path)
 	ForwardSlashify(res);
 	if (BeginsWith(res, s_CurrentDir))
 		res = res.substr(s_CurrentDir.size(), res.size() - s_CurrentDir.size());
+    if (BeginsWith(res, s_Root))
+        res = res.substr(s_Root.size(), res.size() - s_Root.size());
 	return res;
 }
 
