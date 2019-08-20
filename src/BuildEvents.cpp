@@ -47,181 +47,153 @@ static void AddEvents(BuildEvents& res, const BuildEvents& add)
 
 struct JsonTraverser
 {
-    enum State
-    {
-        kRoot,
-        kFiles,
-        kFile,
-        kEvent,
-        kArgs
-    };
-    State state = kRoot;
     std::string curFileName;
     BuildEvents resultEvents;
     BuildEvents fileEvents;
 
-    int curPid = 1, curTid = 0;
-    std::string curPh;
-    uint64_t curTs = 0, curDur = 0;
-    std::string curName;
-    std::string curDetail;
-    std::string curKey;
-    
-    void traverse(const sajson::value& node)
+    void ParseRoot(const sajson::value& node)
     {
-        switch(node.get_type())
+        if (node.get_type() != sajson::TYPE_OBJECT)
         {
-            case sajson::TYPE_OBJECT:
-                if (state == kEvent)
-                {
-                    curPid = 1;
-                    curTid = 0;
-                    curPh.clear();
-                    curTs = curDur = 0;
-                    curName.clear();
-                    curDetail.clear();
-                    curKey.clear();
-                }
-                
-                for (size_t i = 0, n = node.get_length(); i != n; ++i)
-                {
-                    const auto& key = node.get_object_key(i).as_string();
-                    switch (state)
-                    {
-                        case kRoot:
-                            if (key == "files")
-                                state = kFiles;
-                            break;
-                        case kFiles:
-                            curFileName = key;
-                            fileEvents.clear();
-                            state = kFile;
-                            break;
-                        case kEvent:
-                            if (key == "args")
-                                state = kArgs;
-                            curKey = key;
-                            break;
-                        case kArgs:
-                            curKey = key;
-                            break;
-                        default:
-                            break;
-                    }
-                    
-                    traverse(node.get_object_value(i));
-                }
-                
-                if (state == kFiles)
-                    state = kRoot;
-                else if (state == kFile)
-                {
-                    state = kFiles;
-                    FindParentChildrenIndices(fileEvents);
-                    if (!fileEvents.empty())
-                    {
-                        if (fileEvents.back().parent != -1)
-                        {
-                            printf("%sERROR: the last trace event should be root; was not in '%s'.%s\n", col::kRed, curFileName.c_str(), col::kReset);
-                            resultEvents.clear();
-                            return;
-                        }
-                    }
-                    AddEvents(resultEvents, fileEvents);
-                }
-                else if (state == kEvent)
-                {
-                    if (curPid == 1 && curTid == 0 && curPh == "X" && !curName.empty())
-                    {
-                        BuildEvent event;
-                        if (curName == "ExecuteCompiler")
-                            event.type = BuildEventType::kCompiler;
-                        else if (curName == "Frontend")
-                            event.type = BuildEventType::kFrontend;
-                        else if (curName == "Backend")
-                            event.type = BuildEventType::kBackend;
-                        else if (curName == "Source")
-                            event.type = BuildEventType::kParseFile;
-                        else if (curName == "ParseTemplate")
-                            event.type = BuildEventType::kParseTemplate;
-                        else if (curName == "ParseClass")
-                            event.type = BuildEventType::kParseClass;
-                        else if (curName == "InstantiateClass")
-                            event.type = BuildEventType::kInstantiateClass;
-                        else if (curName == "InstantiateFunction")
-                            event.type = BuildEventType::kInstantiateFunction;
-                        else if (curName == "PerformPendingInstantiations")
-                            ;
-                        else if (curName == "CodeGen Function")
-                            ;
-                        else if (curName == "OptModule")
-                            event.type = BuildEventType::kOptModule;
-                        else if (curName == "OptFunction")
-                            event.type = BuildEventType::kOptFunction;
-                        else if (curName == "RunPass")
-                            ;
-                        else if (curName == "RunLoopPass")
-                            ;
-                        else
-                        {
-                            printf("%sWARN: unknown trace event '%s' in '%s', skipping.%s\n", col::kYellow, curName.c_str(), curFileName.c_str(), col::kReset);
-                        }
-                        if (event.type != BuildEventType::kUnknown)
-                        {
-                            event.ts = curTs;
-                            event.dur = curDur;
-                            event.detail = curDetail;
-                            if (event.detail.empty() && event.type == BuildEventType::kCompiler)
-                                event.detail = curFileName;
-                            fileEvents.push_back(event);
-                        }
-                    }
-                }
-                else if (state == kArgs)
-                    state = kEvent;                
-                break;
-            case sajson::TYPE_ARRAY:
-                {
-                    if (state == kFile)
-                        state = kEvent;
-                    auto length = node.get_length();
-                    for (size_t i = 0; i < length; ++i)
-                        traverse(node.get_array_element(i));
-                    if (state == kEvent)
-                        state = kFile;
-                }
-                break;
-            case sajson::TYPE_DOUBLE:
-            case sajson::TYPE_INTEGER:
-                if (state == kEvent)
-                {
-                    if (curKey == "pid")
-                        curPid = (int)node.get_number_value();
-                    if (curKey == "tid")
-                        curTid = (int)node.get_number_value();
-                    if (curKey == "ts")
-                        curTs = node.get_number_value();
-                    if (curKey == "dur")
-                        curDur = node.get_number_value();
-                }
-                break;
-            case sajson::TYPE_STRING:
-                if (state == kEvent)
-                {
-                    if (curKey == "ph")
-                        curPh = node.as_string();
-                    if (curKey == "name")
-                        curName = node.as_string();
-                }
-                if (state == kArgs)
-                {
-                    if (curKey == "detail")
-                        curDetail = node.as_string();
-                }
-                break;
-            default:
-                break;
+            printf("%sERROR: root of JSON should be an object.%s\n", col::kRed, col::kReset);
+            resultEvents.clear();
+            return;
         }
+        const auto& files = node.get_value_of_key(sajson::literal("files"));
+        ParseFiles(files);
+    }
+    
+    void ParseFiles(const sajson::value& node)
+    {
+        if (node.get_type() != sajson::TYPE_OBJECT)
+        {
+            printf("%sERROR: 'files' of JSON should be an object.%s\n", col::kRed, col::kReset);
+            resultEvents.clear();
+            return;
+        }
+        
+        for (size_t i = 0, n = node.get_length(); i != n; ++i)
+        {
+            const auto& fileName = node.get_object_key(i);
+            curFileName = fileName.as_string();
+            const auto& fileVal = node.get_object_value(i);
+            if (fileVal.get_type() != sajson::TYPE_OBJECT)
+            {
+                printf("%sERROR: 'files' elements in JSON should be objects.%s\n", col::kRed, col::kReset);
+                resultEvents.clear();
+                return;
+            }
+            const auto& traceEventsVal = fileVal.get_value_of_key(sajson::literal("traceEvents"));
+            ParseTraceEvents(traceEventsVal);
+        }
+    }
+    
+    void ParseTraceEvents(const sajson::value& node)
+    {
+        if (node.get_type() != sajson::TYPE_ARRAY)
+        {
+            printf("%sERROR: 'traceEvents' of JSON should be an array.%s\n", col::kRed, col::kReset);
+            resultEvents.clear();
+            return;
+        }
+        fileEvents.clear();
+        fileEvents.reserve(node.get_length());
+        for (size_t i = 0, n = node.get_length(); i != n; ++i)
+        {
+            ParseEvent(node.get_array_element(i));
+        }
+
+        FindParentChildrenIndices(fileEvents);
+        if (!fileEvents.empty())
+        {
+            if (fileEvents.back().parent != -1)
+            {
+                printf("%sERROR: the last trace event should be root; was not in '%s'.%s\n", col::kRed, curFileName.c_str(), col::kReset);
+                resultEvents.clear();
+                return;
+            }
+        }
+        AddEvents(resultEvents, fileEvents);
+    }
+    
+    void ParseEvent(const sajson::value& node)
+    {
+        if (node.get_type() != sajson::TYPE_OBJECT)
+        {
+            printf("%sERROR: 'traceEvents' elements in JSON should be objects.%s\n", col::kRed, col::kReset);
+            resultEvents.clear();
+            return;
+        }
+        
+        const auto& nodePid = node.get_value_of_key(sajson::literal("pid"));
+        if (nodePid.get_type() == sajson::TYPE_INTEGER && nodePid.get_integer_value() != 1)
+            return;
+        const auto& nodeTid = node.get_value_of_key(sajson::literal("tid"));
+        if (nodeTid.get_type() == sajson::TYPE_INTEGER && nodeTid.get_integer_value() != 0)
+            return;
+        const auto& nodePh = node.get_value_of_key(sajson::literal("ph"));
+        if (nodePh.get_type() != sajson::TYPE_STRING || strcmp(nodePh.as_cstring(), "X") != 0)
+            return;
+
+        const auto& nodeName = node.get_value_of_key(sajson::literal("name"));
+        if (nodeName.get_type() != sajson::TYPE_STRING)
+            return;
+
+        const char* name = nodeName.as_cstring();
+        BuildEvent event;
+        if (!strcmp(name, "ExecuteCompiler"))
+            event.type = BuildEventType::kCompiler;
+        else if (!strcmp(name, "Frontend"))
+            event.type = BuildEventType::kFrontend;
+        else if (!strcmp(name, "Backend"))
+            event.type = BuildEventType::kBackend;
+        else if (!strcmp(name, "Source"))
+            event.type = BuildEventType::kParseFile;
+        else if (!strcmp(name, "ParseTemplate"))
+            event.type = BuildEventType::kParseTemplate;
+        else if (!strcmp(name, "ParseClass"))
+            event.type = BuildEventType::kParseClass;
+        else if (!strcmp(name, "InstantiateClass"))
+            event.type = BuildEventType::kInstantiateClass;
+        else if (!strcmp(name, "InstantiateFunction"))
+            event.type = BuildEventType::kInstantiateFunction;
+        else if (!strcmp(name, "PerformPendingInstantiations"))
+            ;
+        else if (!strcmp(name, "CodeGen Function"))
+            ;
+        else if (!strcmp(name, "OptModule"))
+            event.type = BuildEventType::kOptModule;
+        else if (!strcmp(name, "OptFunction"))
+            event.type = BuildEventType::kOptFunction;
+        else if (!strcmp(name, "RunPass"))
+            ;
+        else if (!strcmp(name, "RunLoopPass"))
+            ;
+        else
+        {
+            printf("%sWARN: unknown trace event '%s' in '%s', skipping.%s\n", col::kYellow, name, curFileName.c_str(), col::kReset);
+        }
+        if (event.type== BuildEventType::kUnknown)
+            return;
+        
+        const auto& nodeTs = node.get_value_of_key(sajson::literal("ts"));
+        const auto& nodeDur = node.get_value_of_key(sajson::literal("dur"));
+        if (nodeTs.get_type() != sajson::TYPE_INTEGER || nodeDur.get_type() != sajson::TYPE_INTEGER)
+            return;
+        
+        event.ts = nodeTs.get_integer_value();
+        event.dur = nodeDur.get_integer_value();
+        
+        const auto& nodeArgs = node.get_value_of_key(sajson::literal("args"));
+        if (nodeArgs.get_type() == sajson::TYPE_OBJECT)
+        {
+            const auto& nodeDetail = nodeArgs.get_value_of_key(sajson::literal("detail"));
+            if (nodeDetail.get_type() == sajson::TYPE_STRING)
+                event.detail = nodeDetail.as_string();
+        }
+        if (event.detail.empty() && event.type == BuildEventType::kCompiler)
+            event.detail = curFileName;
+        fileEvents.push_back(event);
     }
 };
 
@@ -235,7 +207,7 @@ BuildEvents ParseBuildEvents(std::string& jsonText)
     }
     
     JsonTraverser traverser;
-    traverser.traverse(doc.get_root());
+    traverser.ParseRoot(doc.get_root());
     //DebugPrintEvents(sax.resultEvents);
     return traverser.resultEvents;
 }
