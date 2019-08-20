@@ -47,125 +47,220 @@ static void AddEvents(BuildEvents& res, const BuildEvents& add)
     }
 }
 
+struct SaxConsumer : public json::json_sax_t
+{
+    enum State
+    {
+        kRoot,
+        kFiles,
+        kFile,
+        kEvent,
+        kArgs
+    };
+    State state = kRoot;
+    std::string curFileName;
+    BuildEvents resultEvents;
+    BuildEvents fileEvents;
+
+    int curPid = 1, curTid = 0;
+    std::string curPh;
+    uint64_t curTs = 0, curDur = 0;
+    std::string curName;
+    std::string curDetail;
+    std::string curKey;
+    
+    bool start_object(std::size_t elements) override
+    {
+        if (state == kEvent)
+        {
+            curPid = 1;
+            curTid = 0;
+            curPh.clear();
+            curTs = curDur = 0;
+            curName.clear();
+            curDetail.clear();
+            curKey.clear();
+        }
+        return true;
+    }
+    
+    bool key(string_t& val) override
+    {
+        switch (state)
+        {
+            case kRoot:
+                if (val == "files")
+                    state = kFiles;
+                break;
+            case kFiles:
+                curFileName = val;
+                fileEvents.clear();
+                state = kFile;
+                break;
+            case kEvent:
+                if (val == "args")
+                    state = kArgs;
+                curKey = val;
+                break;
+            case kArgs:
+                curKey = val;
+                break;
+            default:
+                break;
+        }
+        return true;
+    }
+
+    bool end_object() override
+    {
+        if (state == kFiles)
+            state = kRoot;
+        else if (state == kFile)
+        {
+            state = kFiles;
+            FindParentChildrenIndices(fileEvents);
+            if (!fileEvents.empty())
+            {
+                if (fileEvents.back().parent != -1)
+                {
+                    printf("%sERROR: the last trace event should be root; was not in '%s'.%s\n", col::kRed, curFileName.c_str(), col::kReset);
+                    resultEvents.clear();
+                    return false;
+                }
+            }
+            AddEvents(resultEvents, fileEvents);
+        }
+        else if (state == kEvent)
+        {
+            if (curPid == 1 && curTid == 0 && curPh == "X" && !curName.empty())
+            {
+                BuildEvent event;
+                if (curName == "ExecuteCompiler")
+                    event.type = BuildEventType::kCompiler;
+                else if (curName == "Frontend")
+                    event.type = BuildEventType::kFrontend;
+                else if (curName == "Backend")
+                    event.type = BuildEventType::kBackend;
+                else if (curName == "Source")
+                    event.type = BuildEventType::kParseFile;
+                else if (curName == "ParseTemplate")
+                    event.type = BuildEventType::kParseTemplate;
+                else if (curName == "ParseClass")
+                    event.type = BuildEventType::kParseClass;
+                else if (curName == "InstantiateClass")
+                    event.type = BuildEventType::kInstantiateClass;
+                else if (curName == "InstantiateFunction")
+                    event.type = BuildEventType::kInstantiateFunction;
+                else if (curName == "PerformPendingInstantiations")
+                    ;
+                else if (curName == "CodeGen Function")
+                    ;
+                else if (curName == "OptModule")
+                    event.type = BuildEventType::kOptModule;
+                else if (curName == "OptFunction")
+                    event.type = BuildEventType::kOptFunction;
+                else if (curName == "RunPass")
+                    ;
+                else if (curName == "RunLoopPass")
+                    ;
+                else
+                {
+                    printf("%sWARN: unknown trace event '%s' in '%s', skipping.%s\n", col::kYellow, curName.c_str(), curFileName.c_str(), col::kReset);
+                }
+                if (event.type != BuildEventType::kUnknown)
+                {
+                    event.ts = curTs;
+                    event.dur = curDur;
+                    event.detail = curDetail;
+                    if (event.detail.empty() && event.type == BuildEventType::kCompiler)
+                        event.detail = curFileName;
+                    fileEvents.push_back(event);
+                }
+            }
+        }
+        else if (state == kArgs)
+            state = kEvent;
+        return true;
+    }
+    
+    bool start_array(std::size_t elements) override
+    {
+        if (state == kFile)
+            state = kEvent;
+        return true;
+    }
+    
+    bool end_array() override
+    {
+        if (state == kEvent)
+            state = kFile;
+        return true;
+    }
+
+    bool null() override
+    {
+        return true;
+    }
+    
+    bool boolean(bool val) override
+    {
+        return true;
+    }
+    
+    bool number_integer(number_integer_t val) override
+    {
+        return true;
+    }
+    
+    bool number_unsigned(number_unsigned_t val) override
+    {
+        if (state == kEvent)
+        {
+            if (curKey == "pid")
+                curPid = (int)val;
+            if (curKey == "tid")
+                curTid = (int)val;
+            if (curKey == "ts")
+                curTs = val;
+            if (curKey == "dur")
+                curDur = val;
+        }
+        return true;
+    }
+    
+    bool number_float(number_float_t val, const string_t& s) override
+    {
+        return true;
+    }
+    
+    bool string(string_t& val) override
+    {
+        if (state == kEvent)
+        {
+            if (curKey == "ph")
+                curPh = val;
+            if (curKey == "name")
+                curName = val;
+        }
+        if (state == kArgs)
+        {
+            if (curKey == "detail")
+                curDetail = val;
+        }
+        return true;
+    }
+    
+    bool parse_error(std::size_t position, const std::string& last_token, const json::exception& ex) override
+    {
+        printf("%sERROR: JSON parse error %s.%s\n", col::kRed, ex.what(), col::kReset);
+        return false;
+    }
+};
+
 BuildEvents ParseBuildEvents(const std::string& jsonText)
 {
-    BuildEvents res;
-    
-    json js = json::parse(jsonText); //@TODO: exceptions
-    const auto& jsFiles = js.find("files");
-    if (jsFiles == js.end() || !jsFiles->is_object())
-    {
-        printf("%sERROR: JSON root object should contain 'files' object.%s\n", col::kRed, col::kReset);
-        res.clear(); return res;
-    }
-    
-    res.reserve(4096);
-    
-    for (const auto& jsFilesEl : jsFiles->items())
-    {
-        const std::string& curFileName = jsFilesEl.key();
-        const auto& jsFileEvents = jsFilesEl.value().find("traceEvents");
-        if (jsFileEvents == jsFilesEl.value().end() || !jsFileEvents->is_array())
-        {
-            printf("%sERROR: JSON file element should contain 'traceEvents', not found in '%s'.%s\n", col::kRed, curFileName.c_str(), col::kReset);
-            res.clear(); return res;
-        }
-        
-        BuildEvents fileEvents;
-        fileEvents.reserve(jsFileEvents->size());
-        std::string curOptModule;
-        for (const auto& jsEvent : *jsFileEvents)
-        {
-            if (!jsEvent.is_object())
-            {
-                printf("%sERROR: JSON file 'traceEvents' should contain objects, in '%s'.%s\n", col::kRed, curFileName.c_str(), col::kReset);
-                res.clear(); return res;
-            }
-            const auto& jsPid = jsEvent.find("pid");
-            const auto jsEnd = jsEvent.end();
-            if (jsPid != jsEnd && *jsPid != 1)
-                continue;
-            const auto& jsTid = jsEvent.find("tid");
-            if (jsTid != jsEnd && *jsTid != 0)
-                continue;
-            const auto& jsPh = jsEvent.find("ph");
-            const auto& jsTs = jsEvent.find("ts");
-            const auto& jsDur = jsEvent.find("dur");
-            const auto& jsName = jsEvent.find("name");
-            if (jsPh == jsEnd || jsTs == jsEnd || jsDur == jsEnd || jsName == jsEnd)
-                continue;
-            if (*jsPh != "X")
-                continue;
-            const std::string& name = *jsName;
-            
-            BuildEvent event;
-            if (name == "ExecuteCompiler")
-                event.type = BuildEventType::kCompiler;
-            else if (name == "Frontend")
-                event.type = BuildEventType::kFrontend;
-            else if (name == "Backend")
-                event.type = BuildEventType::kBackend;
-            else if (name == "Source")
-                event.type = BuildEventType::kParseFile;
-            else if (name == "ParseTemplate")
-                event.type = BuildEventType::kParseTemplate;
-            else if (name == "ParseClass")
-                event.type = BuildEventType::kParseClass;
-            else if (name == "InstantiateClass")
-                event.type = BuildEventType::kInstantiateClass;
-            else if (name == "InstantiateFunction")
-                event.type = BuildEventType::kInstantiateFunction;
-            else if (name == "PerformPendingInstantiations")
-                continue;
-            else if (name == "CodeGen Function")
-                continue;
-            else if (name == "OptModule")
-                event.type = BuildEventType::kOptModule;
-            else if (name == "OptFunction")
-                event.type = BuildEventType::kOptFunction;
-            else if (name == "RunPass")
-                continue;
-            else if (name == "RunLoopPass")
-                continue;
-            else
-            {
-                printf("%sWARN: unknown trace event '%s' in '%s', skipping.%s\n", col::kYellow, name.c_str(), curFileName.c_str(), col::kReset);
-                continue;
-            }
-
-            event.ts = *jsTs;
-            event.dur = *jsDur;
-            
-            const auto& jsArgs = jsEvent.find("args");
-            if (jsArgs == jsEnd || !jsArgs->is_object())
-            {
-                printf("%sWARN: %s trace event in '%s' does not have 'args', skipping.%s\n", col::kYellow, name.c_str(), curFileName.c_str(), col::kReset);
-                continue;
-            }
-            const auto& jsDetail = jsArgs->find("detail");
-            if (jsDetail == jsArgs->end())
-            {
-                printf("%sWARN: %s trace event 'args' in '%s' does not have 'detail', skipping.%s\n", col::kYellow, name.c_str(), curFileName.c_str(), col::kReset);
-                continue;
-            }
-            event.detail = *jsDetail;
-            if (event.detail.empty() && event.type == BuildEventType::kCompiler)
-                event.detail = curFileName;
-            fileEvents.push_back(event);
-        }
-        
-        FindParentChildrenIndices(fileEvents);
-        if (!fileEvents.empty())
-        {
-            if (fileEvents.back().parent != -1)
-            {
-                printf("%sERROR: the last trace event should be root; was not in '%s'.%s\n", col::kRed, curFileName.c_str(), col::kReset);
-                res.clear(); return res;
-            }
-        }
-        AddEvents(res, fileEvents);
-    }
-    
-    //DebugPrintEvents(res);
-    return res;
+    SaxConsumer sax;
+    json::sax_parse(jsonText, &sax);
+    //DebugPrintEvents(sax.resultEvents);
+    return sax.resultEvents;
 }
