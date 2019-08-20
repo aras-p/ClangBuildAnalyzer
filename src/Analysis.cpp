@@ -16,13 +16,14 @@ struct Config
 {
 	int fileParseCount = 10;
 	int fileCodegenCount = 10;
+    int templateCount = 30;
 	int functionCount = 30;
 	int headerCount = 10;
 	int headerChainCount = 5;
 
 	int minFileTime = 10;
 
-	int maxFunctionName = 70;
+	int maxName = 70;
 
 	bool onlyRootHeaders = true;
 };
@@ -48,6 +49,7 @@ struct Analysis
 	{
         buildNamesDone.resize(buildNames.size());
 		functions.reserve(256);
+        instantiations.reserve(256);
 		parseFiles.reserve(64);
 		codegenFiles.reserve(64);
 		headerMap.reserve(256);
@@ -83,6 +85,11 @@ struct Analysis
     
     int FindPath(int eventIndex) const;
 
+    struct InstantiateEntry
+    {
+        int count;
+        int ms;
+    };
 	struct FileEntry
 	{
 		int file;
@@ -105,6 +112,7 @@ struct Analysis
     // key is (name,objfile), value is milliseconds
     typedef std::pair<int,int> IndexPair;
 	std::unordered_map<IndexPair, int, pair_hash> functions;
+    std::unordered_map<int, InstantiateEntry> instantiations;
 	std::vector<FileEntry> parseFiles;
 	std::vector<FileEntry> codegenFiles;
 	int totalParseMs = 0;
@@ -140,6 +148,13 @@ void Analysis::ProcessEvent(int eventIndex)
         auto funKey = std::make_pair(event.detailIndex, FindPath(eventIndex));
         functions[funKey] += ms;
 	}
+    
+    if (event.type == BuildEventType::kInstantiateClass || event.type == BuildEventType::kInstantiateFunction)
+    {
+        auto& e = instantiations[event.detailIndex];
+        ++e.count;
+        e.ms += ms;
+    }
 
 	if (event.type == BuildEventType::kFrontend)
 	{
@@ -252,7 +267,36 @@ void Analysis::EndAnalysis()
 		printf("\n");
 	}
 
-	if (!functions.empty())
+    if (!instantiations.empty())
+    {
+        std::vector<std::pair<int, InstantiateEntry>> instArray;
+        std::vector<int> indices;
+        instArray.reserve(instantiations.size());
+        indices.reserve(instantiations.size());
+        for (const auto& inst : instantiations)
+        {
+            instArray.emplace_back(inst);
+            indices.emplace_back(indices.size());
+        }
+        
+        std::sort(indices.begin(), indices.end(), [&](int indexA, int indexB) {
+            const auto& a = instArray[indexA];
+            const auto& b = instArray[indexB];
+            return a.second.ms > b.second.ms;
+        });
+        printf("%s%s**** Templates that took longest to instantiate%s:\n", col::kBold, col::kMagenta, col::kReset);
+        for (size_t i = 0, n = std::min<size_t>(config.templateCount, indices.size()); i != n; ++i)
+        {
+            const auto& e = instArray[indices[i]];
+            std::string dname = llvm::demangle(GetBuildName(e.first));
+            if (dname.size() > config.maxName)
+                dname = dname.substr(0, config.maxName-2) + "...";
+            printf("%s%6i%s ms: %s (%i times, avg %i ms)\n", col::kBold, e.second.ms, col::kReset, dname.c_str(), e.second.count, e.second.ms/e.second.count);
+        }
+        printf("\n");
+    }
+
+    if (!functions.empty())
 	{
         std::vector<std::pair<IndexPair, int>> functionsArray;
         std::vector<int> indices;
@@ -260,7 +304,7 @@ void Analysis::EndAnalysis()
 		indices.reserve(functions.size());
         for (const auto& fn : functions)
         {
-            functionsArray.emplace_back(std::make_pair(fn.first, fn.second));
+            functionsArray.emplace_back(fn);
             indices.emplace_back(indices.size());
         }
         
@@ -274,8 +318,8 @@ void Analysis::EndAnalysis()
 		{
 			const auto& e = functionsArray[indices[i]];
             std::string dname = llvm::demangle(GetBuildName(e.first.first));
-			if (dname.size() > config.maxFunctionName)
-				dname = dname.substr(0, config.maxFunctionName-2) + "...";
+			if (dname.size() > config.maxName)
+				dname = dname.substr(0, config.maxName-2) + "...";
 			printf("%s%6i%s ms: %s (%s)\n", col::kBold, e.second, col::kReset, dname.c_str(), GetBuildName(e.first.second).c_str());
 		}
 		printf("\n");
@@ -337,12 +381,13 @@ void Analysis::ReadConfig()
 	config.fileParseCount	= (int)ini.GetInteger("counts", "fileParse",	config.fileParseCount);
 	config.fileCodegenCount = (int)ini.GetInteger("counts", "fileCodegen",	config.fileCodegenCount);
 	config.functionCount	= (int)ini.GetInteger("counts", "function",		config.functionCount);
+    config.templateCount    = (int)ini.GetInteger("counts", "template",     config.templateCount);
 	config.headerCount		= (int)ini.GetInteger("counts", "header",		config.headerCount);
 	config.headerChainCount = (int)ini.GetInteger("counts", "headerChain",	config.headerChainCount);
 
 	config.minFileTime		= (int)ini.GetInteger("minTimes", "file",		config.minFileTime);
 
-	config.maxFunctionName	= (int)ini.GetInteger("misc", "maxFunctionLength",config.maxFunctionName);
+	config.maxName	        = (int)ini.GetInteger("misc", "maxNameLength",  config.maxName);
 	config.onlyRootHeaders	=      ini.GetBoolean("misc", "onlyRootHeaders",config.onlyRootHeaders);
 }
 
