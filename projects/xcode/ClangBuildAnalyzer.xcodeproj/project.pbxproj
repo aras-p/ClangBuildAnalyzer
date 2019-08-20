@@ -46,7 +46,6 @@
 		2B0993262308259400344A93 /* cute_files.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cute_files.h; sourceTree = "<group>"; };
 		2B09932A2309600400344A93 /* BuildEvents.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BuildEvents.h; sourceTree = "<group>"; };
 		2B09932B2309600400344A93 /* BuildEvents.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BuildEvents.cpp; sourceTree = "<group>"; };
-		2B09932D2309664800344A93 /* json.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = json.hpp; sourceTree = "<group>"; };
 		2B6FBE04230B0D8100095E82 /* Analysis.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Analysis.h; sourceTree = "<group>"; };
 		2B6FBE05230B0D8100095E82 /* Analysis.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Analysis.cpp; sourceTree = "<group>"; };
 		2B6FBE07230B280400095E82 /* Utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Utils.cpp; sourceTree = "<group>"; };
@@ -63,6 +62,7 @@
 		2B6FBE15230BB90300095E82 /* MicrosoftDemangle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MicrosoftDemangle.cpp; path = lib/MicrosoftDemangle.cpp; sourceTree = "<group>"; };
 		2B6FBE16230BB90300095E82 /* MicrosoftDemangleNodes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MicrosoftDemangleNodes.cpp; path = lib/MicrosoftDemangleNodes.cpp; sourceTree = "<group>"; };
 		2B6FBE1B230BC62600095E82 /* Allocator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Allocator.cpp; sourceTree = "<group>"; };
+		2B6FBE1D230BD70100095E82 /* sajson.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sajson.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -114,10 +114,10 @@
 		2B09931A23080EF500344A93 /* external */ = {
 			isa = PBXGroup;
 			children = (
+				2B6FBE1D230BD70100095E82 /* sajson.h */,
 				2B6FBE0B230BB8DF00095E82 /* llvm-Demangle */,
 				2B09931C23080F0E00344A93 /* inih */,
 				2B0993262308259400344A93 /* cute_files.h */,
-				2B09932D2309664800344A93 /* json.hpp */,
 				2B09931B23080F0900344A93 /* sokol_time.h */,
 			);
 			path = external;
