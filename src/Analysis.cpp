@@ -5,6 +5,7 @@
 #include "Utils.h"
 #include "external/llvm-Demangle/include/Demangle.h"
 #include "external/inih/cpp/INIReader.h"
+#include "external/cute_files.h"
 #include <algorithm>
 #include <assert.h>
 #include <string>
@@ -58,12 +59,20 @@ struct Analysis
     
     const std::string& GetBuildName(int index)
     {
+        auto& name = buildNames[index];
         if (!buildNamesDone[index])
         {
-            buildNames[index] = utils::GetNicePath(buildNames[index]);
+            name = utils::GetNicePath(name);
+            // don't report the clang trace .json file, instead get the object file at the same location if it's there
+            if (utils::EndsWith(name, ".json"))
+            {
+                std::string candidate = name.substr(0, name.length()-4) + "o";
+                if (cf_file_exists(candidate.c_str()))
+                    name = candidate;
+            }
             buildNamesDone[index] = 1;
         }
-        return buildNames[index];
+        return name;
     }
 
 	void ProcessEvent(int eventIndex);

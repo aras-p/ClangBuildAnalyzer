@@ -17,4 +17,5 @@ namespace utils
 	void ForwardSlashify(std::string& path);
 
 	bool BeginsWith(const std::string& str, const std::string& prefix);
+    bool EndsWith(const std::string& str, const std::string& suffix);
 }

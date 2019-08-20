@@ -68,6 +68,22 @@ bool utils::BeginsWith(const std::string& str, const std::string& prefix)
 	return true;
 }
 
+bool utils::EndsWith(const std::string& str, const std::string& suffix)
+{
+    if (str.size() < suffix.size())
+        return false;
+    size_t start = str.size() - suffix.size();
+    for (size_t i = 0, n = suffix.size(); i != n; ++i)
+    {
+        char c1 = ToLower(str[i+start]);
+        char c2 = ToLower(suffix[i]);
+        if (c1 != c2)
+            return false;
+    }
+    return true;
+}
+
+
 bool utils::IsHeader(const std::string& path)
 {
 	size_t dot = path.rfind('.');
