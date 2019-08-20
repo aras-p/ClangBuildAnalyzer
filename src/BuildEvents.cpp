@@ -123,6 +123,8 @@ BuildEvents ParseBuildEvents(const std::string& jsonText)
                 event.type = BuildEventType::kOptFunction;
             else if (name == "RunPass")
                 continue;
+            else if (name == "RunLoopPass")
+                continue;
             else
             {
                 printf("%sWARN: unknown trace event '%s' in '%s', skipping.%s\n", col::kYellow, name.c_str(), curFileName.c_str(), col::kReset);
