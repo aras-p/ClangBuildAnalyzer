@@ -15,3 +15,12 @@ matrix:
         - xcodebuild -project projects/xcode/ClangBuildAnalyzer.xcodeproj -configuration Debug build
         - xcodebuild -project projects/xcode/ClangBuildAnalyzer.xcodeproj -configuration Release build
         - projects/xcode/build/Release/ClangBuildAnalyzer --test tests
+
+    - name: "Linux gcc"
+      os: linux
+      dist: trusty
+      sudo: false
+      script:
+        - make -f projects/make/Makefile -j 4
+        - build/ClangBuildAnalyzer --test tests
+

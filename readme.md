@@ -95,6 +95,7 @@ Granularity and amount of most expensive things (files, functions, templates, in
 
 * Windows: Visual Studio 2017 solution at `projects/vs2017/ClangBuildAnalyzer.sln`.
 * Mac: Xcode 9.x project at `projects/xcode/ClangBuildAnalyzer.xcodeproj`.
+* Linux: Makefile for gcc (tested with 5.4), build with `make -f projects/make/Makefile`.
 
 
 ### License
