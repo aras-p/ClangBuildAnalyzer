@@ -71,7 +71,13 @@ struct Analysis
                 std::string candidate = name.substr(0, name.length()-4) + "o";
                 if (cf_file_exists(candidate.c_str()))
                     name = candidate;
-            }
+				else
+				{
+					candidate += "bj";
+					if (cf_file_exists(candidate.c_str()))
+						name = candidate;
+				}
+			}
             buildNamesDone[index] = 1;
         }
         return name;
