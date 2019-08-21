@@ -270,7 +270,9 @@ void Analysis::EndAnalysis()
 		std::sort(indices.begin(), indices.end(), [&](int indexA, int indexB) {
 			const auto& a = codegenFiles[indexA];
 			const auto& b = codegenFiles[indexB];
-			return a.ms > b.ms;
+            if (a.ms != b.ms)
+                return a.ms > b.ms;
+            return a.file < b.file;
 			});
 		fprintf(out, "%s%s**** Files that took longest to codegen (compiler backend)%s:\n", col::kBold, col::kMagenta, col::kReset);
 		for (size_t i = 0, n = std::min<size_t>(config.fileCodegenCount, indices.size()); i != n; ++i)
@@ -296,7 +298,11 @@ void Analysis::EndAnalysis()
         std::sort(indices.begin(), indices.end(), [&](int indexA, int indexB) {
             const auto& a = instArray[indexA];
             const auto& b = instArray[indexB];
-            return a.second.ms > b.second.ms;
+            if (a.second.ms != b.second.ms)
+                return a.second.ms > b.second.ms;
+            if (a.second.count != b.second.count)
+                return a.second.count > b.second.count;
+            return a.first < b.first;
         });
 		fprintf(out, "%s%s**** Templates that took longest to instantiate%s:\n", col::kBold, col::kMagenta, col::kReset);
         for (size_t i = 0, n = std::min<size_t>(config.templateCount, indices.size()); i != n; ++i)
@@ -325,7 +331,9 @@ void Analysis::EndAnalysis()
 		std::sort(indices.begin(), indices.end(), [&](int indexA, int indexB) {
 			const auto& a = functionsArray[indexA];
 			const auto& b = functionsArray[indexB];
-			return a.second > b.second;
+            if (a.second != b.second)
+                return a.second > b.second;
+            return a.first < b.first;
 			});
 		fprintf(out, "%s%s**** Functions that took longest to compile%s:\n", col::kBold, col::kMagenta, col::kReset);
 		for (size_t i = 0, n = std::min<size_t>(config.functionCount, indices.size()); i != n; ++i)

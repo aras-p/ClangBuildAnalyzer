@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <string>
 #include <time.h>
-#include <unordered_map>
+#include <map>
 
 #ifdef _MSC_VER
 struct IUnknown; // workaround for old Win SDK header failures when using /permissive-
@@ -108,7 +108,7 @@ struct JsonFileFinder
 {
     time_t startTime;
     time_t endTime;
-    std::unordered_map<std::string, std::string> files;
+    std::map<std::string, std::string> files; // have it sorted by path
 
     void OnFile(cf_file_t* f)
     {
