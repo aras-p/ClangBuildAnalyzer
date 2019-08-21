@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: Unlicense
 #include "Colors.h"
 #ifdef _MSC_VER
+#define NOMINMAX
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #else
 #include <stdio.h>
