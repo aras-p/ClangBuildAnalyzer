@@ -1,5 +1,10 @@
 // Clang Build Analyzer https://github.com/aras-p/ClangBuildAnalyzer
 // SPDX-License-Identifier: Unlicense
+
+#ifdef _MSC_VER
+struct IUnknown; // workaround for old Win SDK header failures when using /permissive-
+#endif
+
 #include "Analysis.h"
 #include "Colors.h"
 #include "Utils.h"
