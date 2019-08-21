@@ -19,6 +19,21 @@ struct IUnknown; // workaround for old Win SDK header failures when using /permi
 #define CUTE_FILES_IMPLEMENTATION
 #include "external/cute_files.h"
 
+static std::string ReadFileToString(const std::string& path)
+{
+	FILE* f = fopen(path.c_str(), "rb");
+	if (!f)
+		return "";
+	fseek(f, 0, SEEK_END);
+	size_t fsize = ftell(f);
+	fseek(f, 0, SEEK_SET);
+	std::string str;
+	str.resize(fsize);
+	fread(&str[0], 1, fsize, f);
+	fclose(f);
+	return str;
+}
+
 static void PrintUsage()
 {
     printf("%sUSAGE%s: one of\n", col::kBold, col::kReset);
@@ -93,19 +108,12 @@ struct JsonFileFinder
             return;
         
         // read the file
-        FILE* ff = fopen(f->path, "rb");
-        if (!ff)
-        {
-            printf("%s  WARN: could not read file '%s'.%s\n", col::kYellow, f->path, col::kReset);
-            return;
-        }
-        fseek(ff, 0, SEEK_END);
-        size_t fsize = ftell(ff);
-        fseek(ff, 0, SEEK_SET);
-        std::string str;
-        str.resize(fsize);
-        fread(&str[0], 1, fsize, ff);
-        fclose(ff);
+		std::string str = ReadFileToString(f->path);
+		if (str.empty())
+		{
+			printf("%s  WARN: could not read file '%s'.%s\n", col::kYellow, f->path, col::kReset);
+			return;
+		}
 
         // there might be non-clang time trace json files around;
         // the clang ones should have this inside them
@@ -216,19 +224,12 @@ static int RunAnalyze(int argc, const char* argv[])
     printf("%sAnalyzing build trace from '%s'...%s\n", col::kYellow, inFile.c_str(), col::kReset);
 
     // read file
-    FILE* ff = fopen(inFile.c_str(), "rb");
-    if (!ff)
-    {
-        printf("%sERROR: failed to open file '%s'.%s\n", col::kRed, inFile.c_str(), col::kReset);
-        return 1;
-    }
-    fseek(ff, 0, SEEK_END);
-    size_t fsize = ftell(ff);
-    fseek(ff, 0, SEEK_SET);
-    std::string inFileStr;
-    inFileStr.resize(fsize);
-    fread(&inFileStr[0], 1, fsize, ff);
-    fclose(ff);
+	std::string inFileStr = ReadFileToString(inFile);
+	if (inFileStr.empty())
+	{
+		printf("%sERROR: failed to open file '%s'.%s\n", col::kRed, inFile.c_str(), col::kReset);
+		return 1;
+	}
     
     BuildEvents events;
     BuildNames names;
@@ -249,6 +250,80 @@ static int RunAnalyze(int argc, const char* argv[])
     return 0;
 }
 
+static int RunOneTest(const std::string& folder)
+{
+	printf("%sRunning test '%s'...%s\n", col::kYellow, folder.c_str(), col::kReset);
+	std::string traceFile = folder + "/_TraceOutput.json";
+	std::string traceExpFile = folder + "/_TraceOutputExpected.json";
+	const char* kStopArgs[] =
+	{
+		"",
+		"--stop",
+		folder.c_str(),
+		traceFile.c_str()
+	};
+	if (RunStop(4, kStopArgs) != 0)
+		return false;
+
+	std::string gotTrace = ReadFileToString(traceFile);
+	std::string expTrace = ReadFileToString(traceExpFile);
+	if (gotTrace != expTrace)
+	{
+		printf("%sTrace json file (%s) and expected json file (%s) do not match%s\n", col::kRed, traceFile.c_str(), traceExpFile.c_str(), col::kReset);
+		return false;
+	}
+
+	const char* kAnalyzeArgs[] =
+	{
+		"",
+		"--analyze",
+		traceFile.c_str()
+	};
+	if (RunAnalyze(3, kAnalyzeArgs) != 0)
+		return false;
+
+	//@TODO: compare output
+
+	return true;
+}
+
+static int RunTests(int argc, const char* argv[])
+{
+	if (argc < 3)
+	{
+		printf("%sERROR: --test requires <test_folder> to be passed.%s\n", col::kRed, col::kReset);
+		return 1;
+	}
+
+	uint64_t tStart = stm_now();
+
+	std::string testsFolder = argv[2];
+	printf("%sRunning tests under '%s'...%s\n", col::kYellow, testsFolder.c_str(), col::kReset);
+
+	int failures = 0;
+	cf_dir_t dir;
+	cf_dir_open(&dir, testsFolder.c_str());
+	while (dir.has_next)
+	{
+		cf_file_t entry;
+		cf_read_file(&dir, &entry);
+		if (entry.is_dir && entry.name[0] != '.')
+		{
+			if (!RunOneTest(entry.path))
+				++failures;
+		}
+		cf_dir_next(&dir);
+	}
+	cf_dir_close(&dir);
+
+	double tDuration = stm_sec(stm_since(tStart));
+	printf("%s  tests done in %.1fs.%s\n", col::kYellow, tDuration, col::kReset);
+	if (failures != 0)
+		printf("%s  had %i failures.%s\n", col::kRed, failures, col::kReset);
+
+	return failures != 0 ? 1 : 0;
+}
+
 
 static int ProcessCommands(int argc, const char* argv[])
 {
@@ -258,7 +333,9 @@ static int ProcessCommands(int argc, const char* argv[])
         return RunStop(argc, argv);
     if (strcmp(argv[1], "--analyze") == 0)
         return RunAnalyze(argc, argv);
-    
+	if (strcmp(argv[1], "--test") == 0)
+		return RunTests(argc, argv);
+
     printf("%sUnsupported command line arguments%s\n", col::kRed, col::kReset);
     PrintUsage();
     return 1;
