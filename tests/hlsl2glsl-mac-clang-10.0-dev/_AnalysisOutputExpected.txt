@@ -1,0 +1,105 @@
+**** Time summary:
+Compilation (4 times):
+  Parsing (frontend):            3.4 s
+  Codegen & opts (backend):      2.4 s
+
+**** Files that took longest to parse (compiler frontend):
+  1500 ms: tests/hlsl2glsl-mac-clang-10.0-dev/hlslLinker.json
+   693 ms: tests/hlsl2glsl-mac-clang-10.0-dev/glslOutput.json
+   647 ms: tests/hlsl2glsl-mac-clang-10.0-dev/glslFunction.json
+   545 ms: tests/hlsl2glsl-mac-clang-10.0-dev/glslCommon.json
+
+**** Files that took longest to codegen (compiler backend):
+  1066 ms: tests/hlsl2glsl-mac-clang-10.0-dev/glslOutput.json
+   941 ms: tests/hlsl2glsl-mac-clang-10.0-dev/hlslLinker.json
+   338 ms: tests/hlsl2glsl-mac-clang-10.0-dev/glslFunction.json
+    47 ms: tests/hlsl2glsl-mac-clang-10.0-dev/glslCommon.json
+
+**** Templates that took longest to instantiate:
+    35 ms: std::__1::set<std::__1::basic_string<char>, std::__1::less<std::__1:... (5 times, avg 7 ms)
+    30 ms: std::__1::set<TOperator, std::__1::less<TOperator>, std::__1::alloca... (3 times, avg 10 ms)
+    24 ms: std::__1::__tree<std::__1::basic_string<char>, std::__1::less<std::_... (6 times, avg 4 ms)
+    21 ms: std::__1::__tree<std::__1::basic_string<char>, std::__1::less<std::_... (3 times, avg 7 ms)
+    20 ms: std::__1::map<TVector<TTypeLine> *, TVector<TTypeLine> *, std::__1::... (4 times, avg 5 ms)
+    20 ms: std::__1::map<std::__1::basic_string<char, std::__1::char_traits<cha... (4 times, avg 5 ms)
+    20 ms: std::__1::__tree<TOperator, std::__1::less<TOperator>, std::__1::all... (4 times, avg 5 ms)
+    19 ms: std::__1::map<int, GlslSymbol *, std::__1::less<int>, std::__1::allo... (2 times, avg 9 ms)
+    18 ms: std::__1::vector<std::__1::basic_string<char, std::__1::char_traits<... (4 times, avg 4 ms)
+    18 ms: std::__1::vector<StructMember, std::__1::allocator<StructMember> >::... (4 times, avg 4 ms)
+    18 ms: std::__1::map<std::__1::basic_string<char>, GlslSymbol *, std::__1::... (3 times, avg 6 ms)
+    18 ms: std::__1::__tree<TOperator, std::__1::less<TOperator>, std::__1::all... (3 times, avg 6 ms)
+    16 ms: std::__1::vector<TTypeLine, pool_allocator<TTypeLine> >::push_back (4 times, avg 4 ms)
+    16 ms: std::__1::vector<TParameter, pool_allocator<TParameter> >::push_back (4 times, avg 4 ms)
+    15 ms: std::__1::vector<TSymbolTableLevel *, std::__1::allocator<TSymbolTab... (8 times, avg 1 ms)
+    15 ms: std::__1::vector<TTypeLine, pool_allocator<TTypeLine> >::__push_back... (4 times, avg 3 ms)
+    15 ms: std::__1::map<std::__1::basic_string<char, std::__1::char_traits<cha... (4 times, avg 3 ms)
+    15 ms: std::__1::map<int, GlslSymbol *, std::__1::less<int>, std::__1::allo... (3 times, avg 5 ms)
+    14 ms: std::__1::__murmur2_or_cityhash<unsigned long, 64>::operator() (4 times, avg 3 ms)
+    14 ms: std::__1::__scalar_hash<std::__1::_PairT, 2>::operator() (4 times, avg 3 ms)
+    14 ms: std::__1::vector<std::__1::basic_string<char, std::__1::char_traits<... (4 times, avg 3 ms)
+    14 ms: std::__1::vector<TSymbolTableLevel *, std::__1::allocator<TSymbolTab... (4 times, avg 3 ms)
+    14 ms: std::__1::vector<StructMember, std::__1::allocator<StructMember> >::... (4 times, avg 3 ms)
+    13 ms: std::__1::vector<TIntermConstant::Value, pool_allocator<TIntermConst... (4 times, avg 3 ms)
+    13 ms: std::__1::vector<TIntermConstant::Value, pool_allocator<TIntermConst... (4 times, avg 3 ms)
+    13 ms: std::__1::vector<TParameter, pool_allocator<TParameter> >::__push_ba... (4 times, avg 3 ms)
+    13 ms: std::__1::vector<GlslFunction *, std::__1::allocator<GlslFunction *>... (2 times, avg 6 ms)
+    13 ms: std::__1::map<std::__1::basic_string<char>, GlslStruct *, std::__1::... (1 times, avg 13 ms)
+    13 ms: std::__1::map<std::__1::basic_string<char>, int, std::__1::less<std:... (1 times, avg 13 ms)
+    12 ms: std::__1::__tree<std::__1::__value_type<TVector<TTypeLine> *, TVecto... (4 times, avg 3 ms)
+
+**** Functions that took longest to compile:
+   153 ms: TGlslOutputTraverser::traverseAggregate(bool, TIntermAggregate*, TIn... (hlslang/GLSLCodeGen/glslOutput.cpp)
+   126 ms: TGlslOutputTraverser::traverseBinary(bool, TIntermBinary*, TIntermTr... (hlslang/GLSLCodeGen/glslOutput.cpp)
+    66 ms: TGlslOutputTraverser::traverseUnary(bool, TIntermUnary*, TIntermTrav... (hlslang/GLSLCodeGen/glslOutput.cpp)
+    53 ms: HlslLinker::link(HlslCrossCompiler*, char const*, ETargetVersion, un... (hlslang/GLSLCodeGen/hlslLinker.cpp)
+    48 ms: HlslLinker::buildFunctionLists(HlslCrossCompiler*, EShLanguage, std:... (hlslang/GLSLCodeGen/hlslLinker.cpp)
+    30 ms: TGlslOutputTraverser::createStructFromType(TType*) (hlslang/GLSLCodeGen/glslOutput.cpp)
+    29 ms: void std::__1::__sort<GlslSymbolSorter&, GlslSymbol**>(GlslSymbol**,... (hlslang/GLSLCodeGen/hlslLinker.cpp)
+    20 ms: TGlslOutputTraverser::traverseArrayDeclarationWithInit(TIntermDeclar... (hlslang/GLSLCodeGen/glslOutput.cpp)
+    20 ms: HlslLinker::emitInputStruct(GlslStruct const*, std::__1::basic_strin... (hlslang/GLSLCodeGen/hlslLinker.cpp)
+    18 ms: HlslLinker::getArgumentData2(GlslSymbolOrStructMemberBase const*, EC... (hlslang/GLSLCodeGen/hlslLinker.cpp)
+    18 ms: HlslLinker::emitReturnValue(EGlslSymbolType, GlslFunction*, EShLangu... (hlslang/GLSLCodeGen/hlslLinker.cpp)
+    17 ms: HlslLinker::emitReturnStruct(GlslStruct*, std::__1::basic_string<cha... (hlslang/GLSLCodeGen/hlslLinker.cpp)
+    16 ms: buildArrayConstructorString(TType const&) (hlslang/GLSLCodeGen/glslOutput.cpp)
+    15 ms: sortFunctionsTopologically(std::__1::vector<GlslFunction*, std::__1:... (hlslang/GLSLCodeGen/hlslLinker.cpp)
+    12 ms: std::__1::basic_stringbuf<char, std::__1::char_traits<char>, std::__... (hlslang/GLSLCodeGen/glslOutput.cpp)
+    12 ms: std::__1::basic_stringbuf<char, std::__1::char_traits<char>, std::__... (hlslang/GLSLCodeGen/hlslLinker.cpp)
+    12 ms: std::__1::basic_stringbuf<char, std::__1::char_traits<char>, std::__... (hlslang/GLSLCodeGen/glslFunction.cpp)
+    12 ms: HlslLinker::buildUniformsAndLibFunctions(std::__1::vector<GlslFuncti... (hlslang/GLSLCodeGen/hlslLinker.cpp)
+    11 ms: TGlslOutputTraverser::traverseSymbol(TIntermSymbol*, TIntermTraverse... (hlslang/GLSLCodeGen/glslOutput.cpp)
+    11 ms: TGlslOutputTraverser::traverseSelection(bool, TIntermSelection*, TIn... (hlslang/GLSLCodeGen/glslOutput.cpp)
+    11 ms: HlslLinker::emitOutputStructParam(GlslSymbol*, EShLanguage, bool, EA... (hlslang/GLSLCodeGen/hlslLinker.cpp)
+    10 ms: writeFuncCall(std::__1::basic_string<char, std::__1::char_traits<cha... (hlslang/GLSLCodeGen/glslOutput.cpp)
+    10 ms: HlslLinker::addCalledFunctions(GlslFunction*, std::__1::vector<GlslF... (hlslang/GLSLCodeGen/hlslLinker.cpp)
+    10 ms: GetFixedNestedVaryingSemantic(std::__1::basic_string<char, std::__1:... (hlslang/GLSLCodeGen/hlslLinker.cpp)
+    10 ms: GlslFunction::addNeededExtensions(std::__1::set<std::__1::basic_stri... (hlslang/GLSLCodeGen/glslFunction.cpp)
+     9 ms: std::__1::__tree_node_base<void*>*& std::__1::__tree<std::__1::basic... (hlslang/GLSLCodeGen/hlslLinker.cpp)
+     9 ms: bool std::__1::__insertion_sort_incomplete<GlslSymbolSorter&, GlslSy... (hlslang/GLSLCodeGen/hlslLinker.cpp)
+     9 ms: HlslLinker::buildUniformReflection(std::__1::vector<GlslSymbol*, std... (hlslang/GLSLCodeGen/hlslLinker.cpp)
+     9 ms: HlslLinker::emitMainStart(HlslCrossCompiler const*, EGlslSymbolType,... (hlslang/GLSLCodeGen/hlslLinker.cpp)
+     8 ms: UsePost120TextureLookups(ETargetVersion) (hlslang/GLSLCodeGen/glslOutput.cpp)
+
+*** Expensive headers:
+794 ms: hlslang/OSDependent/Mac/osinclude.h (included 1 times, avg 794 ms), included via:
+  hlslLinker.json  (794 ms)
+
+558 ms: hlslang/GLSLCodeGen/glslFunction.h (included 3 times, avg 186 ms), included via:
+  glslFunction.json  (458 ms)
+  hlslLinker.json hlslLinker.h  (73 ms)
+  glslOutput.json glslOutput.h  (27 ms)
+
+464 ms: hlslang/GLSLCodeGen/glslOutput.h (included 1 times, avg 464 ms), included via:
+  glslOutput.json  (464 ms)
+
+459 ms: hlslang/GLSLCodeGen/hlslLinker.h (included 1 times, avg 459 ms), included via:
+  hlslLinker.json  (459 ms)
+
+452 ms: hlslang/GLSLCodeGen/glslStruct.h (included 4 times, avg 113 ms), included via:
+  glslCommon.json  (446 ms)
+  glslOutput.json glslOutput.h  (2 ms)
+  hlslLinker.json hlslLinker.h glslFunction.h  (2 ms)
+  glslFunction.json glslFunction.h  (2 ms)
+
+3 ms: hlslang/GLSLCodeGen/hlslCrossCompiler.h (included 1 times, avg 3 ms), included via:
+  hlslLinker.json  (3 ms)
+
