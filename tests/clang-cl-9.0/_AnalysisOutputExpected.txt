@@ -1,0 +1,121 @@
+**** Time summary:
+Compilation (3 times):
+  Parsing (frontend):            2.3 s
+  Codegen & opts (backend):      0.3 s
+
+**** Files that took longest to parse (compiler frontend):
+   969 ms: tests/clang-cl-9.0/Utils.json
+   718 ms: tests/clang-cl-9.0/Colors.json
+   619 ms: tests/clang-cl-9.0/Allocator.json
+
+**** Files that took longest to codegen (compiler backend):
+   302 ms: tests/clang-cl-9.0/Utils.json
+    15 ms: tests/clang-cl-9.0/Colors.json
+
+**** Templates that took longest to instantiate:
+    13 ms: std::basic_string<char, std::char_traits<char>, std::allocator<char>... (8 times, avg 1 ms)
+     9 ms: std::basic_string<char, std::char_traits<char>, std::allocator<char>... (3 times, avg 3 ms)
+     6 ms: std::basic_string<char, std::char_traits<char>, std::allocator<char> > (2 times, avg 3 ms)
+     6 ms: std::basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator... (5 times, avg 1 ms)
+     5 ms: std::basic_string<char32_t, std::char_traits<char32_t>, std::allocat... (4 times, avg 1 ms)
+     5 ms: std::basic_string<char, std::char_traits<char>, std::allocator<char>... (2 times, avg 2 ms)
+     5 ms: std::basic_string<char32_t, std::char_traits<char32_t>, std::allocat... (2 times, avg 2 ms)
+     4 ms: std::basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator... (2 times, avg 2 ms)
+     4 ms: std::basic_string<char16_t, std::char_traits<char16_t>, std::allocat... (2 times, avg 2 ms)
+     4 ms: std::basic_string<char16_t, std::char_traits<char16_t>, std::allocat... (4 times, avg 1 ms)
+     4 ms: std::basic_string<char32_t, std::char_traits<char32_t>, std::allocat... (2 times, avg 2 ms)
+     4 ms: std::basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator... (3 times, avg 1 ms)
+     3 ms: std::_Integral_to_string<char, int> (1 times, avg 3 ms)
+     3 ms: std::basic_string<char16_t, std::char_traits<char16_t>, std::allocat... (2 times, avg 1 ms)
+     2 ms: std::basic_string<char32_t, std::char_traits<char32_t>, std::allocat... (2 times, avg 1 ms)
+     2 ms: std::basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator... (2 times, avg 1 ms)
+     2 ms: std::basic_string<char16_t, std::char_traits<char16_t>, std::allocat... (2 times, avg 1 ms)
+     2 ms: std::_Integral_to_string<wchar_t, int> (1 times, avg 2 ms)
+     1 ms: std::basic_string<char, std::char_traits<char>, std::allocator<char>... (1 times, avg 1 ms)
+     1 ms: std::_Integral_to_string<char, long> (1 times, avg 1 ms)
+     1 ms: std::_Floating_to_string<float> (1 times, avg 1 ms)
+     1 ms: std::basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator... (1 times, avg 1 ms)
+     1 ms: std::_Floating_to_wstring<float> (1 times, avg 1 ms)
+     1 ms: std::basic_string<char, std::char_traits<char>, std::allocator<char>... (1 times, avg 1 ms)
+     1 ms: std::basic_string<char, std::char_traits<char>, std::allocator<char>... (1 times, avg 1 ms)
+     1 ms: std::basic_string<char, std::char_traits<char>, std::allocator<char>... (1 times, avg 1 ms)
+     0 ms: std::_Integral_to_string<char, long long> (1 times, avg 0 ms)
+     0 ms: std::_Integral_to_string<char, unsigned long long> (1 times, avg 0 ms)
+     0 ms: std::_Allocate<16, std::_Default_allocate_traits, 0> (2 times, avg 0 ms)
+     0 ms: std::allocator<char>::allocate (2 times, avg 0 ms)
+
+**** Functions that took longest to compile:
+    26 ms: class std::basic_string<char, struct std::char_traits<char>, class s... (src/Utils.cpp)
+    23 ms: class std::basic_string<char, struct std::char_traits<char>, class s... (src/Utils.cpp)
+    17 ms: void __cdecl utils::Initialize(void) (src/Utils.cpp)
+     9 ms: class std::basic_string<char, struct std::char_traits<char>, class s... (src/Utils.cpp)
+     5 ms: private: class std::basic_string<wchar_t, struct std::char_traits<wc... (src/Utils.cpp)
+     5 ms: private: class std::basic_string<char, struct std::char_traits<char>... (src/Utils.cpp)
+     5 ms: void __cdecl utils::ForwardSlashify(class std::basic_string<char, st... (src/Utils.cpp)
+     5 ms: private: class std::basic_string<char, struct std::char_traits<char>... (src/Utils.cpp)
+     5 ms: bool __cdecl utils::IsHeader(class std::basic_string<char, struct st... (src/Utils.cpp)
+     4 ms: void __cdecl `dynamic atexit destructor for 's_CurrentDir''(void) (src/Utils.cpp)
+     4 ms: void __cdecl utils::Lowercase(class std::basic_string<char, struct s... (src/Utils.cpp)
+     4 ms: bool __cdecl utils::EndsWith(class std::basic_string<char, struct st... (src/Utils.cpp)
+     4 ms: void __cdecl col::Initialize(void) (src/Colors.cpp)
+     3 ms: class std::basic_string<char, struct std::char_traits<char>, class s... (src/Utils.cpp)
+     3 ms: bool __cdecl utils::BeginsWith(class std::basic_string<char, struct ... (src/Utils.cpp)
+     1 ms: public: class std::basic_string<char, struct std::char_traits<char>,... (src/Utils.cpp)
+     1 ms: void __cdecl `dynamic atexit destructor for 's_Root''(void) (src/Utils.cpp)
+     1 ms: private: void __cdecl std::basic_string<char, struct std::char_trait... (src/Utils.cpp)
+     1 ms: public: unsigned __int64 __cdecl std::basic_string<char, struct std:... (src/Utils.cpp)
+     1 ms: private: void __cdecl std::basic_string<wchar_t, struct std::char_tr... (src/Utils.cpp)
+     1 ms: unsigned __int64 __cdecl std::_Traits_rfind_ch<struct std::char_trai... (src/Utils.cpp)
+     1 ms: private: void __cdecl std::basic_string<char, struct std::char_trait... (src/Utils.cpp)
+     1 ms: public: __cdecl std::basic_string<char, struct std::char_traits<char... (src/Utils.cpp)
+     1 ms: public: class std::basic_string<char, struct std::char_traits<char>,... (src/Utils.cpp)
+     1 ms: public: __cdecl std::basic_string<char, struct std::char_traits<char... (src/Utils.cpp)
+     1 ms: void __cdecl col::Initialize(void) (tests/clang-cl-9.0/Colors.json)
+     0 ms: public: __cdecl std::basic_string<wchar_t, struct std::char_traits<w... (src/Utils.cpp)
+     0 ms: private: void __cdecl std::basic_string<char, struct std::char_trait... (src/Utils.cpp)
+     0 ms: public: __cdecl std::basic_string<char, struct std::char_traits<char... (src/Utils.cpp)
+     0 ms: private: static void __cdecl std::basic_string<char, struct std::cha... (src/Utils.cpp)
+
+*** Expensive headers:
+1739 ms: C:/Program Files (x86)/Windows Kits/10/include/10.0.17763.0/um/windows.h (included 3 times, avg 579 ms), included via:
+  Colors.json  (715 ms)
+  Utils.json  (683 ms)
+  Allocator.json  (341 ms)
+
+231 ms: src/Utils.h (included 1 times, avg 231 ms), included via:
+  Utils.json  (231 ms)
+
+76 ms: C:/Program Files (x86)/Windows Kits/10/Include/10.0.17763.0/ucrt/stdio.h (included 2 times, avg 38 ms), included via:
+  algorithm xmemory limits cwchar cstdio  (39 ms)
+  Utils.h string xstring iosfwd cstdio  (37 ms)
+
+45 ms: C:/Program Files (x86)/Windows Kits/10/Include/10.0.17763.0/ucrt/stdlib.h (included 3 times, avg 15 ms), included via:
+  Colors.json windows.h ole2.h objbase.h combaseapi.h  (17 ms)
+  algorithm xmemory cstdlib  (16 ms)
+  Utils.h string xstring iosfwd xstddef cstdlib  (12 ms)
+
+40 ms: C:/Program Files (x86)/Windows Kits/10/Include/10.0.17763.0/ucrt/wchar.h (included 2 times, avg 20 ms), included via:
+  algorithm xmemory limits cwchar  (23 ms)
+  Utils.h string xstring iosfwd cwchar  (17 ms)
+
+32 ms: C:/Program Files (x86)/Windows Kits/10/Include/10.0.17763.0/ucrt/string.h (included 3 times, avg 10 ms), included via:
+  Utils.h string xstring iosfwd cstring  (13 ms)
+  Colors.json windows.h windef.h minwindef.h winnt.h guiddef.h  (13 ms)
+  algorithm xmemory xutility cstring  (6 ms)
+
+20 ms: C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/VC/Tools/MSVC/14.22.27905/include/yvals.h (included 2 times, avg 10 ms), included via:
+  Utils.h string xstring iosfwd  (10 ms)
+  algorithm xmemory cstdint  (10 ms)
+
+20 ms: C:/Program Files (x86)/Windows Kits/10/Include/10.0.17763.0/ucrt/math.h (included 2 times, avg 10 ms), included via:
+  Utils.h string xstring iosfwd xstddef cstdlib  (10 ms)
+  algorithm xmemory cstdlib  (10 ms)
+
+4 ms: C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/VC/Tools/MSVC/14.22.27905/include/vcruntime_exception.h (included 2 times, avg 2 ms), included via:
+  Utils.h string xstring xmemory new exception  (2 ms)
+  algorithm xmemory new exception  (2 ms)
+
+2 ms: C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/VC/Tools/MSVC/14.22.27905/include/xatomic.h (included 2 times, avg 1 ms), included via:
+  Utils.h string xstring xmemory  (1 ms)
+  algorithm xmemory  (1 ms)
+

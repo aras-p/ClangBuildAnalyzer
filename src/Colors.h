@@ -5,7 +5,7 @@
 namespace col
 {
 
-	void Initialize();
+	void Initialize(bool forceDisableColors = false);
 
 	extern const char* kBold;
 	extern const char* kRed;

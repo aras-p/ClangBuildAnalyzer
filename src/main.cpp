@@ -34,6 +34,26 @@ static std::string ReadFileToString(const std::string& path)
 	return str;
 }
 
+static bool CompareIgnoreNewlines(const std::string& a, const std::string& b)
+{
+	size_t alen = a.size();
+	size_t blen = b.size();
+	size_t ia = 0, ib = 0;
+	for (; ia < alen && ib < blen; ++ia, ++ib)
+	{
+		if (a[ia] == '\r')
+			++ia;
+		if (b[ib] == '\r')
+			++ib;
+		if (ia < alen && ib < blen)
+			if (a[ia] != b[ib])
+				return false;
+	}
+	if (ia != alen || ib != blen)
+		return false;
+	return true;
+}
+
 static void PrintUsage()
 {
     printf("%sUSAGE%s: one of\n", col::kBold, col::kReset);
@@ -218,7 +238,7 @@ static int RunStop(int argc, const char* argv[])
 }
 
 
-static int RunAnalyze(int argc, const char* argv[])
+static int RunAnalyze(int argc, const char* argv[], FILE* out)
 {
     if (argc < 3)
     {
@@ -250,7 +270,7 @@ static int RunAnalyze(int argc, const char* argv[])
         return 1;
     }
     
-    DoAnalysis(events, names);
+    DoAnalysis(events, names, out);
     
     double tDuration = stm_sec(stm_since(tStart));
     printf("%s  done in %.1fs.%s\n", col::kYellow, tDuration, col::kReset);
@@ -275,22 +295,42 @@ static int RunOneTest(const std::string& folder)
 
 	std::string gotTrace = ReadFileToString(traceFile);
 	std::string expTrace = ReadFileToString(traceExpFile);
-	if (gotTrace != expTrace)
+	if (!CompareIgnoreNewlines(gotTrace, expTrace))
 	{
 		printf("%sTrace json file (%s) and expected json file (%s) do not match%s\n", col::kRed, traceFile.c_str(), traceExpFile.c_str(), col::kReset);
 		return false;
 	}
 
+	std::string analyzeFile = folder + "/_AnalysisOutput.txt";
+	std::string analyzeExpFile = folder + "/_AnalysisOutputExpected.txt";
 	const char* kAnalyzeArgs[] =
 	{
 		"",
 		"--analyze",
 		traceFile.c_str()
 	};
-	if (RunAnalyze(3, kAnalyzeArgs) != 0)
+	FILE* out = fopen(analyzeFile.c_str(), "wb");
+	if (!out)
+	{
+		printf("%sFailed to create analysis output file '%s'%s\n", col::kRed, analyzeFile.c_str(), col::kReset);
+		return false;
+	}
+	col::Initialize(true);
+	int analysisResult = RunAnalyze(3, kAnalyzeArgs, out);
+	col::Initialize();
+	fclose(out);
+	if (analysisResult != 0)
 		return false;
 
-	//@TODO: compare output
+	std::string gotAnalysis = ReadFileToString(analyzeFile);
+	std::string expAnalysis = ReadFileToString(analyzeExpFile);
+	if (!CompareIgnoreNewlines(gotAnalysis, expAnalysis))
+	{
+		printf("%sAnalysis output (%s) and expected output (%s) do not match%s\n", col::kRed, analyzeFile.c_str(), analyzeExpFile.c_str(), col::kReset);
+		printf("--- Got:\n%s\n", gotAnalysis.c_str());
+		printf("--- Expected:\n%s\n", expAnalysis.c_str());
+		return false;
+	}
 
 	return true;
 }
@@ -340,7 +380,7 @@ static int ProcessCommands(int argc, const char* argv[])
     if (strcmp(argv[1], "--stop") == 0)
         return RunStop(argc, argv);
     if (strcmp(argv[1], "--analyze") == 0)
-        return RunAnalyze(argc, argv);
+        return RunAnalyze(argc, argv, stdout);
 	if (strcmp(argv[1], "--test") == 0)
 		return RunTests(argc, argv);
 

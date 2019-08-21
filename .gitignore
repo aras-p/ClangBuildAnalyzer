@@ -3,4 +3,5 @@ projects/vs2017/.vs
 project.xcworkspace
 *.vcxproj.user
 xcuserdata
+_AnalysisOutput.txt
 _TraceOutput.json

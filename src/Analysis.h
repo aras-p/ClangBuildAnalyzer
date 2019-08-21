@@ -3,5 +3,6 @@
 #pragma once
 
 #include "BuildEvents.h"
+#include <stdio.h>
 
-void DoAnalysis(const BuildEvents& events, BuildNames& names);
+void DoAnalysis(const BuildEvents& events, BuildNames& names, FILE* out);

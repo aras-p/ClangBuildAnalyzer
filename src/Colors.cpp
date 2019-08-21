@@ -14,7 +14,7 @@ struct IUnknown; // workaround for old Win SDK header failures when using /permi
 
 static bool s_UseColors = false;
 
-void col::Initialize()
+void col::Initialize(bool forceDisableColors)
 {
 #ifdef _MSC_VER
 	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -39,18 +39,33 @@ void col::Initialize()
 
 #endif // else of #ifdef _MSC_VER
 
+	if (forceDisableColors)
+		s_UseColors = false;
+
 	if (!s_UseColors)
 	{
 		kBold = kRed = kGreen = kYellow = kBlue = kMagenta = kCyan = kWhite = kReset = "";
 	}
+	else
+	{
+		kBold = "\x1B[1m";
+		kRed = "\x1B[91m";
+		kGreen = "\x1B[32m";
+		kYellow = "\x1B[33m";
+		kBlue = "\x1B[34m";
+		kMagenta = "\x1B[35m";
+		kCyan = "\x1B[36m";
+		kWhite = "\x1B[37m";
+		kReset = "\x1B[0m";
+	}
 }
 
-const char* col::kBold = "\x1B[1m";
-const char* col::kRed = "\x1B[91m";
-const char* col::kGreen = "\x1B[32m";
-const char* col::kYellow = "\x1B[33m";
-const char* col::kBlue = "\x1B[34m";
-const char* col::kMagenta = "\x1B[35m";
-const char* col::kCyan = "\x1B[36m";
-const char* col::kWhite = "\x1B[37m";
-const char* col::kReset = "\x1B[0m";
+const char* col::kBold;
+const char* col::kRed;
+const char* col::kGreen;
+const char* col::kYellow;
+const char* col::kBlue;
+const char* col::kMagenta;
+const char* col::kCyan;
+const char* col::kWhite;
+const char* col::kReset;

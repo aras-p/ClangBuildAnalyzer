@@ -47,10 +47,11 @@ struct pair_hash
 
 struct Analysis
 {
-	Analysis(const BuildEvents& events_, BuildNames& buildNames_)
+	Analysis(const BuildEvents& events_, BuildNames& buildNames_, FILE* out_)
     : events(events_)
     , buildNames(buildNames_)
     , buildNamesDone(buildNames_.size(), 0)
+	, out(out_)
 	{
         buildNamesDone.resize(buildNames.size());
 		functions.reserve(256);
@@ -63,6 +64,8 @@ struct Analysis
     const BuildEvents& events;
     BuildNames& buildNames;
     std::vector<char> buildNamesDone;
+
+	FILE* out;
     
     const std::string& GetBuildName(int index)
     {
@@ -232,11 +235,11 @@ void Analysis::EndAnalysis()
 {
 	if (totalParseMs || totalCodegenMs)
 	{
-		printf("%s%s**** Time summary%s:\n", col::kBold, col::kMagenta, col::kReset);
-		printf("Compilation (%i times):\n", totalParseCount);
-		printf("  Parsing (frontend):        %s%7.1f%s s\n", col::kBold, totalParseMs / 1000.0, col::kReset);
-		printf("  Codegen & opts (backend):  %s%7.1f%s s\n", col::kBold, totalCodegenMs / 1000.0, col::kReset);
-		printf("\n");
+		fprintf(out, "%s%s**** Time summary%s:\n", col::kBold, col::kMagenta, col::kReset);
+		fprintf(out, "Compilation (%i times):\n", totalParseCount);
+		fprintf(out, "  Parsing (frontend):        %s%7.1f%s s\n", col::kBold, totalParseMs / 1000.0, col::kReset);
+		fprintf(out, "  Codegen & opts (backend):  %s%7.1f%s s\n", col::kBold, totalCodegenMs / 1000.0, col::kReset);
+		fprintf(out, "\n");
 	}
 
 	if (!parseFiles.empty())
@@ -250,13 +253,13 @@ void Analysis::EndAnalysis()
 			const auto& b = parseFiles[indexB];
 			return a.ms > b.ms;
 			});
-		printf("%s%s**** Files that took longest to parse (compiler frontend)%s:\n", col::kBold, col::kMagenta, col::kReset);
+		fprintf(out, "%s%s**** Files that took longest to parse (compiler frontend)%s:\n", col::kBold, col::kMagenta, col::kReset);
 		for (size_t i = 0, n = std::min<size_t>(config.fileParseCount, indices.size()); i != n; ++i)
 		{
 			const auto& e = parseFiles[indices[i]];
-			printf("%s%6i%s ms: %s\n", col::kBold, e.ms, col::kReset, GetBuildName(e.file).c_str());
+			fprintf(out, "%s%6i%s ms: %s\n", col::kBold, e.ms, col::kReset, GetBuildName(e.file).c_str());
 		}
-		printf("\n");
+		fprintf(out, "\n");
 	}
 	if (!codegenFiles.empty())
 	{
@@ -269,13 +272,13 @@ void Analysis::EndAnalysis()
 			const auto& b = codegenFiles[indexB];
 			return a.ms > b.ms;
 			});
-		printf("%s%s**** Files that took longest to codegen (compiler backend)%s:\n", col::kBold, col::kMagenta, col::kReset);
+		fprintf(out, "%s%s**** Files that took longest to codegen (compiler backend)%s:\n", col::kBold, col::kMagenta, col::kReset);
 		for (size_t i = 0, n = std::min<size_t>(config.fileCodegenCount, indices.size()); i != n; ++i)
 		{
 			const auto& e = codegenFiles[indices[i]];
-			printf("%s%6i%s ms: %s\n", col::kBold, e.ms, col::kReset, GetBuildName(e.file).c_str());
+			fprintf(out, "%s%6i%s ms: %s\n", col::kBold, e.ms, col::kReset, GetBuildName(e.file).c_str());
 		}
-		printf("\n");
+		fprintf(out, "\n");
 	}
 
     if (!instantiations.empty())
@@ -295,16 +298,16 @@ void Analysis::EndAnalysis()
             const auto& b = instArray[indexB];
             return a.second.ms > b.second.ms;
         });
-        printf("%s%s**** Templates that took longest to instantiate%s:\n", col::kBold, col::kMagenta, col::kReset);
+		fprintf(out, "%s%s**** Templates that took longest to instantiate%s:\n", col::kBold, col::kMagenta, col::kReset);
         for (size_t i = 0, n = std::min<size_t>(config.templateCount, indices.size()); i != n; ++i)
         {
             const auto& e = instArray[indices[i]];
             std::string dname = llvm::demangle(GetBuildName(e.first));
             if (dname.size() > config.maxName)
                 dname = dname.substr(0, config.maxName-2) + "...";
-            printf("%s%6i%s ms: %s (%i times, avg %i ms)\n", col::kBold, e.second.ms, col::kReset, dname.c_str(), e.second.count, e.second.ms/e.second.count);
+			fprintf(out, "%s%6i%s ms: %s (%i times, avg %i ms)\n", col::kBold, e.second.ms, col::kReset, dname.c_str(), e.second.count, e.second.ms/e.second.count);
         }
-        printf("\n");
+		fprintf(out, "\n");
     }
 
     if (!functions.empty())
@@ -324,27 +327,27 @@ void Analysis::EndAnalysis()
 			const auto& b = functionsArray[indexB];
 			return a.second > b.second;
 			});
-		printf("%s%s**** Functions that took longest to compile%s:\n", col::kBold, col::kMagenta, col::kReset);
+		fprintf(out, "%s%s**** Functions that took longest to compile%s:\n", col::kBold, col::kMagenta, col::kReset);
 		for (size_t i = 0, n = std::min<size_t>(config.functionCount, indices.size()); i != n; ++i)
 		{
 			const auto& e = functionsArray[indices[i]];
             std::string dname = llvm::demangle(GetBuildName(e.first.first));
 			if (dname.size() > config.maxName)
 				dname = dname.substr(0, config.maxName-2) + "...";
-			printf("%s%6i%s ms: %s (%s)\n", col::kBold, e.second, col::kReset, dname.c_str(), GetBuildName(e.first.second).c_str());
+			fprintf(out, "%s%6i%s ms: %s (%s)\n", col::kBold, e.second, col::kReset, dname.c_str(), GetBuildName(e.first.second).c_str());
 		}
-		printf("\n");
+		fprintf(out, "\n");
 	}
 
 	FindExpensiveHeaders();
 
 	if (!expensiveHeaders.empty())
 	{
-		printf("%s%s*** Expensive headers%s:\n", col::kBold, col::kMagenta, col::kReset);
+		fprintf(out, "%s%s*** Expensive headers%s:\n", col::kBold, col::kMagenta, col::kReset);
 		for (const auto& e : expensiveHeaders)
 		{
 			const auto& es = headerMap[e.first];
-			printf("%s%i%s ms: %s%s%s (included %i times, avg %i ms), included via:\n", col::kBold, e.second, col::kReset, col::kBold, e.first.c_str(), col::kReset, es.count, e.second / es.count);
+			fprintf(out, "%s%i%s ms: %s%s%s (included %i times, avg %i ms), included via:\n", col::kBold, e.second, col::kReset, col::kBold, e.first.c_str(), col::kReset, es.count, e.second / es.count);
 			int pathCount = 0;
 
 			auto sortedIncludeChains = es.includePaths;
@@ -352,21 +355,21 @@ void Analysis::EndAnalysis()
 
 			for (const auto& chain : sortedIncludeChains)
 			{
-				printf("  ");
+				fprintf(out, "  ");
                 for (auto it = chain.files.rbegin(), itEnd = chain.files.rend(); it != itEnd; ++it)
 				{
-                    printf("%s ", utils::GetFilename(GetBuildName(*it)).c_str());
+					fprintf(out, "%s ", utils::GetFilename(GetBuildName(*it)).c_str());
 				}
-				printf(" (%i ms)\n", chain.ms);
+				fprintf(out, " (%i ms)\n", chain.ms);
 				++pathCount;
 				if (pathCount > config.headerChainCount)
 					break;
 			}
 			if (pathCount > config.headerChainCount)
 			{
-				printf("  ...\n");
+				fprintf(out, "  ...\n");
 			}
-			printf("\n");
+			fprintf(out, "\n");
 		}
 	}
 }
@@ -403,9 +406,9 @@ void Analysis::ReadConfig()
 }
 
 
-void DoAnalysis(const BuildEvents& events, BuildNames& names)
+void DoAnalysis(const BuildEvents& events, BuildNames& names, FILE* out)
 {
-    Analysis a(events, names);
+    Analysis a(events, names, out);
     a.ReadConfig();
     for (int i = 0, n = (int)events.size(); i != n; ++i)
         a.ProcessEvent(i);
