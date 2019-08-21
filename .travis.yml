@@ -14,3 +14,4 @@ matrix:
       script:
         - xcodebuild -project projects/xcode/ClangBuildAnalyzer.xcodeproj -configuration Debug build
         - xcodebuild -project projects/xcode/ClangBuildAnalyzer.xcodeproj -configuration Release build
+        - projects/xcode/build/Release/ClangBuildAnalyzer --test tests

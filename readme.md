@@ -93,7 +93,8 @@ Granularity and amount of most expensive things (files, functions, templates, in
 
 ### Building it
 
-Right now there's only an Apple Xcode 9.x project at `projects/xcode/ClangBuildAnalyzer.xcodeproj`. WIP! :construction:
+* Windows: Visual Studio 2017 solution at `projects/vs2017/ClangBuildAnalyzer.sln`.
+* Mac: Xcode 9.x project at `projects/xcode/ClangBuildAnalyzer.xcodeproj`.
 
 
 ### License
