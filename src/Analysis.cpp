@@ -276,7 +276,7 @@ void Analysis::EndAnalysis()
         for (const auto& inst : instantiations)
         {
             instArray.emplace_back(inst);
-            indices.emplace_back(indices.size());
+            indices.emplace_back((int)indices.size());
         }
         
         std::sort(indices.begin(), indices.end(), [&](int indexA, int indexB) {
@@ -305,7 +305,7 @@ void Analysis::EndAnalysis()
         for (const auto& fn : functions)
         {
             functionsArray.emplace_back(fn);
-            indices.emplace_back(indices.size());
+            indices.emplace_back((int)indices.size());
         }
         
 		std::sort(indices.begin(), indices.end(), [&](int indexA, int indexB) {

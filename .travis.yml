@@ -1,6 +1,12 @@
 language: shell
 matrix:
   include:
+    - name: "Windows VS2017"
+      os: windows
+      script:
+        - cmd.exe /C '"C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvarsall.bat" amd64 && msbuild.exe projects/vs2017/ClangBuildAnalyzer.sln /p:Configuration=Debug'
+        - cmd.exe /C '"C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvarsall.bat" amd64 && msbuild.exe projects/vs2017/ClangBuildAnalyzer.sln /p:Configuration=Release'
+        
     - name: "Mac Xcode 10/clang"
       os: osx
       osx_image: xcode10.1

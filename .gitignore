@@ -1,3 +1,5 @@
 build/
+projects/vs2017/.vs
 project.xcworkspace
+*.vcxproj.user
 xcuserdata

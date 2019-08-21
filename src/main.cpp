@@ -43,13 +43,23 @@ static int RunStart(int argc, const char* argv[])
     // save start timestamp into the session file
     time_t now = time(NULL);
     static_assert(sizeof(time_t)==8, "expected that time_t is a 64-bit number");
-    fprintf(fsession, "%lu\n", now);
+    fprintf(fsession, "%llu\n", now);
     fclose(fsession);
 
     printf("%sBuild tracing started. Do some Clang builds with '-ftime-trace', then run 'ClangBuildAnalyzer --stop %s <filename>' to stop tracing and save session to a file.%s\n", col::kYellow, artifactsDir.c_str(), col::kReset);
 
     return 0;
 }
+
+#ifdef _MSC_VER
+static time_t FiletimeToTime(const FILETIME& ft)
+{
+	ULARGE_INTEGER ull;
+	ull.LowPart = ft.dwLowDateTime;
+	ull.HighPart = ft.dwHighDateTime;
+	return ull.QuadPart / 10000000ULL - 11644473600ULL;
+}
+#endif
 
 struct JsonFileFinder
 {
@@ -68,7 +78,14 @@ struct JsonFileFinder
         cf_time_t mtime;
         if (!cf_get_file_time(f->path, &mtime))
             return;
-        if (mtime.time < startTime || mtime.time > endTime)
+		time_t fileModTime;
+#ifdef _MSC_VER
+		fileModTime = FiletimeToTime(mtime.time);
+#else
+		fileModTime = mtime.time;
+#endif
+
+        if (fileModTime < startTime || fileModTime > endTime)
             return;
         
         // read the file
@@ -132,7 +149,7 @@ static int RunStop(int argc, const char* argv[])
     
     time_t startTime = 0;
     time_t stopTime = time(NULL);
-    fscanf(fsession, "%lu", &startTime);
+    fscanf(fsession, "%llu", &startTime);
     fclose(fsession);
 
     JsonFileFinder jsonFiles;

@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\..\src\Allocator.cpp" />
+    <ClCompile Include="..\..\src\Analysis.cpp" />
+    <ClCompile Include="..\..\src\BuildEvents.cpp" />
+    <ClCompile Include="..\..\src\Colors.cpp" />
+    <ClCompile Include="..\..\src\main.cpp" />
+    <ClCompile Include="..\..\src\Utils.cpp" />
+    <ClCompile Include="..\..\src\external\inih\ini.c">
+      <Filter>external\inih</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\external\inih\cpp\INIReader.cpp">
+      <Filter>external\inih</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\external\llvm-Demangle\lib\Demangle.cpp">
+      <Filter>external\llvm-Demangle</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\external\llvm-Demangle\lib\ItaniumDemangle.cpp">
+      <Filter>external\llvm-Demangle</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\external\llvm-Demangle\lib\MicrosoftDemangle.cpp">
+      <Filter>external\llvm-Demangle</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\external\llvm-Demangle\lib\MicrosoftDemangleNodes.cpp">
+      <Filter>external\llvm-Demangle</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\Analysis.h" />
+    <ClInclude Include="..\..\src\BuildEvents.h" />
+    <ClInclude Include="..\..\src\Colors.h" />
+    <ClInclude Include="..\..\src\Utils.h" />
+    <ClInclude Include="..\..\src\external\cute_files.h">
+      <Filter>external</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\external\sajson.h">
+      <Filter>external</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\external\sokol_time.h">
+      <Filter>external</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\external\inih\ini.h">
+      <Filter>external\inih</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\external\inih\cpp\INIReader.h">
+      <Filter>external\inih</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\external\llvm-Demangle\include\Demangle.h">
+      <Filter>external\llvm-Demangle</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\external\llvm-Demangle\include\DemangleConfig.h">
+      <Filter>external\llvm-Demangle</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\external\llvm-Demangle\include\ItaniumDemangle.h">
+      <Filter>external\llvm-Demangle</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\external\llvm-Demangle\include\MicrosoftDemangle.h">
+      <Filter>external\llvm-Demangle</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\external\llvm-Demangle\include\MicrosoftDemangleNodes.h">
+      <Filter>external\llvm-Demangle</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\external\llvm-Demangle\include\StringView.h">
+      <Filter>external\llvm-Demangle</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\external\llvm-Demangle\include\Utility.h">
+      <Filter>external\llvm-Demangle</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="external">
+      <UniqueIdentifier>{9eb539fd-866b-489a-a661-5a9fca1ed75a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external\inih">
+      <UniqueIdentifier>{1af300bb-20dd-4732-a737-0f95099c9feb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external\llvm-Demangle">
+      <UniqueIdentifier>{cddd9c12-630b-4077-8e2f-4a7fa782e204}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
