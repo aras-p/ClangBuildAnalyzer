@@ -4,13 +4,13 @@ Compilation (3 times):
   Codegen & opts (backend):      0.3 s
 
 **** Files that took longest to parse (compiler frontend):
-   969 ms: tests/clang-cl-9.0/Utils.json
-   718 ms: tests/clang-cl-9.0/Colors.json
-   619 ms: tests/clang-cl-9.0/Allocator.json
+   969 ms: tests/self-win-clang-cl-9.0rc2/Utils.json
+   718 ms: tests/self-win-clang-cl-9.0rc2/Colors.json
+   619 ms: tests/self-win-clang-cl-9.0rc2/Allocator.json
 
 **** Files that took longest to codegen (compiler backend):
-   302 ms: tests/clang-cl-9.0/Utils.json
-    15 ms: tests/clang-cl-9.0/Colors.json
+   302 ms: tests/self-win-clang-cl-9.0rc2/Utils.json
+    15 ms: tests/self-win-clang-cl-9.0rc2/Colors.json
 
 **** Templates that took longest to instantiate:
     13 ms: std::basic_string<char, std::char_traits<char>, std::allocator<char>... (8 times, avg 1 ms)
@@ -70,8 +70,8 @@ Compilation (3 times):
      1 ms: public: __cdecl std::basic_string<char, struct std::char_traits<char... (src/Utils.cpp)
      1 ms: public: class std::basic_string<char, struct std::char_traits<char>,... (src/Utils.cpp)
      1 ms: public: __cdecl std::basic_string<char, struct std::char_traits<char... (src/Utils.cpp)
-     1 ms: void __cdecl col::Initialize(void) (tests/clang-cl-9.0/Colors.json)
-     0 ms: void __cdecl `dynamic initializer for 's_CurrentDir''(void) (tests/clang-cl-9.0/Utils.json)
+     1 ms: void __cdecl col::Initialize(void) (tests/self-win-clang-cl-9.0rc2/Colors.json)
+     0 ms: void __cdecl `dynamic initializer for 's_CurrentDir''(void) (tests/self-win-clang-cl-9.0rc2/Utils.json)
      0 ms: public: __cdecl std::allocator<char>::allocator<char>(void) (src/Utils.cpp)
      0 ms: void __cdecl std::_Adjust_manually_vector_aligned(void *&, unsigned ... (src/Utils.cpp)
      0 ms: void __cdecl std::_Deallocate<16, 0>(void *, unsigned __int64) (src/Utils.cpp)
