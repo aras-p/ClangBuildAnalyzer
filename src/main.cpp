@@ -10,6 +10,10 @@
 #include <time.h>
 #include <unordered_map>
 
+#ifdef _MSC_VER
+struct IUnknown; // workaround for old Win SDK header failures when using /permissive-
+#endif
+
 #define SOKOL_IMPL
 #include "external/sokol_time.h"
 #define CUTE_FILES_IMPLEMENTATION
