@@ -62,7 +62,11 @@ static int RunStart(int argc, const char* argv[])
     // save start timestamp into the session file
     time_t now = time(NULL);
     static_assert(sizeof(time_t)==8, "expected that time_t is a 64-bit number");
+#if _MSC_VER
     fprintf(fsession, "%llu\n", now);
+#else
+	fprintf(fsession, "%lu\n", now);
+#endif
     fclose(fsession);
 
     printf("%sBuild tracing started. Do some Clang builds with '-ftime-trace', then run 'ClangBuildAnalyzer --stop %s <filename>' to stop tracing and save session to a file.%s\n", col::kYellow, artifactsDir.c_str(), col::kReset);
@@ -161,7 +165,11 @@ static int RunStop(int argc, const char* argv[])
     
     time_t startTime = 0;
     time_t stopTime = time(NULL);
+#if _MSC_VER
     fscanf(fsession, "%llu", &startTime);
+#else
+	fscanf(fsession, "%lu", &startTime);
+#endif
     fclose(fsession);
 
     JsonFileFinder jsonFiles;
