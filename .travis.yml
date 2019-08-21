@@ -16,10 +16,9 @@ matrix:
         - xcodebuild -project projects/xcode/ClangBuildAnalyzer.xcodeproj -configuration Release build
         - projects/xcode/build/Release/ClangBuildAnalyzer --test tests
 
-    - name: "Linux gcc"
+    - name: "Linux gcc 5.4"
       os: linux
-      dist: trusty
-      sudo: false
+      dist: xenial
       script:
         - make -f projects/make/Makefile -j 4
         - build/ClangBuildAnalyzer --test tests
