@@ -54,14 +54,14 @@ struct JsonTraverser
     {
         NameToIndex(""); // make sure zero index is empty
     }
-    
+
     std::string curFileName;
     BuildEvents& resultEvents;
     BuildNames& resultNames;
     BuildEvents fileEvents;
 
     std::unordered_map<std::string, int> nameToIndex;
-    
+
     int NameToIndex(const std::string& name)
     {
         auto it = nameToIndex.find(name);
@@ -84,7 +84,7 @@ struct JsonTraverser
         const auto& files = node.get_value_of_key(sajson::literal("files"));
         ParseFiles(files);
     }
-    
+
     void ParseFiles(const sajson::value& node)
     {
         if (node.get_type() != sajson::TYPE_OBJECT)
@@ -93,7 +93,7 @@ struct JsonTraverser
             resultEvents.clear();
             return;
         }
-        
+
         for (size_t i = 0, n = node.get_length(); i != n; ++i)
         {
             const auto& fileName = node.get_object_key(i);
@@ -109,7 +109,7 @@ struct JsonTraverser
             ParseTraceEvents(traceEventsVal);
         }
     }
-    
+
     void ParseTraceEvents(const sajson::value& node)
     {
         if (node.get_type() != sajson::TYPE_ARRAY)
@@ -137,7 +137,7 @@ struct JsonTraverser
         }
         AddEvents(resultEvents, fileEvents);
     }
-    
+
     static bool StrEqual(const sajson::string& s1, const sajson::string& s2)
     {
         if (s1.length() != s2.length())
@@ -146,7 +146,7 @@ struct JsonTraverser
             return false;
         return true;
     }
-    
+
     const sajson::string kPid = sajson::literal("pid");
     const sajson::string kTid = sajson::literal("tid");
     const sajson::string kPh = sajson::literal("ph");
@@ -164,7 +164,7 @@ struct JsonTraverser
             resultEvents.clear();
             return;
         }
-        
+
         BuildEvent event;
         for (size_t i = 0, n = node.get_length(); i != n; ++i)
         {
@@ -247,7 +247,7 @@ struct JsonTraverser
                 }
             }
         }
-        
+
         if (event.detailIndex == 0 && event.type == BuildEventType::kCompiler)
             event.detailIndex = NameToIndex(curFileName);
         fileEvents.emplace_back(event);
@@ -262,7 +262,7 @@ void ParseBuildEvents(std::string& jsonText, BuildEvents& outEvents, BuildNames&
         printf("%sERROR: JSON parse error %s.%s\n", col::kRed, doc.get_error_message_as_cstring(), col::kReset);
         return;
     }
-    
+
     JsonTraverser traverser(outEvents, outNames);
     traverser.ParseRoot(doc.get_root());
     //DebugPrintEvents(outEvents, outEvents);

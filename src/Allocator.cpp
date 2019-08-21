@@ -25,19 +25,19 @@ static size_t s_CurBlockSize = 0;
 
 void* operator new(size_t count)
 {
-	// allocate new chunk of memory if needed
-	if (s_CurBlock == nullptr || s_CurBlockUsed + count > s_CurBlockSize)
-	{
-		s_CurBlockSize = std::max(kBlockSize, count);
+    // allocate new chunk of memory if needed
+    if (s_CurBlock == nullptr || s_CurBlockUsed + count > s_CurBlockSize)
+    {
+        s_CurBlockSize = std::max(kBlockSize, count);
 #ifdef _MSC_VER
-		s_CurBlock = VirtualAlloc(NULL, s_CurBlockSize, MEM_RESERVE|MEM_COMMIT, PAGE_READWRITE);
-		if (s_CurBlock == nullptr)
-		{
-			DWORD err = GetLastError();
-			printf("ERROR: failed to allocate %zu bytes via VirtualAlloc, error %i\n", count, err);
-			throw std::bad_alloc();
-			return nullptr;
-		}
+        s_CurBlock = VirtualAlloc(NULL, s_CurBlockSize, MEM_RESERVE|MEM_COMMIT, PAGE_READWRITE);
+        if (s_CurBlock == nullptr)
+        {
+            DWORD err = GetLastError();
+            printf("ERROR: failed to allocate %zu bytes via VirtualAlloc, error %i\n", count, err);
+            throw std::bad_alloc();
+            return nullptr;
+        }
 #else
         s_CurBlock = mmap(0, s_CurBlockSize, PROT_READ | PROT_WRITE, MAP_ANON | MAP_PRIVATE, 0, 0);
         if (s_CurBlock == nullptr)
@@ -46,12 +46,12 @@ void* operator new(size_t count)
             throw std::bad_alloc();
         }
 #endif
-		s_CurBlockUsed = 0;
-	}
+        s_CurBlockUsed = 0;
+    }
 
-	void* res = (char*)s_CurBlock + s_CurBlockUsed;
-	s_CurBlockUsed += count;
-	return res;
+    void* res = (char*)s_CurBlock + s_CurBlockUsed;
+    s_CurBlockUsed += count;
+    return res;
 }
 
 void operator delete(void * p) throw()

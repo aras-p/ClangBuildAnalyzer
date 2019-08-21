@@ -1,0 +1,36 @@
+root = true
+
+[*]
+end_of_line = lf
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.{c,h,cpp,hpp,m,mm,cc,cs,ini}]
+indent_style = space
+indent_size = 4
+
+[{Makefile,makefile}]
+indent_style = tab
+
+[*.{md,markdown}]
+# trailing whitespace is significant in markdown!
+trim_trailing_whitespace = false
+
+[*.{json}]
+indent_style = space
+# seems to be more common
+indent_size = 2
+
+[*.{vcxproj,vcxproj.filters,csproj,props,targets}]
+indent_style = space
+indent_size = 2
+end_of_line = crlf
+trim_trailing_whitespace = true
+insert_final_newline = false
+[*.{sln,sln.template}]
+indent_style = tab
+indent_size = 4
+end_of_line = crlf
+trim_trailing_whitespace = true
+insert_final_newline = false

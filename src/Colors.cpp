@@ -17,17 +17,17 @@ static bool s_UseColors = false;
 void col::Initialize(bool forceDisableColors)
 {
 #ifdef _MSC_VER
-	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
-	DWORD dwMode = 0;
-	if (GetConsoleMode(hOut, &dwMode))
-	{
-		s_UseColors = true;
+    HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    DWORD dwMode = 0;
+    if (GetConsoleMode(hOut, &dwMode))
+    {
+        s_UseColors = true;
 
-		const int ENABLE_VIRTUAL_TERMINAL_PROCESSING_impl = 0x0004;
-		DWORD newMode = dwMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING_impl;
-		if (newMode != dwMode)
-			SetConsoleMode(hOut, newMode);
-	}
+        const int ENABLE_VIRTUAL_TERMINAL_PROCESSING_impl = 0x0004;
+        DWORD newMode = dwMode | ENABLE_VIRTUAL_TERMINAL_PROCESSING_impl;
+        if (newMode != dwMode)
+            SetConsoleMode(hOut, newMode);
+    }
 #else // #ifdef _MSC_VER
 
     if (isatty(fileno(stdout)))
@@ -39,25 +39,25 @@ void col::Initialize(bool forceDisableColors)
 
 #endif // else of #ifdef _MSC_VER
 
-	if (forceDisableColors)
-		s_UseColors = false;
+    if (forceDisableColors)
+        s_UseColors = false;
 
-	if (!s_UseColors)
-	{
-		kBold = kRed = kGreen = kYellow = kBlue = kMagenta = kCyan = kWhite = kReset = "";
-	}
-	else
-	{
-		kBold = "\x1B[1m";
-		kRed = "\x1B[91m";
-		kGreen = "\x1B[32m";
-		kYellow = "\x1B[33m";
-		kBlue = "\x1B[34m";
-		kMagenta = "\x1B[35m";
-		kCyan = "\x1B[36m";
-		kWhite = "\x1B[37m";
-		kReset = "\x1B[0m";
-	}
+    if (!s_UseColors)
+    {
+        kBold = kRed = kGreen = kYellow = kBlue = kMagenta = kCyan = kWhite = kReset = "";
+    }
+    else
+    {
+        kBold = "\x1B[1m";
+        kRed = "\x1B[91m";
+        kGreen = "\x1B[32m";
+        kYellow = "\x1B[33m";
+        kBlue = "\x1B[34m";
+        kMagenta = "\x1B[35m";
+        kCyan = "\x1B[36m";
+        kWhite = "\x1B[37m";
+        kReset = "\x1B[0m";
+    }
 }
 
 const char* col::kBold;
