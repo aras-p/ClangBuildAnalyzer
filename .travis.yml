@@ -1,0 +1,9 @@
+language: shell
+matrix:
+  include:
+    - name: "Mac Xcode 10/clang"
+      os: osx
+      osx_image: xcode10.1
+      script:
+        - xcodebuild -project projects/xcode/ClangBuildAnalyzer.xcodeproj -configuration Debug build
+        - xcodebuild -project projects/xcode/ClangBuildAnalyzer.xcodeproj -configuration Release build
