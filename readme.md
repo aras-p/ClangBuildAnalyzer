@@ -96,6 +96,15 @@ Granularity and amount of most expensive things (files, functions, templates, in
 * Linux: Makefile for gcc (tested with 5.4), build with `make -f projects/make/Makefile`.
 
 
+### Limitations
+
+* Does not capture anything related to linking (or LTO, I guess) right now.
+* I haven't tried running it on _huge_ builds; largest I ran was several thousand compiler invocations; and
+  the analysis step runs in about 10 seconds on that. I haven't tried on something ginormous like a Chrome build;
+  I expect some of my lazy code might not scale to that (I do have one `O(N^2)` place... yeah yeah, I know, shame on
+  me).
+
+
 ### License
 
 License for the Clang Build Analyzer itself is [Unlicense](https://unlicense.org/), i.e. public domain. However, the source code
