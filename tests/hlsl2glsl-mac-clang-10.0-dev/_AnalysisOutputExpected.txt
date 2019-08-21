@@ -96,9 +96,9 @@ Compilation (4 times):
 
 452 ms: hlslang/GLSLCodeGen/glslStruct.h (included 4 times, avg 113 ms), included via:
   glslCommon.json  (446 ms)
-  glslOutput.json glslOutput.h  (2 ms)
   hlslLinker.json hlslLinker.h glslFunction.h  (2 ms)
   glslFunction.json glslFunction.h  (2 ms)
+  glslOutput.json glslOutput.h  (2 ms)
 
 3 ms: hlslang/GLSLCodeGen/hlslCrossCompiler.h (included 1 times, avg 3 ms), included via:
   hlslLinker.json  (3 ms)

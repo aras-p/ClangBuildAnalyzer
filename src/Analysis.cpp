@@ -251,7 +251,9 @@ void Analysis::EndAnalysis()
 		std::sort(indices.begin(), indices.end(), [&](int indexA, int indexB) {
 			const auto& a = parseFiles[indexA];
 			const auto& b = parseFiles[indexB];
-			return a.ms > b.ms;
+			if (a.ms != b.ms)
+				return a.ms > b.ms;
+			return a.file < b.file;
 			});
 		fprintf(out, "%s%s**** Files that took longest to parse (compiler frontend)%s:\n", col::kBold, col::kMagenta, col::kReset);
 		for (size_t i = 0, n = std::min<size_t>(config.fileParseCount, indices.size()); i != n; ++i)
@@ -359,7 +361,12 @@ void Analysis::EndAnalysis()
 			int pathCount = 0;
 
 			auto sortedIncludeChains = es.includePaths;
-			std::sort(sortedIncludeChains.begin(), sortedIncludeChains.end(), [](const auto& a, const auto& b) { return a.ms > b.ms; });
+			std::sort(sortedIncludeChains.begin(), sortedIncludeChains.end(), [](const auto& a, const auto& b)
+			{
+				if (a.ms != b.ms)
+					return a.ms > b.ms;
+				return a.files < b.files;
+			});
 
 			for (const auto& chain : sortedIncludeChains)
 			{
@@ -391,7 +398,12 @@ void Analysis::FindExpensiveHeaders()
 			continue;
 		expensiveHeaders.push_back(std::make_pair(kvp.first, kvp.second.ms));
 	}
-	std::sort(expensiveHeaders.begin(), expensiveHeaders.end(), [&](const auto& a, const auto& b) { return a.second > b.second; });
+	std::sort(expensiveHeaders.begin(), expensiveHeaders.end(), [&](const auto& a, const auto& b)
+	{
+		if (a.second != b.second)
+			return a.second > b.second;
+		return a.first < b.first;
+	});
 	if (expensiveHeaders.size() > config.headerCount)
 		expensiveHeaders.resize(config.headerCount);
 }
