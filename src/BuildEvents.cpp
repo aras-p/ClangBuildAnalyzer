@@ -3,6 +3,7 @@
 #include "BuildEvents.h"
 #include "Colors.h"
 #include "external/sajson.h"
+#include <assert.h>
 #include <unordered_map>
 
 static void DebugPrintEvents(const BuildEvents& events, const BuildNames& names)
@@ -16,19 +17,63 @@ static void DebugPrintEvents(const BuildEvents& events, const BuildNames& names)
 
 static void FindParentChildrenIndices(BuildEvents& events)
 {
+    if (events.empty())
+        return;
+
+    // sort events by start time so that parent events go before child events
+    std::vector<int> sortedIndices;
+    sortedIndices.resize(events.size());
     for (int i = 0, n = (int)events.size(); i != n; ++i)
+        sortedIndices[i] = i;
+    std::sort(sortedIndices.begin(), sortedIndices.end(), [&](int ia, int ib){
+        const auto& ea = events[ia];
+        const auto& eb = events[ib];
+        if (ea.ts != eb.ts)
+            return ea.ts < eb.ts;
+        // break start time ties by making longer events go first (they must be parent)
+        if (ea.dur != eb.dur)
+            return ea.dur > eb.dur;
+        // break ties by assuming that later events in sequence must start parent
+        return ia > ib;
+    });
+
+    // figure out the event hierarchy; for now the parent/child indices are into
+    // the "sortedIndices" array and not event indices in the "events" array
+    int root = 0;
+    BuildEvent* evRoot = &events[sortedIndices[root]];
+    evRoot->parent = -1;
+    for (int i = 1, n = (int)events.size(); i != n; ++i)
     {
-        BuildEvent& ev = events[i];
-        for (int j = i + 1; j != n; ++j)
+        BuildEvent* ev2 = &events[sortedIndices[i]];
+        while (root != -1)
         {
-            BuildEvent& ev2 = events[j];
-            if (ev.ts <= ev2.ts+ev2.dur && ev.ts+ev.dur >= ev2.ts)
+            // add slice if within bounds
+            if (ev2->ts >= evRoot->ts && ev2->ts+ev2->dur <= evRoot->ts+evRoot->dur)
             {
-                ev.parent = j;
-                ev2.children.push_back(i);
+                ev2->parent = root;
+                evRoot->children.push_back(i);
                 break;
             }
+            
+            root = evRoot->parent;
+            if (root != -1)
+                evRoot = &events[sortedIndices[root]];
         }
+        if (root == -1)
+        {
+            ev2->parent = -1;
+        }
+        root = i;
+        evRoot = &events[sortedIndices[i]];
+    }
+
+    // fixup event parent/child indices to be into "events" array
+    for (auto& e : events)
+    {
+        for (auto& c : e.children)
+            c = sortedIndices[c];
+        if (e.parent != -1)
+            e.parent = sortedIndices[e.parent];
     }
 }
 
@@ -265,5 +310,5 @@ void ParseBuildEvents(std::string& jsonText, BuildEvents& outEvents, BuildNames&
 
     JsonTraverser traverser(outEvents, outNames);
     traverser.ParseRoot(doc.get_root());
-    //DebugPrintEvents(outEvents, outEvents);
+    //DebugPrintEvents(outEvents, outNames);
 }
