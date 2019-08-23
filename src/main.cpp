@@ -231,8 +231,8 @@ static int RunStop(int argc, const char* argv[])
     const size_t numBytesWritten = fwrite(bigJson.data(), 1, bigJson.size(), fout);
     if (numBytesWritten != bigJson.size())
     {
-        printf("%sERROR: failed to write result file '%s', %llu of %llu bytes written.%s\n",
-            col::kRed, outFile.c_str(), static_cast<unsigned long long>(numBytesWritten), static_cast<unsigned long long>(bigJson.size()), col::kReset);
+        printf("%sERROR: failed to write result file '%s', %zu of %zu bytes written.%s\n",
+            col::kRed, outFile.c_str(), numBytesWritten, bigJson.size(), col::kReset);
         fclose(fout);
         return 1;
     }
