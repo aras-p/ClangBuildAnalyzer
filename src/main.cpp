@@ -228,7 +228,14 @@ static int RunStop(int argc, const char* argv[])
         printf("%sERROR: failed to write result file '%s'.%s\n", col::kRed, outFile.c_str(), col::kReset);
         return 1;
     }
-    fwrite(bigJson.data(), 1, bigJson.size(), fout);
+    const size_t numBytesWritten = fwrite(bigJson.data(), 1, bigJson.size(), fout);
+    if (numBytesWritten != bigJson.size())
+    {
+        printf("%sERROR: failed to write result file '%s', %llu of %llu bytes written.%s\n",
+            col::kRed, outFile.c_str(), static_cast<unsigned long long>(numBytesWritten), static_cast<unsigned long long>(bigJson.size()), col::kReset);
+        fclose(fout);
+        return 1;
+    }
     fclose(fout);
 
     double tDuration = stm_sec(stm_since(tStart));
