@@ -9,6 +9,7 @@
 #include <string>
 #include <time.h>
 #include <map>
+#include <algorithm>
 
 #ifdef _MSC_VER
 struct IUnknown; // workaround for old Win SDK header failures when using /permissive-
@@ -150,7 +151,10 @@ struct JsonFileFinder
         if (strstr(str.c_str(), analyzerMarker) != NULL)
             return;
 
-        files.insert(std::make_pair(f->path, str));
+        // replace backslash with forward slash to avoid json errors on Windows
+        std::string path = f->path;
+        std::replace(path.begin(), path.end(), '\\', '/');
+        files.insert(std::make_pair(path, str));
         //printf("    debug: reading %s\n", f->path);
     }
 
