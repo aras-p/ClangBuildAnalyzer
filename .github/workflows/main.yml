@@ -9,7 +9,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Windows VS2017
-      run:  
+      run: |
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\BuildTools\\VC\\Auxiliary\\Build\\vcvarsall.bat" amd64 && msbuild.exe projects/vs2017/ClangBuildAnalyzer.sln /p:Configuration=Debug
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\BuildTools\\VC\\Auxiliary\\Build\\vcvarsall.bat" amd64 && msbuild.exe projects/vs2017/ClangBuildAnalyzer.sln /p:Configuration=Release
         build\ClangBuildAnalyzer.exe --test tests
@@ -20,18 +20,18 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: macOS Xcode 10.2
-      run:  
+      run: |
         xcodebuild -project projects/xcode/ClangBuildAnalyzer.xcodeproj -configuration Debug build
         xcodebuild -project projects/xcode/ClangBuildAnalyzer.xcodeproj -configuration Release build
         projects/xcode/build/Release/ClangBuildAnalyzer --test tests
-        
+
   linux:
     runs-on: ubuntu-16.04
     fail-fast: false
     steps:
     - uses: actions/checkout@v1
     - name: Ubuntu 16
-      run:  
+      run: |
         make -f projects/make/Makefile -j 2
         build/ClangBuildAnalyzer --test tests
-        
+
