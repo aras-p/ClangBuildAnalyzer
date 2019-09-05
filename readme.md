@@ -1,4 +1,4 @@
-# Clang Build Analyzer [![Build Status](https://api.travis-ci.org/aras-p/ClangBuildAnalyzer.svg?branch=master)](https://travis-ci.org/aras-p/ClangBuildAnalyzer)
+# Clang Build Analyzer [![Build Status](https://github.com/aras-p/ClangBuildAnalyzer/workflows/build_and_test/badge.svg)](https://github.com/aras-p/ClangBuildAnalyzer/actions)
 
 Clang C/C++ build analysis tool when using Clang 9 `-ftime-trace`. The `-ftime-trace` compiler flag
 (see [Aras' blog post](https://aras-p.info/blog/2019/01/16/time-trace-timeline-flame-chart-profiler-for-Clang/)) can be useful
