@@ -11,13 +11,7 @@ jobs:
     - uses: actions/checkout@v1
     - name: Windows VS2017
       run: |
-        echo One
-        cd "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017"
-        dir
-        cd BuildTools
-        dir
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\BuildTools\\VC\\Auxiliary\\Build\\vcvarsall.bat" amd64
-        echo %PATH%
+        "C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\VC\Auxiliary\Build\vcvarsall.bat" amd64
         msbuild.exe projects/vs2017/ClangBuildAnalyzer.sln /p:Configuration=Debug
         msbuild.exe projects/vs2017/ClangBuildAnalyzer.sln /p:Configuration=Release
         build\ClangBuildAnalyzer.exe --test tests
