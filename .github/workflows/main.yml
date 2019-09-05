@@ -11,14 +11,9 @@ jobs:
     - uses: actions/checkout@v1
     - name: Windows VS2017
       run: |
-        echo Building Debug config...
         call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars64.bat" && msbuild.exe projects/vs2017/ClangBuildAnalyzer.sln /p:Configuration=Debug
-        echo Building Release config...
         call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars64.bat" && msbuild.exe projects/vs2017/ClangBuildAnalyzer.sln /p:Configuration=Release
-        echo Test just executing...
-        call build\ClangBuildAnalyzer.exe
-        echo Running tests...
-        call build\ClangBuildAnalyzer.exe --test tests
+        build\ClangBuildAnalyzer.exe --test tests
 
   mac:
     runs-on: macOS-10.14
