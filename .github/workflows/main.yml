@@ -5,7 +5,8 @@ on: [push]
 jobs:
   windows:
     runs-on: windows-2016
-    fail-fast: false
+    strategy:
+      fail-fast: false
     steps:
     - uses: actions/checkout@v1
     - name: Windows VS2017
@@ -16,7 +17,8 @@ jobs:
 
   mac:
     runs-on: macOS-10.14
-    fail-fast: false
+    strategy:
+      fail-fast: false
     steps:
     - uses: actions/checkout@v1
     - name: macOS Xcode 10.2
@@ -27,7 +29,8 @@ jobs:
 
   linux:
     runs-on: ubuntu-16.04
-    fail-fast: false
+    strategy:
+      fail-fast: false
     steps:
     - uses: actions/checkout@v1
     - name: Ubuntu 16
