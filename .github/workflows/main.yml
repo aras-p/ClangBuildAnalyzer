@@ -1,0 +1,40 @@
+name: C/C++ CI
+
+on: [push]
+
+jobs:
+  windows:
+    runs-on: windows-2016
+    strategy:
+      fail-fast: false
+    steps:
+    - uses: actions/checkout@v1
+    - name: Windows VS2017
+      run: |
+        call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars64.bat" && msbuild.exe projects/vs2017/ClangBuildAnalyzer.sln /p:Configuration=Debug /p:CL_MPCount=2
+        call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars64.bat" && msbuild.exe projects/vs2017/ClangBuildAnalyzer.sln /p:Configuration=Release /p:CL_MPCount=2
+        build\ClangBuildAnalyzer.exe --test tests
+
+  mac:
+    runs-on: macOS-10.14
+    strategy:
+      fail-fast: false
+    steps:
+    - uses: actions/checkout@v1
+    - name: macOS Xcode 10.2
+      run: |
+        xcodebuild -project projects/xcode/ClangBuildAnalyzer.xcodeproj -configuration Debug build
+        xcodebuild -project projects/xcode/ClangBuildAnalyzer.xcodeproj -configuration Release build
+        projects/xcode/build/Release/ClangBuildAnalyzer --test tests
+
+  linux:
+    runs-on: ubuntu-16.04
+    strategy:
+      fail-fast: false
+    steps:
+    - uses: actions/checkout@v1
+    - name: Ubuntu 16
+      run: |
+        make -f projects/make/Makefile -j 2
+        build/ClangBuildAnalyzer --test tests
+
