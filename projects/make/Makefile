@@ -1,6 +1,3 @@
-CC=gcc
-CXX=g++
-
 INCLUDES=
 CFLAGS=$(INCLUDES) -O2
 CXXFLAGS=$(CFLAGS) -std=c++14
@@ -31,7 +28,7 @@ clean:
 
 build/ClangBuildAnalyzer: $(C_OBJS) $(CPP_OBJS)
 	$(CXX) -o $@ $(C_OBJS) $(CPP_OBJS)
- 
+
 build/%.o: %.c
 	mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -o $@ -c $<
