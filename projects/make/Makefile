@@ -1,9 +1,6 @@
-CC=gcc
-CXX=g++
-
 INCLUDES=
-CFLAGS=$(INCLUDES) -O2
-CXXFLAGS=$(CFLAGS) -std=c++14
+CFLAGS:=$(INCLUDES) -O2 $(CFLAGS)
+CXXFLAGS:=$(INCLUDES) -O2 -std=c++14 $(CXXFLAGS)
 
 C_SRCS= \
 src/external/inih/ini.c
@@ -31,7 +28,7 @@ clean:
 
 build/ClangBuildAnalyzer: $(C_OBJS) $(CPP_OBJS)
 	$(CXX) -o $@ $(C_OBJS) $(CPP_OBJS)
- 
+
 build/%.o: %.c
 	mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -o $@ -c $<
