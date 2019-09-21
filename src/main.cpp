@@ -13,6 +13,9 @@
 
 #ifdef _MSC_VER
 struct IUnknown; // workaround for old Win SDK header failures when using /permissive-
+#define ftello64 _ftelli64
+#elif defined(__APPLE__)
+#define ftello64 ftello
 #endif
 
 #define SOKOL_IMPL
@@ -26,7 +29,7 @@ static std::string ReadFileToString(const std::string& path)
     if (!f)
         return "";
     fseek(f, 0, SEEK_END);
-    size_t fsize = ftell(f);
+    size_t fsize = ftello64(f);
     fseek(f, 0, SEEK_SET);
     std::string str;
     str.resize(fsize);
