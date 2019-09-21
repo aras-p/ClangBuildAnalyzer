@@ -26,7 +26,7 @@ static std::string ReadFileToString(const std::string& path)
     if (!f)
         return "";
     fseek(f, 0, SEEK_END);
-    size_t fsize = ftell(f);
+    size_t fsize = _ftelli64(f);
     fseek(f, 0, SEEK_SET);
     std::string str;
     str.resize(fsize);
