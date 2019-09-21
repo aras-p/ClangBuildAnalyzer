@@ -1,7 +1,8 @@
 # Clang Build Analyzer [![Build Status](https://github.com/aras-p/ClangBuildAnalyzer/workflows/build_and_test/badge.svg)](https://github.com/aras-p/ClangBuildAnalyzer/actions)
 
-Clang C/C++ build analysis tool when using Clang 9 `-ftime-trace`. The `-ftime-trace` compiler flag
-(see [Aras' blog post](https://aras-p.info/blog/2019/01/16/time-trace-timeline-flame-chart-profiler-for-Clang/)) can be useful
+Clang C/C++ build analysis tool when using Clang 9+ `-ftime-trace`. The `-ftime-trace` compiler flag
+(see [Aras' blog post](https://aras-p.info/blog/2019/01/16/time-trace-timeline-flame-chart-profiler-for-Clang/) or
+[Clang 9 release notes](https://releases.llvm.org/9.0.0/tools/clang/docs/ReleaseNotes.html#new-compiler-flags)) can be useful
 to figure out what takes time during compilation of *one* source file. This tool helps to aggregate time trace
 reports from multiple compilations, and output "what took the most time" summary:
 
