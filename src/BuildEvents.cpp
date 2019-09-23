@@ -5,6 +5,7 @@
 #include "external/sajson.h"
 #include <assert.h>
 #include <unordered_map>
+#include <iterator>
 
 static void DebugPrintEvents(const BuildEvents& events, const BuildNames& names)
 {
