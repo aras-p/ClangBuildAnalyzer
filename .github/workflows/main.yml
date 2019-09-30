@@ -1,6 +1,6 @@
 name: build_and_test
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   windows:
@@ -14,6 +14,10 @@ jobs:
         call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars64.bat" && msbuild.exe projects/vs2017/ClangBuildAnalyzer.sln /p:Configuration=Debug /p:CL_MPCount=2
         call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars64.bat" && msbuild.exe projects/vs2017/ClangBuildAnalyzer.sln /p:Configuration=Release /p:CL_MPCount=2
         build\ClangBuildAnalyzer.exe --test tests
+    - uses: actions/upload-artifact@v1
+      with:
+        name: ClangBuildAnalyzer-win.exe
+        path: build/ClangBuildAnalyzer.exe
 
   mac:
     runs-on: macOS-10.14
@@ -26,6 +30,10 @@ jobs:
         xcodebuild -project projects/xcode/ClangBuildAnalyzer.xcodeproj -configuration Debug build
         xcodebuild -project projects/xcode/ClangBuildAnalyzer.xcodeproj -configuration Release build
         projects/xcode/build/Release/ClangBuildAnalyzer --test tests
+    - uses: actions/upload-artifact@v1
+      with:
+        name: ClangBuildAnalyzer-mac
+        path: projects/xcode/build/Release/ClangBuildAnalyzer
 
   linux:
     runs-on: ubuntu-16.04
@@ -37,4 +45,8 @@ jobs:
       run: |
         make -f projects/make/Makefile -j 2
         build/ClangBuildAnalyzer --test tests
+    - uses: actions/upload-artifact@v1
+      with:
+        name: ClangBuildAnalyzer-linux
+        path: build/ClangBuildAnalyzer
 
