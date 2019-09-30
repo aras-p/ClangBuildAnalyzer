@@ -1,6 +1,10 @@
 name: build_and_test
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
 
 jobs:
   windows:
