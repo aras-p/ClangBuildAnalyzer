@@ -94,8 +94,6 @@ struct Analysis
     void ProcessEvent(int eventIndex);
     void EndAnalysis();
 
-    void EmitCollapsedTemplates();
-
     void FindExpensiveHeaders();
     void ReadConfig();
 
@@ -124,6 +122,11 @@ struct Analysis
         std::vector<IncludeChain> includePaths;
     };
 
+    void EmitCollapsedTemplates();
+    void EmitCollapsedTemplateOpt();
+    void EmitCollapsedInfo(
+        const std::unordered_map<std::string, InstantiateEntry> &collapsed,
+        const char *header_string);
 
     // key is (name,objfile), value is milliseconds
     typedef std::pair<int,int> IndexPair;
@@ -276,15 +279,10 @@ std::string collapseName(const std::string &elt)
     return retval;
 }
 
-void Analysis::EmitCollapsedTemplates()
+void Analysis::EmitCollapsedInfo(
+    const std::unordered_map<std::string, InstantiateEntry> &collapsed,
+    const char *header_string)
 {
-    std::unordered_map<std::string, InstantiateEntry> collapsed;
-    for (const auto& inst : instantiations)
-    {
-        auto &stats = collapsed[collapseName(GetBuildName(inst.first))];
-        stats.count += inst.second.count;
-        stats.ms += inst.second.ms;
-    }
     std::vector<std::pair<std::string, InstantiateEntry>> sorted_collapsed;
     sorted_collapsed.resize(std::min<size_t>(config.templateCount, collapsed.size()));
     auto cmp = [](const auto &lhs, const auto &rhs) {
@@ -295,7 +293,7 @@ void Analysis::EmitCollapsedTemplates()
         sorted_collapsed.begin(), sorted_collapsed.end(),
         cmp);
 
-    fprintf(out, "%s%s**** Template sets that took longest to instantiate%s:\n", col::kBold, col::kMagenta, col::kReset);
+    fprintf(out, "%s%s**** %s%s:\n", col::kBold, col::kMagenta, header_string, col::kReset);
     for (const auto &elt : sorted_collapsed)
     {
         std::string dname = elt.first;
@@ -304,6 +302,29 @@ void Analysis::EmitCollapsedTemplates()
         fprintf(out, "%s%6i%s ms: %s (%i times, avg %i ms)\n", col::kBold, elt.second.ms, col::kReset, dname.c_str(), elt.second.count, elt.second.ms / elt.second.count);
     }
     fprintf(out, "\n");
+}
+void Analysis::EmitCollapsedTemplates()
+{
+    std::unordered_map<std::string, InstantiateEntry> collapsed;
+    for (const auto& inst : instantiations)
+    {
+        auto &stats = collapsed[collapseName(GetBuildName(inst.first))];
+        stats.count += inst.second.count;
+        stats.ms += inst.second.ms;
+    }
+    EmitCollapsedInfo(collapsed, "Template sets that took longest to instantiate");
+}
+
+void Analysis::EmitCollapsedTemplateOpt()
+{
+    std::unordered_map<std::string, InstantiateEntry> collapsed;
+    for (const auto& fn : functions)
+    {
+        auto &stats = collapsed[collapseName(llvm::demangle(GetBuildName(fn.first.first)))];
+        ++stats.count;
+        stats.ms += fn.second;
+    }
+    EmitCollapsedInfo(collapsed, "Function sets that took longest to compile / optimize");
 }
 
 void Analysis::EndAnalysis()
@@ -424,6 +445,7 @@ void Analysis::EndAnalysis()
             fprintf(out, "%s%6i%s ms: %s (%s)\n", col::kBold, e.second, col::kReset, dname.c_str(), GetBuildName(e.first.second).c_str());
         }
         fprintf(out, "\n");
+        EmitCollapsedTemplateOpt();
     }
 
     FindExpensiveHeaders();
