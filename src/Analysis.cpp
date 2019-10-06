@@ -286,7 +286,7 @@ void Analysis::EmitCollapsedInfo(
     std::vector<std::pair<std::string, InstantiateEntry>> sorted_collapsed;
     sorted_collapsed.resize(std::min<size_t>(config.templateCount, collapsed.size()));
     auto cmp = [](const auto &lhs, const auto &rhs) {
-        return std::tie(lhs.second.ms, lhs.second.count) > std::tie(rhs.second.ms, rhs.second.count);
+        return std::tie(lhs.second.ms, lhs.second.count, lhs.first) > std::tie(rhs.second.ms, rhs.second.count, rhs.first);
     };
     std::partial_sort_copy(
         collapsed.begin(), collapsed.end(),
