@@ -94,6 +94,8 @@ struct Analysis
     void ProcessEvent(int eventIndex);
     void EndAnalysis();
 
+    void EmitCollapsedTemplates();
+
     void FindExpensiveHeaders();
     void ReadConfig();
 
@@ -101,8 +103,8 @@ struct Analysis
 
     struct InstantiateEntry
     {
-        int count;
-        int ms;
+        int count = 0;
+        int ms = 0;
     };
     struct FileEntry
     {
@@ -231,6 +233,79 @@ void Analysis::ProcessEvent(int eventIndex)
     }
 }
 
+std::string collapseName(const std::string &elt)
+{
+    // Parsing op<, op<<, op>, and op>> seems hard.  Just skip'm all
+    if (elt.find("operator") != std::string::npos)
+        return elt;
+    std::string retval;
+    retval.reserve(elt.size());
+    auto pos = elt.begin();
+    auto new_pos = elt.begin();
+    while (pos != elt.end())
+    {
+        new_pos = std::find(pos, elt.end(), '<');
+        if (new_pos == elt.end())
+            break;
+        ++new_pos;
+        retval.append(pos, new_pos);
+        retval.append("$");
+        pos = new_pos;
+        int open_count = 1;
+        // find the matching close angle bracket
+        for (; pos != elt.end(); ++pos)
+        {
+            if (*pos == '<')
+            {
+                ++open_count;
+                continue;
+            }
+            if (*pos == '>')
+            {
+                if (--open_count == 0)
+                {
+                    break;
+                }
+                continue;
+            }
+        }
+        // pos is now pointing at a close angle, or it is at the end of the string
+    }
+    // append the footer
+    retval.append(pos, new_pos);
+    return retval;
+}
+
+void Analysis::EmitCollapsedTemplates()
+{
+    std::unordered_map<std::string, InstantiateEntry> collapsed;
+    for (const auto& inst : instantiations)
+    {
+        auto &stats = collapsed[collapseName(GetBuildName(inst.first))];
+        stats.count += inst.second.count;
+        stats.ms += inst.second.ms;
+    }
+    std::vector<std::pair<std::string, InstantiateEntry>> sorted_collapsed;
+    sorted_collapsed.resize(std::min<size_t>(config.templateCount, collapsed.size()));
+    auto cmp = [](const auto &lhs, const auto &rhs) {
+        return std::tie(lhs.second.ms, lhs.second.count) > std::tie(rhs.second.ms, rhs.second.count);
+    };
+    std::partial_sort_copy(
+        collapsed.begin(), collapsed.end(),
+        sorted_collapsed.begin(), sorted_collapsed.end(),
+        cmp);
+
+    fprintf(out, "%s%s**** Template sets that took longest to instantiate%s:\n", col::kBold, col::kMagenta, col::kReset);
+    for (const auto &elt : sorted_collapsed)
+    {
+        std::string dname = elt.first;
+        if (dname.size() > config.maxName)
+            dname = dname.substr(0, config.maxName - 2) + "...";
+        fprintf(out, "%s%6i%s ms: %s (%i times, avg %i ms)\n", col::kBold, elt.second.ms, col::kReset, dname.c_str(), elt.second.count, elt.second.ms / elt.second.count);
+    }
+    fprintf(out, "\n");
+}
+
 void Analysis::EndAnalysis()
 {
     if (totalParseMs || totalCodegenMs)
@@ -316,6 +391,8 @@ void Analysis::EndAnalysis()
             fprintf(out, "%s%6i%s ms: %s (%i times, avg %i ms)\n", col::kBold, e.second.ms, col::kReset, dname.c_str(), e.second.count, e.second.ms/e.second.count);
         }
         fprintf(out, "\n");
+
+        EmitCollapsedTemplates();
     }
 
     if (!functions.empty())
