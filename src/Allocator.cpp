@@ -9,6 +9,7 @@
 struct IUnknown; // workaround for old Win SDK header failures when using /permissive-
 #include <windows.h>
 #else
+#include <stdio.h>
 #include <sys/mman.h>
 #endif
 
