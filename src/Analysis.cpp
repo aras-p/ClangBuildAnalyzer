@@ -310,7 +310,12 @@ void Analysis::EmitCollapsedTemplates()
     {
         auto &stats = collapsed[collapseName(GetBuildName(inst.first))];
         stats.count += inst.second.count;
-        stats.ms += inst.second.ms;
+
+        uint64_t child_dur = 0;
+        for (int child_idx : events[inst.first].children)
+            child_dur += events[child_idx].dur;
+        const int child_ms = int(child_dur / 1000);
+        stats.ms += (inst.second.ms - child_ms);
     }
     EmitCollapsedInfo(collapsed, "Template sets that took longest to instantiate");
 }
