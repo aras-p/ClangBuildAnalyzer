@@ -76,7 +76,7 @@ struct BuildEvent
 template <typename T, typename Idx>
 struct IndexedVector : std::vector<T>
 {
-    using vector<T>::vector;
+    using std::vector<T>::vector;
     typename vector<T>::reference       operator[](Idx pos) { return this->begin()[pos.idx]; }
     typename vector<T>::const_reference operator[](Idx pos) const { return this->begin()[pos.idx]; }
 };
