@@ -77,8 +77,8 @@ template <typename T, typename Idx>
 struct IndexedVector : std::vector<T>
 {
     using std::vector<T>::vector;
-    typename vector<T>::reference       operator[](Idx pos) { return this->begin()[pos.idx]; }
-    typename vector<T>::const_reference operator[](Idx pos) const { return this->begin()[pos.idx]; }
+    typename std::vector<T>::reference       operator[](Idx pos) { return this->begin()[pos.idx]; }
+    typename std::vector<T>::const_reference operator[](Idx pos) const { return this->begin()[pos.idx]; }
 };
 typedef IndexedVector<std::string, DetailIndex> BuildNames;
 typedef IndexedVector<BuildEvent, EventIndex> BuildEvents;
