@@ -181,23 +181,25 @@ static int RunStop(int argc, const char* argv[])
     std::string outFile = argv[3];
     printf("%sStopping build tracing and saving to '%s'...%s\n", col::kYellow, outFile.c_str(), col::kReset);
 
+    time_t startTime = 0;
+    time_t stopTime = time(NULL);
+
     std::string artifactsDir = argv[2];
     std::string fname = artifactsDir+"/ClangBuildAnalyzerSession.txt";
     FILE* fsession = fopen(fname.c_str(), "rt");
     if (!fsession)
     {
-        printf("%sERROR: failed to open session file at '%s'.%s\n", col::kRed, fname.c_str(), col::kReset);
-        return 1;
+        printf("%sWARN: failed to open session file at '%s'.%s\n", col::kYellow, fname.c_str(), col::kReset);
     }
-
-    time_t startTime = 0;
-    time_t stopTime = time(NULL);
+    else
+    {
 #if _MSC_VER
-    fscanf(fsession, "%llu", &startTime);
+        fscanf(fsession, "%llu", &startTime);
 #else
-    fscanf(fsession, "%lu", &startTime);
+        fscanf(fsession, "%lu", &startTime);
 #endif
-    fclose(fsession);
+        fclose(fsession);
+    }
 
     JsonFileFinder jsonFiles;
     jsonFiles.startTime = startTime;
