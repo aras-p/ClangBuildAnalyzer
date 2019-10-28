@@ -11,8 +11,8 @@ static void DebugPrintEvents(const BuildEvents& events, const BuildNames& names)
 {
     for (size_t i = 0; i < events.size(); ++i)
     {
-        const BuildEvent& event = events[i];
-        printf("%4zi: t=%i t1=%7llu t2=%7llu par=%4i ch=%4zi det=%s\n", i, event.type, event.ts, event.ts+event.dur, event.parent, event.children.size(), names[event.detailIndex].substr(0,130).c_str());
+        const BuildEvent& event = events[EventIndex(int(i))];
+        printf("%4zi: t=%i t1=%7llu t2=%7llu par=%4i ch=%4zi det=%s\n", i, event.type, event.ts, event.ts+event.dur, event.parent.idx, event.children.size(), names[event.detailIndex].substr(0,130).c_str());
     }
 }
 
@@ -22,11 +22,11 @@ static void FindParentChildrenIndices(BuildEvents& events)
         return;
 
     // sort events by start time so that parent events go before child events
-    std::vector<int> sortedIndices;
+    std::vector<EventIndex> sortedIndices;
     sortedIndices.resize(events.size());
     for (int i = 0, n = (int)events.size(); i != n; ++i)
-        sortedIndices[i] = i;
-    std::sort(sortedIndices.begin(), sortedIndices.end(), [&](int ia, int ib){
+        sortedIndices[i] = EventIndex(i);
+    std::sort(sortedIndices.begin(), sortedIndices.end(), [&](EventIndex ia, EventIndex ib){
         const auto& ea = events[ia];
         const auto& eb = events[ib];
         if (ea.ts != eb.ts)
@@ -39,10 +39,12 @@ static void FindParentChildrenIndices(BuildEvents& events)
     });
 
     // figure out the event hierarchy; for now the parent/child indices are into
-    // the "sortedIndices" array and not event indices in the "events" array
+    // the "sortedIndices" array and not event indices in the "events" array.
+    // As a result, we will be digging into .idx members a lot, as we are temporarily
+    // putting the wrong kind of index into 'parent'.
     int root = 0;
     BuildEvent* evRoot = &events[sortedIndices[root]];
-    evRoot->parent = -1;
+    evRoot->parent.idx = -1;
     for (int i = 1, n = (int)events.size(); i != n; ++i)
     {
         BuildEvent* ev2 = &events[sortedIndices[i]];
@@ -51,18 +53,18 @@ static void FindParentChildrenIndices(BuildEvents& events)
             // add slice if within bounds
             if (ev2->ts >= evRoot->ts && ev2->ts+ev2->dur <= evRoot->ts+evRoot->dur)
             {
-                ev2->parent = root;
-                evRoot->children.push_back(i);
+                ev2->parent.idx = root;
+                evRoot->children.push_back(EventIndex(i));
                 break;
             }
             
-            root = evRoot->parent;
+            root = evRoot->parent.idx;
             if (root != -1)
                 evRoot = &events[sortedIndices[root]];
         }
         if (root == -1)
         {
-            ev2->parent = -1;
+            ev2->parent.idx = -1;
         }
         root = i;
         evRoot = &events[sortedIndices[i]];
@@ -72,9 +74,9 @@ static void FindParentChildrenIndices(BuildEvents& events)
     for (auto& e : events)
     {
         for (auto& c : e.children)
-            c = sortedIndices[c];
-        if (e.parent != -1)
-            e.parent = sortedIndices[e.parent];
+            c = sortedIndices[c.idx];
+        if (e.parent.idx != -1)
+            e.parent = sortedIndices[e.parent.idx];
     }
 }
 
@@ -85,11 +87,11 @@ static void AddEvents(BuildEvents& res, BuildEvents& add)
     add.clear();
     for (size_t i = offset, n = res.size(); i != n; ++i)
     {
-        BuildEvent& ev = res[i];
-        if (ev.parent >= 0)
-            ev.parent += offset;
+        BuildEvent& ev = res[EventIndex(int(i))];
+        if (ev.parent.idx >= 0)
+            ev.parent.idx += offset;
         for (auto& ch : ev.children)
-            ch += offset;
+            ch.idx += offset;
     }
 }
 
@@ -106,14 +108,14 @@ struct JsonTraverser
     BuildNames& resultNames;
     BuildEvents fileEvents;
 
-    std::unordered_map<std::string, int> nameToIndex;
+    std::unordered_map<std::string, DetailIndex> nameToIndex;
 
-    int NameToIndex(const std::string& name)
+    DetailIndex NameToIndex(const std::string& name)
     {
         auto it = nameToIndex.find(name);
         if (it != nameToIndex.end())
             return it->second;
-        int index = (int)nameToIndex.size();
+        DetailIndex index((int)nameToIndex.size());
         nameToIndex.insert(std::make_pair(name, index));
         resultNames.push_back(name);
         return index;
@@ -174,7 +176,7 @@ struct JsonTraverser
         FindParentChildrenIndices(fileEvents);
         if (!fileEvents.empty())
         {
-            if (fileEvents.back().parent != -1)
+            if (fileEvents.back().parent.idx != -1)
             {
                 printf("%sERROR: the last trace event should be root; was not in '%s'.%s\n", col::kRed, curFileName.c_str(), col::kReset);
                 resultEvents.clear();
@@ -294,7 +296,7 @@ struct JsonTraverser
             }
         }
 
-        if (event.detailIndex == 0 && event.type == BuildEventType::kCompiler)
+        if (event.detailIndex == DetailIndex() && event.type == BuildEventType::kCompiler)
             event.detailIndex = NameToIndex(curFileName);
         fileEvents.emplace_back(event);
     }

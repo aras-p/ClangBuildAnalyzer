@@ -63,11 +63,11 @@ struct Analysis
 
     const BuildEvents& events;
     BuildNames& buildNames;
-    std::vector<char> buildNamesDone;
+    IndexedVector<char, DetailIndex> buildNamesDone;
 
     FILE* out;
 
-    const std::string& GetBuildName(int index)
+    const std::string& GetBuildName(DetailIndex index)
     {
         auto& name = buildNames[index];
         if (!buildNamesDone[index])
@@ -91,105 +91,113 @@ struct Analysis
         return name;
     }
 
-    void ProcessEvent(int eventIndex);
+    void ProcessEvent(EventIndex eventIndex);
+    int largestDetailIndex = 0;
     void EndAnalysis();
 
     void FindExpensiveHeaders();
     void ReadConfig();
 
-    int FindPath(int eventIndex) const;
+    DetailIndex FindPath(EventIndex eventIndex) const;
 
     struct InstantiateEntry
     {
-        int count;
-        int ms;
+        int count = 0;
+        int64_t us = 0;
     };
     struct FileEntry
     {
-        int file;
-        int ms;
+        DetailIndex file;
+        int64_t us;
     };
     struct IncludeChain
     {
-        std::vector<int> files;
-        int ms = 0;
+        std::vector<DetailIndex> files;
+        int64_t us = 0;
     };
     struct IncludeEntry
     {
-        int ms = 0;
+        int64_t us = 0;
         int count = 0;
         bool root = false;
         std::vector<IncludeChain> includePaths;
     };
 
+    std::unordered_map<DetailIndex, std::string> collapsedNames;
+    const std::string &GetCollapsedName(EventIndex idx);
+    void EmitCollapsedTemplates();
+    void EmitCollapsedTemplateOpt();
+    void EmitCollapsedInfo(
+        const std::unordered_map<std::string, InstantiateEntry> &collapsed,
+        const char *header_string);
 
     // key is (name,objfile), value is milliseconds
-    typedef std::pair<int,int> IndexPair;
-    std::unordered_map<IndexPair, int, pair_hash> functions;
-    std::unordered_map<int, InstantiateEntry> instantiations;
+    typedef std::pair<DetailIndex, DetailIndex> IndexPair;
+    std::unordered_map<IndexPair, int64_t, pair_hash> functions;
+    std::unordered_map<EventIndex, InstantiateEntry> instantiations;
     std::vector<FileEntry> parseFiles;
     std::vector<FileEntry> codegenFiles;
-    int totalParseMs = 0;
-    int totalCodegenMs = 0;
+    int64_t totalParseUs = 0;
+    int64_t totalCodegenUs = 0;
     int totalParseCount = 0;
 
     std::unordered_map<std::string, IncludeEntry> headerMap;
-    std::vector<std::pair<std::string, int>> expensiveHeaders;
+    std::vector<std::pair<std::string, int64_t>> expensiveHeaders;
 
     Config config;
 };
 
-int Analysis::FindPath(int eventIndex) const
+DetailIndex Analysis::FindPath(EventIndex eventIndex) const
 {
-    while(eventIndex >= 0)
+    while(eventIndex >= EventIndex())
     {
         const BuildEvent& ev = events[eventIndex];
         if (ev.type == BuildEventType::kCompiler || ev.type == BuildEventType::kFrontend || ev.type == BuildEventType::kBackend || ev.type == BuildEventType::kOptModule)
-            if (ev.detailIndex != 0)
+            if (ev.detailIndex != DetailIndex())
                 return ev.detailIndex;
         eventIndex = ev.parent;
     }
-    return 0;
+    return DetailIndex();
 }
 
-void Analysis::ProcessEvent(int eventIndex)
+void Analysis::ProcessEvent(EventIndex eventIndex)
 {
     const BuildEvent& event = events[eventIndex];
-    const int ms = int(event.dur / 1000);
+    largestDetailIndex = (std::max)(largestDetailIndex, event.detailIndex.idx);
 
     if (event.type == BuildEventType::kOptFunction)
     {
         auto funKey = std::make_pair(event.detailIndex, FindPath(eventIndex));
-        functions[funKey] += ms;
+        functions[funKey] += event.dur;
     }
 
     if (event.type == BuildEventType::kInstantiateClass || event.type == BuildEventType::kInstantiateFunction)
     {
-        auto& e = instantiations[event.detailIndex];
+        auto& e = instantiations[eventIndex];
         ++e.count;
-        e.ms += ms;
+        e.us += event.dur;
     }
 
     if (event.type == BuildEventType::kFrontend)
     {
-        totalParseMs += ms;
+        totalParseUs += event.dur;
         ++totalParseCount;
-        if (ms >= config.minFileTime)
+        if (event.dur >= config.minFileTime * 1000)
         {
             FileEntry fe;
             fe.file = FindPath(eventIndex);
-            fe.ms = ms;
+            fe.us = event.dur;
             parseFiles.emplace_back(fe);
         }
     }
     if (event.type == BuildEventType::kBackend)
     {
-        totalCodegenMs += ms;
-        if (ms >= config.minFileTime)
+        totalCodegenUs += event.dur;
+        if (event.dur >= config.minFileTime * 1000)
         {
             FileEntry fe;
             fe.file = FindPath(eventIndex);
-            fe.ms = ms;
+            fe.us = event.dur;
             codegenFiles.emplace_back(fe);
         }
     }
@@ -199,16 +207,16 @@ void Analysis::ProcessEvent(int eventIndex)
         if (utils::IsHeader(path))
         {
             IncludeEntry& e = headerMap[path];
-            e.ms += ms;
+            e.us += event.dur;
             ++e.count;
 
             // record chain of ParseFile entries leading up to this one
             IncludeChain chain;
-            chain.ms = ms;
-            int parseIndex = event.parent;
+            chain.us = event.dur;
+            EventIndex parseIndex = event.parent;
             bool hasHeaderBefore = false;
             bool hasNonHeaderBefore = false;
-            while(parseIndex >= 0)
+            while(parseIndex.idx >= 0)
             {
                 const BuildEvent& ev2 = events[parseIndex];
                 if (ev2.type != BuildEventType::kParseFile)
@@ -231,14 +239,137 @@ void Analysis::ProcessEvent(int eventIndex)
     }
 }
 
+std::string collapseName(const std::string &elt)
+{
+    // Parsing op<, op<<, op>, and op>> seems hard.  Just skip'm all
+    if (elt.find("operator") != std::string::npos)
+        return elt;
+    std::string retval;
+    retval.reserve(elt.size());
+    auto pos = elt.begin();
+    auto new_pos = elt.begin();
+    while (pos != elt.end())
+    {
+        new_pos = std::find(pos, elt.end(), '<');
+        if (new_pos == elt.end())
+            break;
+        ++new_pos;
+        retval.append(pos, new_pos);
+        retval.append("$");
+        pos = new_pos;
+        int open_count = 1;
+        // find the matching close angle bracket
+        for (; pos != elt.end(); ++pos)
+        {
+            if (*pos == '<')
+            {
+                ++open_count;
+                continue;
+            }
+            if (*pos == '>')
+            {
+                if (--open_count == 0)
+                {
+                    break;
+                }
+                continue;
+            }
+        }
+        // pos is now pointing at a close angle, or it is at the end of the string
+    }
+    // append the footer
+    retval.append(pos, new_pos);
+    return retval;
+}
+
+const std::string &Analysis::GetCollapsedName(EventIndex idx)
+{
+    DetailIndex detail = events[idx].detailIndex;
+    std::string &name = collapsedNames[detail];
+    if(name.empty())
+        name = collapseName(GetBuildName(detail));
+    return name;
+}
+
+void Analysis::EmitCollapsedInfo(
+    const std::unordered_map<std::string, InstantiateEntry> &collapsed,
+    const char *header_string)
+{
+    std::vector<std::pair<std::string, InstantiateEntry>> sorted_collapsed;
+    sorted_collapsed.resize(std::min<size_t>(config.templateCount, collapsed.size()));
+    auto cmp = [](const auto &lhs, const auto &rhs) {
+        return std::tie(lhs.second.us, lhs.second.count, lhs.first) > std::tie(rhs.second.us, rhs.second.count, rhs.first);
+    };
+    std::partial_sort_copy(
+        collapsed.begin(), collapsed.end(),
+        sorted_collapsed.begin(), sorted_collapsed.end(),
+        cmp);
+
+    fprintf(out, "%s%s**** %s%s:\n", col::kBold, col::kMagenta, header_string, col::kReset);
+    for (const auto &elt : sorted_collapsed)
+    {
+        std::string dname = elt.first;
+        if (dname.size() > config.maxName)
+            dname = dname.substr(0, config.maxName - 2) + "...";
+        int ms = int(elt.second.us / 1000);
+        int avg = int(ms / elt.second.count);
+        fprintf(out, "%s%6i%s ms: %s (%i times, avg %i ms)\n", col::kBold, ms, col::kReset, dname.c_str(), elt.second.count, avg);
+    }
+    fprintf(out, "\n");
+}
+void Analysis::EmitCollapsedTemplates()
+{
+    std::unordered_map<std::string, InstantiateEntry> collapsed;
+    for (const auto& inst : instantiations)
+    {
+        const std::string &name = GetCollapsedName(inst.first);
+        auto &stats = collapsed[name];
+
+        bool recursive = false;
+        EventIndex p = events[inst.first].parent;
+        while (p != EventIndex(-1))
+        {
+            auto &event = events[p];
+            if (event.type == BuildEventType::kInstantiateClass || event.type == BuildEventType::kInstantiateFunction)
+            {
+                const std::string &ancestor_name = GetCollapsedName(p);
+                if (ancestor_name == name)
+                {
+                    recursive = true;
+                    break;
+                }
+            }
+            p = event.parent;
+        }
+        if (!recursive)
+        {
+            stats.us += inst.second.us;
+            stats.count += inst.second.count;
+        }
+    }
+    EmitCollapsedInfo(collapsed, "Template sets that took longest to instantiate");
+}
+
+void Analysis::EmitCollapsedTemplateOpt()
+{
+    std::unordered_map<std::string, InstantiateEntry> collapsed;
+    for (const auto& fn : functions)
+    {
+        auto &stats = collapsed[collapseName(llvm::demangle(GetBuildName(fn.first.first)))];
+        ++stats.count;
+        stats.us += fn.second;
+    }
+    EmitCollapsedInfo(collapsed, "Function sets that took longest to compile / optimize");
+}
+
 void Analysis::EndAnalysis()
 {
-    if (totalParseMs || totalCodegenMs)
+    if (totalParseUs || totalCodegenUs)
     {
         fprintf(out, "%s%s**** Time summary%s:\n", col::kBold, col::kMagenta, col::kReset);
         fprintf(out, "Compilation (%i times):\n", totalParseCount);
-        fprintf(out, "  Parsing (frontend):        %s%7.1f%s s\n", col::kBold, totalParseMs / 1000.0, col::kReset);
-        fprintf(out, "  Codegen & opts (backend):  %s%7.1f%s s\n", col::kBold, totalCodegenMs / 1000.0, col::kReset);
+        fprintf(out, "  Parsing (frontend):        %s%7.1f%s s\n", col::kBold, totalParseUs / 1000000.0, col::kReset);
+        fprintf(out, "  Codegen & opts (backend):  %s%7.1f%s s\n", col::kBold, totalCodegenUs / 1000000.0, col::kReset);
         fprintf(out, "\n");
     }
 
@@ -251,15 +382,15 @@ void Analysis::EndAnalysis()
         std::sort(indices.begin(), indices.end(), [&](int indexA, int indexB) {
             const auto& a = parseFiles[indexA];
             const auto& b = parseFiles[indexB];
-            if (a.ms != b.ms)
-                return a.ms > b.ms;
+            if (a.us != b.us)
+                return a.us > b.us;
             return a.file < b.file;
             });
         fprintf(out, "%s%s**** Files that took longest to parse (compiler frontend)%s:\n", col::kBold, col::kMagenta, col::kReset);
         for (size_t i = 0, n = std::min<size_t>(config.fileParseCount, indices.size()); i != n; ++i)
         {
             const auto& e = parseFiles[indices[i]];
-            fprintf(out, "%s%6i%s ms: %s\n", col::kBold, e.ms, col::kReset, GetBuildName(e.file).c_str());
+            fprintf(out, "%s%6i%s ms: %s\n", col::kBold, int(e.us/1000), col::kReset, GetBuildName(e.file).c_str());
         }
         fprintf(out, "\n");
     }
@@ -272,55 +403,56 @@ void Analysis::EndAnalysis()
         std::sort(indices.begin(), indices.end(), [&](int indexA, int indexB) {
             const auto& a = codegenFiles[indexA];
             const auto& b = codegenFiles[indexB];
-            if (a.ms != b.ms)
-                return a.ms > b.ms;
+            if (a.us != b.us)
+                return a.us > b.us;
             return a.file < b.file;
             });
         fprintf(out, "%s%s**** Files that took longest to codegen (compiler backend)%s:\n", col::kBold, col::kMagenta, col::kReset);
         for (size_t i = 0, n = std::min<size_t>(config.fileCodegenCount, indices.size()); i != n; ++i)
         {
             const auto& e = codegenFiles[indices[i]];
-            fprintf(out, "%s%6i%s ms: %s\n", col::kBold, e.ms, col::kReset, GetBuildName(e.file).c_str());
+            fprintf(out, "%s%6i%s ms: %s\n", col::kBold, int(e.us/1000), col::kReset, GetBuildName(e.file).c_str());
         }
         fprintf(out, "\n");
     }
 
     if (!instantiations.empty())
     {
-        std::vector<std::pair<int, InstantiateEntry>> instArray;
-        std::vector<int> indices;
-        instArray.reserve(instantiations.size());
-        indices.reserve(instantiations.size());
-        for (const auto& inst : instantiations)
+        std::vector<std::pair<DetailIndex, InstantiateEntry>> instArray;
+        instArray.resize(largestDetailIndex+1);
+        for (const auto& inst : instantiations) //collapse the events
         {
-            instArray.emplace_back(inst);
-            indices.emplace_back((int)indices.size());
+            DetailIndex d = events[inst.first].detailIndex;
+            instArray[d.idx].first = d;
+            instArray[d.idx].second.us += inst.second.us;
+            instArray[d.idx].second.count += inst.second.count;
         }
-
-        std::sort(indices.begin(), indices.end(), [&](int indexA, int indexB) {
-            const auto& a = instArray[indexA];
-            const auto& b = instArray[indexB];
-            if (a.second.ms != b.second.ms)
-                return a.second.ms > b.second.ms;
-            if (a.second.count != b.second.count)
-                return a.second.count > b.second.count;
-            return a.first < b.first;
-        });
+        size_t n = std::min<size_t>(config.templateCount, instArray.size());
+        auto cmp = [&](const auto&a, const auto &b) {
+            return
+                std::tie(a.second.us, a.second.count, a.first) >
+                std::tie(b.second.us, b.second.count, b.first);
+        };
+        std::partial_sort(instArray.begin(), instArray.begin()+n, instArray.end(), cmp);
         fprintf(out, "%s%s**** Templates that took longest to instantiate%s:\n", col::kBold, col::kMagenta, col::kReset);
-        for (size_t i = 0, n = std::min<size_t>(config.templateCount, indices.size()); i != n; ++i)
+        for (size_t i = 0; i != n; ++i)
         {
-            const auto& e = instArray[indices[i]];
+            const auto& e = instArray[i];
             std::string dname = llvm::demangle(GetBuildName(e.first));
             if (dname.size() > config.maxName)
                 dname = dname.substr(0, config.maxName-2) + "...";
-            fprintf(out, "%s%6i%s ms: %s (%i times, avg %i ms)\n", col::kBold, e.second.ms, col::kReset, dname.c_str(), e.second.count, e.second.ms/e.second.count);
+            int ms = int(e.second.us / 1000);
+            int avg = int(ms / e.second.count);
+            fprintf(out, "%s%6i%s ms: %s (%i times, avg %i ms)\n", col::kBold, ms, col::kReset, dname.c_str(), e.second.count, avg);
         }
         fprintf(out, "\n");
+
+        EmitCollapsedTemplates();
     }
 
     if (!functions.empty())
     {
-        std::vector<std::pair<IndexPair, int>> functionsArray;
+        std::vector<std::pair<IndexPair, int64_t>> functionsArray;
         std::vector<int> indices;
         functionsArray.reserve(functions.size());
         indices.reserve(functions.size());
@@ -344,9 +476,11 @@ void Analysis::EndAnalysis()
             std::string dname = llvm::demangle(GetBuildName(e.first.first));
             if (dname.size() > config.maxName)
                 dname = dname.substr(0, config.maxName-2) + "...";
-            fprintf(out, "%s%6i%s ms: %s (%s)\n", col::kBold, e.second, col::kReset, dname.c_str(), GetBuildName(e.first.second).c_str());
+            int ms = int(e.second / 1000);
+            fprintf(out, "%s%6i%s ms: %s (%s)\n", col::kBold, ms, col::kReset, dname.c_str(), GetBuildName(e.first.second).c_str());
         }
         fprintf(out, "\n");
+        EmitCollapsedTemplateOpt();
     }
 
     FindExpensiveHeaders();
@@ -357,14 +491,16 @@ void Analysis::EndAnalysis()
         for (const auto& e : expensiveHeaders)
         {
             const auto& es = headerMap[e.first];
-            fprintf(out, "%s%i%s ms: %s%s%s (included %i times, avg %i ms), included via:\n", col::kBold, e.second, col::kReset, col::kBold, e.first.c_str(), col::kReset, es.count, e.second / es.count);
+            int ms = int(e.second / 1000);
+            int avg = ms / es.count;
+            fprintf(out, "%s%i%s ms: %s%s%s (included %i times, avg %i ms), included via:\n", col::kBold, ms, col::kReset, col::kBold, e.first.c_str(), col::kReset, es.count, avg);
             int pathCount = 0;
 
             auto sortedIncludeChains = es.includePaths;
             std::sort(sortedIncludeChains.begin(), sortedIncludeChains.end(), [](const auto& a, const auto& b)
             {
-                if (a.ms != b.ms)
-                    return a.ms > b.ms;
+                if (a.us != b.us)
+                    return a.us > b.us;
                 return a.files < b.files;
             });
 
@@ -375,7 +511,7 @@ void Analysis::EndAnalysis()
                 {
                     fprintf(out, "%s ", utils::GetFilename(GetBuildName(*it)).c_str());
                 }
-                fprintf(out, " (%i ms)\n", chain.ms);
+                fprintf(out, " (%i ms)\n", int(chain.us/1000));
                 ++pathCount;
                 if (pathCount > config.headerChainCount)
                     break;
@@ -396,7 +532,7 @@ void Analysis::FindExpensiveHeaders()
     {
         if (config.onlyRootHeaders && !kvp.second.root)
             continue;
-        expensiveHeaders.push_back(std::make_pair(kvp.first, kvp.second.ms));
+        expensiveHeaders.push_back(std::make_pair(kvp.first, kvp.second.us));
     }
     std::sort(expensiveHeaders.begin(), expensiveHeaders.end(), [&](const auto& a, const auto& b)
     {
@@ -431,6 +567,6 @@ void DoAnalysis(const BuildEvents& events, BuildNames& names, FILE* out)
     Analysis a(events, names, out);
     a.ReadConfig();
     for (int i = 0, n = (int)events.size(); i != n; ++i)
-        a.ProcessEvent(i);
+        a.ProcessEvent(EventIndex(i));
     a.EndAnalysis();
 }
