@@ -37,3 +37,6 @@ build/%.o: %.cpp
 	mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 
+srcdir = $(realpath $(dir $(lastword $(MAKEFILE_LIST)))/../..)
+vpath %.c $(srcdir)
+vpath %.cpp $(srcdir)
