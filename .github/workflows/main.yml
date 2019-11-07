@@ -25,7 +25,7 @@ jobs:
         path: build/ClangBuildAnalyzer.exe
 
   mac:
-    runs-on: macOS-10.15
+    runs-on: macOS-latest
     strategy:
       fail-fast: false
     steps:
