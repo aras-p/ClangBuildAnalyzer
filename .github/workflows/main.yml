@@ -25,12 +25,12 @@ jobs:
         path: build/ClangBuildAnalyzer.exe
 
   mac:
-    runs-on: macOS-10.14
+    runs-on: macOS-10.15
     strategy:
       fail-fast: false
     steps:
     - uses: actions/checkout@v1
-    - name: macOS Xcode 10.2
+    - name: macOS Xcode 11.1
       run: |
         xcodebuild -project projects/xcode/ClangBuildAnalyzer.xcodeproj -configuration Debug build
         xcodebuild -project projects/xcode/ClangBuildAnalyzer.xcodeproj -configuration Release build
