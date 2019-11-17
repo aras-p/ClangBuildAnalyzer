@@ -246,27 +246,27 @@ std::string collapseName(const std::string &elt)
         return elt;
     std::string retval;
     retval.reserve(elt.size());
-    auto pos = elt.begin();
-    auto new_pos = elt.begin();
-    while (pos != elt.end())
+    auto b_range = elt.begin();
+    auto e_range = elt.begin();
+    while (b_range != elt.end())
     {
-        new_pos = std::find(pos, elt.end(), '<');
-        if (new_pos == elt.end())
+       e_range = std::find(b_range, elt.end(), '<');
+        if (e_range == elt.end())
             break;
-        ++new_pos;
-        retval.append(pos, new_pos);
+        ++e_range;
+        retval.append(b_range, e_range);
         retval.append("$");
-        pos = new_pos;
+        b_range = e_range;
         int open_count = 1;
         // find the matching close angle bracket
-        for (; pos != elt.end(); ++pos)
+        for (; b_range != elt.end(); ++b_range)
         {
-            if (*pos == '<')
+            if (*b_range == '<')
             {
                 ++open_count;
                 continue;
             }
-            if (*pos == '>')
+            if (*b_range == '>')
             {
                 if (--open_count == 0)
                 {
@@ -275,10 +275,17 @@ std::string collapseName(const std::string &elt)
                 continue;
             }
         }
-        // pos is now pointing at a close angle, or it is at the end of the string
+        // b_range is now pointing at a close angle, or it is at the end of the string
+    }
+    if (b_range > e_range)
+    {
+       // we are in a wacky case where something like op> showed up in a mangled name.
+       // just bail.
+       // TODO: this still isn't correct, but it avoids crashes.
+       return elt;
     }
     // append the footer
-    retval.append(pos, new_pos);
+    retval.append(b_range, e_range);
     return retval;
 }
 
