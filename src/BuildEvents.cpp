@@ -262,6 +262,10 @@ struct JsonTraverser
                     event.type = BuildEventType::kOptModule;
                 else if (!strcmp(name, "OptFunction"))
                     event.type = BuildEventType::kOptFunction;
+                else if (!strcmp(name, "PerFunctionPasses") || !strcmp(name, "PerModulePasses") || !strcmp(name, "CodeGenPasses"))
+                    ;
+                else if (!strcmp(name, "DebugType") || !strcmp(name, "DebugFunction") || !strcmp(name, "DebugGlobalVariable") || !strcmp(name, "DebugConstGlobalVariable"))
+                    ;
                 else if (!strcmp(name, "RunPass"))
                     ;
                 else if (!strcmp(name, "RunLoopPass"))
