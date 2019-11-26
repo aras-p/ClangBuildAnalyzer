@@ -143,10 +143,17 @@ struct JsonFileFinder
             return;
         }
 
+        // convert windows new-lines to UNIX by removing
+        // all instances of '\r'
+        std::string markerCheckStr = str;
+        std::string::iterator it = std::remove(markerCheckStr.begin(), markerCheckStr.end(), '\r');
+        markerCheckStr.erase(it, markerCheckStr.end());
+
         // there might be non-clang time trace json files around;
         // the clang ones should have this inside them
         const char* clangMarker = "{\"cat\":\"\",\"pid\":1,\"tid\":0,\"ts\":0,\"ph\":\"M\",\"name\":\"process_name\",\"args\":{\"name\":\"clang\"}}";
-        if (strstr(str.c_str(), clangMarker) == NULL)
+        const char* newClangMarker = "{\n      \"args\": {\n        \"name\": \"clang\"\n      },\n      \"cat\": \"\",\n      \"name\": \"process_name\",\n      \"ph\": \"M\",\n      \"pid\": 1,\n      \"tid\": 0,\n      \"ts\": 0\n    }";
+        if (strstr(markerCheckStr.c_str(), clangMarker) == NULL && strstr(markerCheckStr.c_str(), newClangMarker) == NULL)
             return;
 
         // do not grab our own merged json file!
