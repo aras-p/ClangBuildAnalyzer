@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5.1)
-project(clang_build_analyzer)
+project(ClangBuildAnalyzer)
 
 string(APPEND CMAKE_CXX_FLAGS " -std=c++14 -O2")
 
@@ -21,4 +21,4 @@ set(CPP_SRCS
     "src/external/llvm-Demangle/lib/MicrosoftDemangleNodes.cpp"
 )
 
-add_executable(clang_build_analyzer ${C_SRCS} ${CPP_SRCS})
+add_executable(ClangBuildAnalyzer ${C_SRCS} ${CPP_SRCS})
