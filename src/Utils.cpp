@@ -33,7 +33,8 @@ void utils::Initialize()
     GetCurrentDirectoryW(1000, buffer);
     s_CurrentDir = WideToUtf(buffer);
     #else
-    s_CurrentDir = getcwd(NULL, 0);
+    char buffer[1000];
+    s_CurrentDir = getcwd(buffer, 1000);
     #endif
     ForwardSlashify(s_CurrentDir);
     if (!s_CurrentDir.empty())
