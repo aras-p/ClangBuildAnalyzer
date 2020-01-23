@@ -1,13 +1,11 @@
 cmake_minimum_required(VERSION 3.5.1)
 project(ClangBuildAnalyzer)
 
-string(APPEND CMAKE_CXX_FLAGS " -std=c++14 -O2")
-
-set(C_SRCS
+add_executable(ClangBuildAnalyzer)
+target_sources(ClangBuildAnalyzer PRIVATE
+# C sources
     "src/external/inih/ini.c"
-)
-
-set(CPP_SRCS
+# C++ sources	
     "src/Allocator.cpp"
     "src/Analysis.cpp"
     "src/BuildEvents.cpp"
@@ -20,5 +18,4 @@ set(CPP_SRCS
     "src/external/llvm-Demangle/lib/MicrosoftDemangle.cpp"
     "src/external/llvm-Demangle/lib/MicrosoftDemangleNodes.cpp"
 )
-
-add_executable(ClangBuildAnalyzer ${C_SRCS} ${CPP_SRCS})
+target_compile_features(ClangBuildAnalyzer PRIVATE cxx_std_14)
