@@ -145,7 +145,7 @@ struct JsonFileFinder
 
         // there might be non-clang time trace json files around;
         // the clang ones should have this inside them
-        const char* clangMarker = "{\"cat\":\"\",\"pid\":1,\"tid\":0,\"ts\":0,\"ph\":\"M\",\"name\":\"process_name\",\"args\":{\"name\":\"clang\"}}";
+        const char* clangMarker = "{\"cat\":\"\",\"pid\":1,\"tid\":0,\"ts\":0,\"ph\":\"M\",\"name\":\"process_name\",\"args\":{\"name\":\"clang";
         if (strstr(str.c_str(), clangMarker) == NULL)
             return;
 
