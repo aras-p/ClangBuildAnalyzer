@@ -1,0 +1,188 @@
+**** Time summary:
+Compilation (6 times):
+  Parsing (frontend):            2.7 s
+  Codegen & opts (backend):      2.8 s
+
+**** Files that took longest to parse (compiler frontend):
+   939 ms: tests/self-win-clang-cl-10.0rc2/main.json
+   922 ms: tests/self-win-clang-cl-10.0rc2/BuildEvents.json
+   656 ms: tests/self-win-clang-cl-10.0rc2/Allocator.json
+    98 ms: tests/self-win-clang-cl-10.0rc2/BuildEvents.json
+    46 ms: tests/self-win-clang-cl-10.0rc2/main.json
+
+**** Files that took longest to codegen (compiler backend):
+  1916 ms: tests/self-win-clang-cl-10.0rc2/BuildEvents.json
+   868 ms: tests/self-win-clang-cl-10.0rc2/main.json
+    61 ms: tests/self-win-clang-cl-10.0rc2/Allocator.json
+
+**** Templates that took longest to instantiate:
+    60 ms: sajson::parse<sajson::dynamic_allocation, sajson::mutable_string_view> (1 times, avg 60 ms)
+    59 ms: sajson::parser<sajson::dynamic_allocation::allocator>::get_document (1 times, avg 59 ms)
+    58 ms: sajson::parser<sajson::dynamic_allocation::allocator>::parse (1 times, avg 58 ms)
+    29 ms: std::basic_string<char, std::char_traits<char>, std::allocator<char>... (13 times, avg 2 ms)
+    21 ms: sajson::parser<sajson::dynamic_allocation::allocator>::parse_number (1 times, avg 21 ms)
+    20 ms: std::map<std::basic_string<char, std::char_traits<char>, std::alloca... (1 times, avg 20 ms)
+    19 ms: std::_Tree<std::_Tmap_traits<std::basic_string<char, std::char_trait... (1 times, avg 19 ms)
+    17 ms: std::unordered_map<std::basic_string<char, std::char_traits<char>, s... (1 times, avg 17 ms)
+    16 ms: std::basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator... (8 times, avg 2 ms)
+    15 ms: std::basic_string<char, std::char_traits<char>, std::allocator<char>... (5 times, avg 3 ms)
+    15 ms: std::_Hash<std::_Umap_traits<std::basic_string<char, std::char_trait... (1 times, avg 15 ms)
+    14 ms: std::_Tree<std::_Tmap_traits<std::basic_string<char, std::char_trait... (1 times, avg 14 ms)
+    13 ms: std::basic_string<char32_t, std::char_traits<char32_t>, std::allocat... (6 times, avg 2 ms)
+    13 ms: std::basic_string<char16_t, std::char_traits<char16_t>, std::allocat... (6 times, avg 2 ms)
+    12 ms: std::unordered_map<std::basic_string<char, std::char_traits<char>, s... (1 times, avg 12 ms)
+    11 ms: sajson::parser<sajson::dynamic_allocation::allocator>::install_object (1 times, avg 11 ms)
+    11 ms: std::sort<std::_Vector_iterator<std::_Vector_val<std::_Simple_types<... (1 times, avg 11 ms)
+    10 ms: std::_Hash<std::_Umap_traits<std::basic_string<char, std::char_trait... (1 times, avg 10 ms)
+    10 ms: std::sort<sajson::internal::object_key_record *, sajson::internal::o... (1 times, avg 10 ms)
+    10 ms: std::basic_string<char, std::char_traits<char>, std::allocator<char>... (3 times, avg 3 ms)
+     9 ms: std::_Integral_to_string<char, int> (2 times, avg 4 ms)
+     9 ms: std::basic_string<char, std::char_traits<char>, std::allocator<char> > (3 times, avg 3 ms)
+     9 ms: std::_Sort_unchecked<EventIndex *, (lambda at src/BuildEvents.cpp:29... (1 times, avg 9 ms)
+     9 ms: std::basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator... (5 times, avg 1 ms)
+     9 ms: std::basic_string<char32_t, std::char_traits<char32_t>, std::allocat... (3 times, avg 3 ms)
+     9 ms: std::basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator... (3 times, avg 3 ms)
+     9 ms: std::move<std::_Vector_iterator<std::_Vector_val<std::_Simple_types<... (1 times, avg 9 ms)
+     8 ms: std::basic_string<char16_t, std::char_traits<char16_t>, std::allocat... (3 times, avg 2 ms)
+     8 ms: std::vector<EventIndex, std::allocator<EventIndex> >::resize (1 times, avg 8 ms)
+     8 ms: std::vector<EventIndex, std::allocator<EventIndex> >::_Resize<std::_... (1 times, avg 8 ms)
+
+**** Template sets that took longest to instantiate:
+    73 ms: std::basic_string<$>::basic_string (33 times, avg 2 ms)
+    60 ms: sajson::parse<$> (1 times, avg 60 ms)
+    59 ms: sajson::parser<$>::get_document (1 times, avg 59 ms)
+    58 ms: sajson::parser<$>::parse (1 times, avg 58 ms)
+    39 ms: std::basic_string<$>::assign (16 times, avg 2 ms)
+    36 ms: std::basic_string<$> (12 times, avg 3 ms)
+    32 ms: std::_Integral_to_string<$> (15 times, avg 2 ms)
+    25 ms: std::basic_string<$>::_Reallocate_for<$> (12 times, avg 2 ms)
+    21 ms: std::sort<$> (2 times, avg 10 ms)
+    21 ms: sajson::parser<$>::parse_number (1 times, avg 21 ms)
+    20 ms: std::map<$>::insert<$> (1 times, avg 20 ms)
+    19 ms: std::_Tree<$>::emplace<$> (1 times, avg 19 ms)
+    18 ms: std::_Sort_unchecked<$> (2 times, avg 9 ms)
+    17 ms: std::unordered_map<$>::insert<$> (1 times, avg 17 ms)
+    16 ms: std::disjunction<$> (14 times, avg 1 ms)
+    15 ms: std::_Hash<$>::emplace<$> (1 times, avg 15 ms)
+    14 ms: std::_Disjunction<$> (14 times, avg 1 ms)
+    14 ms: std::make_pair<$> (4 times, avg 3 ms)
+    14 ms: std::_Tree<$>::_Emplace<$> (1 times, avg 14 ms)
+    14 ms: std::vector<$>::_Umove_if_noexcept (5 times, avg 2 ms)
+    13 ms: std::vector<$>::push_back (3 times, avg 4 ms)
+    12 ms: std::vector<$>::_Umove_if_noexcept1 (5 times, avg 2 ms)
+    12 ms: std::vector<$> (6 times, avg 2 ms)
+    12 ms: std::unordered_map<$>::unordered_map (1 times, avg 12 ms)
+    11 ms: std::_Uninitialized_move<$> (5 times, avg 2 ms)
+    11 ms: sajson::parser<$>::install_object (1 times, avg 11 ms)
+    10 ms: std::vector<$>::_Emplace_reallocate<$> (4 times, avg 2 ms)
+    10 ms: std::_Hash<$>::_Hash (1 times, avg 10 ms)
+    10 ms: std::_UIntegral_to_buff<$> (6 times, avg 1 ms)
+     9 ms: std::vector<$>::reserve (3 times, avg 3 ms)
+
+**** Functions that took longest to compile:
+   207 ms: private: bool __cdecl sajson::parser<class sajson::dynamic_allocatio... (src/BuildEvents.cpp)
+   107 ms: private: char * __cdecl sajson::parser<class sajson::dynamic_allocat... (src/BuildEvents.cpp)
+   105 ms: main (src/main.cpp)
+   104 ms: private: struct std::pair<char *, enum sajson::type> __cdecl sajson:... (src/BuildEvents.cpp)
+    83 ms: public: void __cdecl JsonTraverser::ParseTraceEvents(class sajson::v... (src/BuildEvents.cpp)
+    81 ms: public: void __cdecl JsonTraverser::ParseEvent(class sajson::value c... (src/BuildEvents.cpp)
+    66 ms: int __cdecl RunStop(int, char const **const) (src/main.cpp)
+    62 ms: public: struct EventIndex * __cdecl std::vector<struct EventIndex, c... (src/BuildEvents.cpp)
+    58 ms: void __cdecl std::_Sort_unchecked<struct EventIndex *, class `void _... (src/BuildEvents.cpp)
+    49 ms: public: void __cdecl JsonFileFinder::OnFile(struct cf_file_t *) (src/main.cpp)
+    40 ms: public: struct BuildEvent * __cdecl std::vector<struct BuildEvent, c... (src/BuildEvents.cpp)
+    33 ms: int __cdecl ProcessCommands(int, char const **const) (src/main.cpp)
+    33 ms: struct std::pair<struct sajson::internal::object_key_record *, struc... (src/BuildEvents.cpp)
+    33 ms: int __cdecl RunAnalyze(int, char const **const, struct _iobuf *) (src/main.cpp)
+    32 ms: int __cdecl RunTests(int, char const **const) (src/main.cpp)
+    29 ms: public: void __cdecl std::_Hash_vec<class std::allocator<class std::... (src/BuildEvents.cpp)
+    29 ms: private: struct std::_List_node<struct std::pair<class std::basic_st... (src/BuildEvents.cpp)
+    28 ms: void __cdecl ParseBuildEvents(class std::basic_string<char, struct s... (src/BuildEvents.cpp)
+    25 ms: public: void __cdecl JsonTraverser::ParseFiles(class sajson::value c... (src/BuildEvents.cpp)
+    25 ms: private: void __cdecl std::vector<struct EventIndex, class std::allo... (src/BuildEvents.cpp)
+    25 ms: public: struct std::pair<class std::_List_iterator<class std::_List_... (src/BuildEvents.cpp)
+    25 ms: public: class std::basic_string<char, struct std::char_traits<char>,... (src/BuildEvents.cpp)
+    23 ms: public: struct DetailIndex __cdecl JsonTraverser::NameToIndex(class ... (src/BuildEvents.cpp)
+    22 ms: protected: void __cdecl std::_Hash<class std::_Umap_traits<class std... (src/BuildEvents.cpp)
+    20 ms: int __cdecl RunOneTest(class std::basic_string<char, struct std::cha... (src/main.cpp)
+    20 ms: int __cdecl cf_read_file(struct cf_dir_t *, struct cf_file_t *) (src/main.cpp)
+    19 ms: private: char * __cdecl sajson::parser<class sajson::dynamic_allocat... (src/BuildEvents.cpp)
+    19 ms: public: struct std::_Tree_node<struct std::pair<class std::basic_str... (src/main.cpp)
+    18 ms: void __cdecl cf_traverse(char const *, void (__cdecl *)(struct cf_fi... (src/main.cpp)
+    17 ms: public: struct BuildEvent * __cdecl std::vector<struct BuildEvent, c... (src/BuildEvents.cpp)
+
+**** Function sets that took longest to compile / optimize:
+   210 ms: private: bool __cdecl sajson::parser<$>::parse(void) (2 times, avg 105 ms)
+   108 ms: private: char * __cdecl sajson::parser<$>::parse_string_slow(char *,... (2 times, avg 54 ms)
+   105 ms: private: struct std::pair<$> __cdecl sajson::parser<$>::parse_number... (2 times, avg 52 ms)
+   105 ms: main (1 times, avg 105 ms)
+    83 ms: public: void __cdecl JsonTraverser::ParseTraceEvents(class sajson::v... (1 times, avg 83 ms)
+    82 ms: public: void __cdecl JsonTraverser::ParseEvent(class sajson::value c... (2 times, avg 41 ms)
+    66 ms: int __cdecl RunStop(int, char const **const) (2 times, avg 33 ms)
+    62 ms: public: struct EventIndex * __cdecl std::vector<$>::_Emplace_realloc... (1 times, avg 62 ms)
+    58 ms: void __cdecl std::_Sort_unchecked<$>(struct EventIndex *, struct Eve... (1 times, avg 58 ms)
+    49 ms: public: void __cdecl JsonFileFinder::OnFile(struct cf_file_t *) (1 times, avg 49 ms)
+    40 ms: public: struct BuildEvent * __cdecl std::vector<$>::_Emplace_realloc... (1 times, avg 40 ms)
+    34 ms: struct std::pair<$> __cdecl std::_Partition_by_median_guess_unchecke... (2 times, avg 17 ms)
+    33 ms: int __cdecl ProcessCommands(int, char const **const) (1 times, avg 33 ms)
+    33 ms: int __cdecl RunAnalyze(int, char const **const, struct _iobuf *) (1 times, avg 33 ms)
+    32 ms: int __cdecl RunTests(int, char const **const) (1 times, avg 32 ms)
+    30 ms: void __cdecl ParseBuildEvents(class std::basic_string<$> &, struct I... (2 times, avg 15 ms)
+    29 ms: private: struct std::_List_node<$> * __cdecl std::_Hash<$>::_Uncheck... (2 times, avg 14 ms)
+    29 ms: public: void __cdecl std::_Hash_vec<$>::_Assign_grow(unsigned __int6... (1 times, avg 29 ms)
+    25 ms: public: void __cdecl JsonTraverser::ParseFiles(class sajson::value c... (1 times, avg 25 ms)
+    25 ms: private: void __cdecl std::vector<$>::_Resize_reallocate<$>(unsigned... (1 times, avg 25 ms)
+    25 ms: public: struct std::pair<$> __cdecl std::_Hash<$>::emplace<$>(struct... (1 times, avg 25 ms)
+    25 ms: public: class std::basic_string<$> * __cdecl std::vector<$>::_Emplac... (1 times, avg 25 ms)
+    23 ms: public: struct DetailIndex __cdecl JsonTraverser::NameToIndex(class ... (1 times, avg 23 ms)
+    22 ms: protected: void __cdecl std::_Hash<$>::_Forced_rehash(unsigned __int... (2 times, avg 11 ms)
+    22 ms: private: void __cdecl std::vector<$>::_Tidy(void) (5 times, avg 4 ms)
+    20 ms: int __cdecl RunOneTest(class std::basic_string<$> const &) (1 times, avg 20 ms)
+    20 ms: int __cdecl cf_read_file(struct cf_dir_t *, struct cf_file_t *) (1 times, avg 20 ms)
+    19 ms: private: char * __cdecl sajson::parser<$>::parse_string(char *, unsi... (1 times, avg 19 ms)
+    19 ms: public: struct std::_Tree_node<$> * __cdecl std::_Tree_val<$>::_Inse... (1 times, avg 19 ms)
+    18 ms: void __cdecl cf_traverse(char const *, void (__cdecl *)(struct cf_fi... (1 times, avg 18 ms)
+
+*** Expensive headers:
+701 ms: C:/Program Files (x86)/Windows Kits/10/include/10.0.18362.0/um/windows.h (included 2 times, avg 350 ms), included via:
+  Allocator.json  (352 ms)
+  main.json sokol_time.h  (348 ms)
+
+587 ms: src/BuildEvents.h (included 2 times, avg 293 ms), included via:
+  BuildEvents.json  (305 ms)
+  main.json Analysis.h  (282 ms)
+
+353 ms: src/external/sokol_time.h (included 1 times, avg 353 ms), included via:
+  main.json  (353 ms)
+
+282 ms: src/Analysis.h (included 1 times, avg 282 ms), included via:
+  main.json  (282 ms)
+
+131 ms: C:/Program Files (x86)/Windows Kits/10/Include/10.0.18362.0/ucrt/stdio.h (included 3 times, avg 43 ms), included via:
+  BuildEvents.h string xstring iosfwd cstdio  (46 ms)
+  algorithm xmemory limits cwchar cstdio  (42 ms)
+  Analysis.h BuildEvents.h string xstring iosfwd cstdio  (42 ms)
+
+70 ms: C:/Program Files (x86)/Windows Kits/10/Include/10.0.18362.0/ucrt/wchar.h (included 3 times, avg 23 ms), included via:
+  algorithm xmemory limits cwchar  (27 ms)
+  BuildEvents.h string xstring iosfwd cwchar  (22 ms)
+  Analysis.h BuildEvents.h string xstring iosfwd cwchar  (20 ms)
+
+52 ms: src/external/sajson.h (included 1 times, avg 52 ms), included via:
+  BuildEvents.json  (52 ms)
+
+46 ms: C:/Program Files (x86)/Windows Kits/10/Include/10.0.18362.0/ucrt/stdlib.h (included 3 times, avg 15 ms), included via:
+  algorithm xmemory cstdlib  (17 ms)
+  BuildEvents.h string xstring iosfwd xstddef cstdlib  (15 ms)
+  Analysis.h BuildEvents.h string xstring iosfwd xstddef cstdlib  (13 ms)
+
+38 ms: C:/Program Files (x86)/Windows Kits/10/Include/10.0.18362.0/ucrt/string.h (included 3 times, avg 12 ms), included via:
+  BuildEvents.h string xstring iosfwd cstring  (16 ms)
+  Analysis.h BuildEvents.h string xstring iosfwd cstring  (15 ms)
+  algorithm xmemory xutility cstring  (6 ms)
+
+37 ms: C:/Program Files (x86)/Windows Kits/10/Include/10.0.18362.0/ucrt/math.h (included 3 times, avg 12 ms), included via:
+  BuildEvents.h string xstring iosfwd xstddef cstdlib  (12 ms)
+  algorithm xmemory cstdlib  (12 ms)
+  Analysis.h BuildEvents.h string xstring iosfwd xstddef cstdlib  (12 ms)
+
