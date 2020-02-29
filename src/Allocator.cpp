@@ -22,6 +22,7 @@ const size_t kBlockSize = 32 * 1024 * 1024;
 static void* s_CurBlock = nullptr;
 static size_t s_CurBlockUsed = 0;
 static size_t s_CurBlockSize = 0;
+static size_t s_TotalAllocs = 0;
 
 
 void* operator new(size_t count)
@@ -52,9 +53,15 @@ void* operator new(size_t count)
 
     void* res = (char*)s_CurBlock + s_CurBlockUsed;
     s_CurBlockUsed += count;
+    s_TotalAllocs += count;
     return res;
 }
 
 void operator delete(void * p) throw()
 {
+}
+
+size_t GetTotalAllocatedBytes()
+{
+    return s_TotalAllocs;
 }

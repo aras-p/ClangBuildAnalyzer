@@ -23,6 +23,8 @@ struct IUnknown; // workaround for old Win SDK header failures when using /permi
 #define CUTE_FILES_IMPLEMENTATION
 #include "external/cute_files.h"
 
+size_t GetTotalAllocatedBytes();
+
 static std::string ReadFileToString(const std::string& path)
 {
     FILE* f = fopen(path.c_str(), "rb");
@@ -246,7 +248,7 @@ static int RunStop(int argc, const char* argv[])
     fclose(fout);
 
     double tDuration = stm_sec(stm_since(tStart));
-    printf("%s  done in %.1fs. Run 'ClangBuildAnalyzer --analyze %s' to analyze it.%s\n", col::kYellow, tDuration, outFile.c_str(), col::kReset);
+    printf("%s  done in %.1fs (%.1fMB alloc). Run 'ClangBuildAnalyzer --analyze %s' to analyze it.%s\n", col::kYellow, tDuration, GetTotalAllocatedBytes()/1024.0/1024.0, outFile.c_str(), col::kReset);
 
     return 0;
 }
@@ -287,7 +289,7 @@ static int RunAnalyze(int argc, const char* argv[], FILE* out)
     DoAnalysis(events, names, out);
 
     double tDuration = stm_sec(stm_since(tStart));
-    printf("%s  done in %.1fs.%s\n", col::kYellow, tDuration, col::kReset);
+    printf("%s  done in %.1fs (%.1fMB alloc).%s\n", col::kYellow, tDuration, GetTotalAllocatedBytes()/1024.0/1024.0, col::kReset);
 
     return 0;
 }
