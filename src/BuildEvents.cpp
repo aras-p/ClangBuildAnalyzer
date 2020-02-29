@@ -7,8 +7,34 @@
 #include <iterator>
 #include <unordered_map>
 
+struct HashedString
+{
+    explicit HashedString(const char* s)
+    : str(s)
+    {
+        hash = std::hash<std::string>()(str);
+    }
+    size_t hash;
+    std::string str;
+};
+template<>
+struct std::hash<HashedString>
+{
+    size_t operator()(const HashedString& v) const
+    {
+        return v.hash;
+    }
+};
+template<>
+struct std::equal_to<HashedString>
+{
+    bool operator()(const HashedString& a, const HashedString& b) const
+    {
+        return a.hash == b.hash && a.str == b.str;
+    }
+};
 
-typedef std::unordered_map<std::string, DetailIndex> NameToIndexMap;
+typedef std::unordered_map<HashedString, DetailIndex> NameToIndexMap;
 
 
 static void DebugPrintEvents(const BuildEvents& events, const BuildNames& names)
@@ -115,14 +141,15 @@ struct BuildEventsParser
     BuildEvents fileEvents;
 
 
-    DetailIndex NameToIndex(const std::string& name)
+    DetailIndex NameToIndex(const char* str)
     {
-        auto it = nameToIndex.find(name);
+        HashedString hashedName(str);
+        auto it = nameToIndex.find(hashedName);
         if (it != nameToIndex.end())
             return it->second;
         DetailIndex index((int)nameToIndex.size());
-        nameToIndex.insert(std::make_pair(name, index));
-        resultNames.push_back(name);
+        nameToIndex.insert(std::make_pair(hashedName, index));
+        resultNames.push_back(hashedName.str);
         return index;
     }
 
@@ -275,13 +302,13 @@ struct BuildEventsParser
                 {
                     const auto& nodeDetail = nodeVal.get_object_value(0);
                     if (nodeDetail.get_type() == sajson::TYPE_STRING)
-                        event.detailIndex = NameToIndex(nodeDetail.as_string());
+                        event.detailIndex = NameToIndex(nodeDetail.as_cstring());
                 }
             }
         }
 
         if (event.detailIndex == DetailIndex() && event.type == BuildEventType::kCompiler)
-            event.detailIndex = NameToIndex(curFileName);
+            event.detailIndex = NameToIndex(curFileName.c_str());
         fileEvents.emplace_back(event);
     }
 };
