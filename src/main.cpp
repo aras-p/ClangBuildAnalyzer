@@ -196,11 +196,7 @@ static int RunStop(int argc, const char* argv[])
     }
     
     // parse the json files into our data structures
-    BuildEvents events;
-    BuildNames names;
-    NameToIndexMap nameToIndex;
-    events.reserve(2048);
-    names.reserve(2048);
+    BuildEventsParser* parser = CreateBuildEventsParser();
     int fileCount = 0;
     
     for (const auto& fileName : jsonFiles.files)
@@ -215,9 +211,7 @@ static int RunStop(int argc, const char* argv[])
 
         // parse the build events inside the file into our data structure
         //printf("    debug: reading %s\n", fileName.c_str());
-        size_t prevEventsCount = events.size();
-        ParseBuildEvents(fileName, str, events, names, nameToIndex);
-        if (events.size() != prevEventsCount)
+        if (ParseBuildEvents(parser, fileName, str))
             ++fileCount;
     }
     if (fileCount == 0)
@@ -227,8 +221,10 @@ static int RunStop(int argc, const char* argv[])
     }
 
     // create the data file
-    if (!SaveBuildEvents(outFile, events, names))
+    if (!SaveBuildEvents(parser, outFile))
         return 1;
+    
+    DeleteBuildEventsParser(parser);
     
     double tDuration = stm_sec(stm_since(tStart));
     printf("%s  done in %.1fs (%.1fMB alloc). Run 'ClangBuildAnalyzer --analyze %s' to analyze it.%s\n", col::kYellow, tDuration, GetTotalAllocatedBytes()/1024.0/1024.0, outFile.c_str(), col::kReset);

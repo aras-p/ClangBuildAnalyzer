@@ -4,7 +4,6 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
-#include <unordered_map>
 #include <utility>
 
 
@@ -84,9 +83,11 @@ struct IndexedVector : std::vector<T>
 };
 typedef IndexedVector<std::string, DetailIndex> BuildNames;
 typedef IndexedVector<BuildEvent, EventIndex> BuildEvents;
-typedef std::unordered_map<std::string, DetailIndex> NameToIndexMap;
 
-void ParseBuildEvents(const std::string& fileName, std::string& jsonText, BuildEvents& outEvents, BuildNames& outNames, NameToIndexMap& inoutNameToIndex);
+struct BuildEventsParser;
+BuildEventsParser* CreateBuildEventsParser();
+void DeleteBuildEventsParser(BuildEventsParser* parser);
+bool ParseBuildEvents(BuildEventsParser* parser, const std::string& fileName, std::string& jsonText);
+bool SaveBuildEvents(BuildEventsParser* parser, const std::string& fileName);
 
-bool SaveBuildEvents(const std::string& fileName, const BuildEvents& events, const BuildNames& names);
 bool LoadBuildEvents(const std::string& fileName, BuildEvents& outEvents, BuildNames& outNames);

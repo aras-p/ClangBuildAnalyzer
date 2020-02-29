@@ -5,6 +5,11 @@
 #include "external/sajson.h"
 #include <assert.h>
 #include <iterator>
+#include <unordered_map>
+
+
+typedef std::unordered_map<std::string, DetailIndex> NameToIndexMap;
+
 
 static void DebugPrintEvents(const BuildEvents& events, const BuildNames& names)
 {
@@ -94,19 +99,19 @@ static void AddEvents(BuildEvents& res, BuildEvents& add)
     }
 }
 
-struct JsonTraverser
+struct BuildEventsParser
 {
-    JsonTraverser(BuildEvents& outEvents, BuildNames& outNames, NameToIndexMap& inoutNameToIndex)
-    : resultEvents(outEvents), resultNames(outNames), nameToIndex(inoutNameToIndex)
+    BuildEventsParser()
     {
-        if (inoutNameToIndex.empty())
-            NameToIndex(""); // make sure zero index is empty
+        NameToIndex(""); // make sure zero index is empty
+        resultEvents.reserve(2048);
+        resultNames.reserve(2048);
     }
 
     std::string curFileName;
-    BuildEvents& resultEvents;
-    BuildNames& resultNames;
-    NameToIndexMap& nameToIndex;
+    BuildEvents resultEvents;
+    BuildNames resultNames;
+    NameToIndexMap nameToIndex;
     BuildEvents fileEvents;
 
 
@@ -281,22 +286,34 @@ struct JsonTraverser
     }
 };
 
-void ParseBuildEvents(const std::string& fileName, std::string& jsonText, BuildEvents& outEvents, BuildNames& outNames, NameToIndexMap& inoutNameToIndex)
+BuildEventsParser* CreateBuildEventsParser()
+{
+    BuildEventsParser* p = new BuildEventsParser();
+    return p;
+}
+void DeleteBuildEventsParser(BuildEventsParser* parser)
+{
+    delete parser;
+}
+
+
+bool ParseBuildEvents(BuildEventsParser* parser, const std::string& fileName, std::string& jsonText)
 {
     const sajson::document& doc = sajson::parse(sajson::dynamic_allocation(), sajson::mutable_string_view(jsonText.size(), &jsonText[0]));
     if (!doc.is_valid())
     {
         printf("%sWARN: JSON parse error %s.%s\n", col::kYellow, doc.get_error_message_as_cstring(), col::kReset);
-        return;
+        return false;
     }
 
-    JsonTraverser traverser(outEvents, outNames, inoutNameToIndex);
-    traverser.curFileName = fileName;
-    traverser.ParseRoot(doc.get_root());
+    parser->curFileName = fileName;
+    size_t prevEventsSize = parser->resultEvents.size();
+    parser->ParseRoot(doc.get_root());
+    return parser->resultEvents.size() > prevEventsSize;
     //DebugPrintEvents(outEvents, outNames);
 }
 
-bool SaveBuildEvents(const std::string& fileName, const BuildEvents& events, const BuildNames& names)
+bool SaveBuildEvents(BuildEventsParser* parser, const std::string& fileName)
 {
     FILE* f = fopen(fileName.c_str(), "wb");
     if (f == nullptr)
@@ -305,9 +322,9 @@ bool SaveBuildEvents(const std::string& fileName, const BuildEvents& events, con
         return false;
     }
     
-    int64_t eventsCount = events.size();
+    int64_t eventsCount = parser->resultEvents.size();
     fwrite(&eventsCount, sizeof(eventsCount), 1, f);
-    for(const auto& e : events)
+    for(const auto& e : parser->resultEvents)
     {
         int32_t eType = (int32_t)e.type;
         fwrite(&eType, sizeof(eType), 1, f);
@@ -320,9 +337,9 @@ bool SaveBuildEvents(const std::string& fileName, const BuildEvents& events, con
         fwrite(e.children.data(), childCount, sizeof(e.children[0]), f);
     }
 
-    int64_t namesCount = names.size();
+    int64_t namesCount = parser->resultNames.size();
     fwrite(&namesCount, sizeof(namesCount), 1, f);
-    for(const auto& n : names)
+    for(const auto& n : parser->resultNames)
     {
         uint32_t nSize = (uint32_t)n.size();
         fwrite(&nSize, sizeof(nSize), 1, f);
