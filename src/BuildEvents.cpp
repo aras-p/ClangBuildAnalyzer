@@ -17,22 +17,23 @@ struct HashedString
     size_t hash;
     std::string str;
 };
-template<>
-struct std::hash<HashedString>
+namespace std
 {
-    size_t operator()(const HashedString& v) const
+    template<> struct hash<HashedString>
     {
-        return v.hash;
-    }
-};
-template<>
-struct std::equal_to<HashedString>
-{
-    bool operator()(const HashedString& a, const HashedString& b) const
+        size_t operator()(const HashedString& v) const
+        {
+            return v.hash;
+        }
+    };
+    template<> struct equal_to<HashedString>
     {
-        return a.hash == b.hash && a.str == b.str;
-    }
-};
+        bool operator()(const HashedString& a, const HashedString& b) const
+        {
+            return a.hash == b.hash && a.str == b.str;
+        }
+    };
+} // namespace std
 
 typedef ska::bytell_hash_map<HashedString, DetailIndex> NameToIndexMap;
 
