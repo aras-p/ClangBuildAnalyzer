@@ -384,6 +384,44 @@ struct BufferedWriter
     FILE* file;
 };
 
+struct BufferedReader
+{
+    BufferedReader(FILE* f)
+    : pos(0)
+    {
+        fseek(f, 0, SEEK_END);
+        size_t fsize = ftello64(f);
+        fseek(f, 0, SEEK_SET);
+        buffer = new uint8_t[fsize];
+        bufferSize = fsize;
+        fread(buffer, bufferSize, 1, f);
+        fclose(f);
+    }
+    ~BufferedReader()
+    {
+        delete[] buffer;
+    }
+    
+    template<typename T> void Read(T& t)
+    {
+        Read(&t, sizeof(t));
+    }
+    void Read(void* ptr, size_t sz)
+    {
+        if (pos + sz > bufferSize)
+        {
+            memset(ptr, 0, sz);
+            return;
+        }
+        memcpy(ptr, &buffer[pos], sz);
+        pos += sz;
+    }
+    
+    uint8_t* buffer;
+    size_t pos;
+    size_t bufferSize;
+};
+
 bool SaveBuildEvents(BuildEventsParser* parser, const std::string& fileName)
 {
     FILE* f = fopen(fileName.c_str(), "wb");
@@ -431,33 +469,37 @@ bool LoadBuildEvents(const std::string& fileName, BuildEvents& outEvents, BuildN
         return false;
     }
     
+    BufferedReader r(f);
+    
     int64_t eventsCount = 0;
-    fread(&eventsCount, sizeof(eventsCount), 1, f);
+    r.Read(eventsCount);
     outEvents.resize(eventsCount);
     for(auto& e : outEvents)
     {
         int32_t eType;
-        fread(&eType, sizeof(eType), 1, f);
+        r.Read(eType);
         e.type = (BuildEventType)eType;
-        fread(&e.ts, sizeof(e.ts), 1, f);
-        fread(&e.dur, sizeof(e.dur), 1, f);
-        fread(&e.detailIndex.idx, sizeof(e.detailIndex.idx), 1, f);
-        fread(&e.parent.idx, sizeof(e.parent.idx), 1, f);
+        r.Read(e.ts);
+        r.Read(e.dur);
+        r.Read(e.detailIndex.idx);
+        r.Read(e.parent.idx);
         int64_t childCount = 0;
-        fread(&childCount, sizeof(childCount), 1, f);
+        r.Read(childCount);
         e.children.resize(childCount);
-        fread(e.children.data(), childCount, sizeof(e.children[0]), f);
+        if (childCount != 0)
+            r.Read(&e.children[0], childCount * sizeof(e.children[0]));
     }
 
     int64_t namesCount = 0;
-    fread(&namesCount, sizeof(namesCount), 1, f);
+    r.Read(namesCount);
     outNames.resize(namesCount);
     for(auto& n : outNames)
     {
         uint32_t nSize = 0;
-        fread(&nSize, sizeof(nSize), 1, f);
+        r.Read(nSize);
         n.resize(nSize);
-        fread(&*n.begin(), nSize, 1, f);
+        if (nSize != 0)
+            r.Read(&n[0], nSize);
     }
 
     fclose(f);
