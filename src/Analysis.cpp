@@ -360,9 +360,17 @@ void Analysis::EmitCollapsedTemplates()
 void Analysis::EmitCollapsedTemplateOpt()
 {
     std::unordered_map<std::string, InstantiateEntry> collapsed;
+    std::unordered_map<DetailIndex, std::string> collapsedNameCache;
+    
     for (const auto& fn : functions)
     {
-        auto &stats = collapsed[collapseName(llvm::demangle(GetBuildName(fn.first.first)))];
+        auto fnName = fn.first.first;
+        auto fnCacheIt = collapsedNameCache.find(fnName);
+        if (fnCacheIt == collapsedNameCache.end())
+        {
+            fnCacheIt = collapsedNameCache.insert(std::make_pair(fnName, collapseName(llvm::demangle(GetBuildName(fnName))))).first;
+        }
+        auto &stats = collapsed[fnCacheIt->second];
         ++stats.count;
         stats.us += fn.second;
     }
