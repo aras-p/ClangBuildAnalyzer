@@ -4,7 +4,6 @@
 #include "Colors.h"
 #include "external/sajson.h"
 #include <assert.h>
-#include <unordered_map>
 #include <iterator>
 
 static void DebugPrintEvents(const BuildEvents& events, const BuildNames& names)
@@ -97,18 +96,19 @@ static void AddEvents(BuildEvents& res, BuildEvents& add)
 
 struct JsonTraverser
 {
-    JsonTraverser(BuildEvents& outEvents, BuildNames& outNames)
-    : resultEvents(outEvents), resultNames(outNames)
+    JsonTraverser(BuildEvents& outEvents, BuildNames& outNames, NameToIndexMap& inoutNameToIndex)
+    : resultEvents(outEvents), resultNames(outNames), nameToIndex(inoutNameToIndex)
     {
-        NameToIndex(""); // make sure zero index is empty
+        if (inoutNameToIndex.empty())
+            NameToIndex(""); // make sure zero index is empty
     }
 
     std::string curFileName;
     BuildEvents& resultEvents;
     BuildNames& resultNames;
+    NameToIndexMap& nameToIndex;
     BuildEvents fileEvents;
 
-    std::unordered_map<std::string, DetailIndex> nameToIndex;
 
     DetailIndex NameToIndex(const std::string& name)
     {
@@ -125,45 +125,18 @@ struct JsonTraverser
     {
         if (node.get_type() != sajson::TYPE_OBJECT)
         {
-            printf("%sERROR: root of JSON should be an object.%s\n", col::kRed, col::kReset);
-            resultEvents.clear();
+            // not a trace file, ignore
             return;
         }
-        const auto& files = node.get_value_of_key(sajson::literal("files"));
-        ParseFiles(files);
-    }
-
-    void ParseFiles(const sajson::value& node)
-    {
-        if (node.get_type() != sajson::TYPE_OBJECT)
-        {
-            printf("%sERROR: 'files' of JSON should be an object.%s\n", col::kRed, col::kReset);
-            resultEvents.clear();
-            return;
-        }
-
-        for (size_t i = 0, n = node.get_length(); i != n; ++i)
-        {
-            const auto& fileName = node.get_object_key(i);
-            curFileName = fileName.as_string();
-            const auto& fileVal = node.get_object_value(i);
-            if (fileVal.get_type() != sajson::TYPE_OBJECT)
-            {
-                printf("%sERROR: 'files' elements in JSON should be objects.%s\n", col::kRed, col::kReset);
-                resultEvents.clear();
-                return;
-            }
-            const auto& traceEventsVal = fileVal.get_value_of_key(sajson::literal("traceEvents"));
-            ParseTraceEvents(traceEventsVal);
-        }
+        const auto& traceEventsVal = node.get_value_of_key(sajson::literal("traceEvents"));
+        ParseTraceEvents(traceEventsVal);
     }
 
     void ParseTraceEvents(const sajson::value& node)
     {
         if (node.get_type() != sajson::TYPE_ARRAY)
         {
-            printf("%sERROR: 'traceEvents' of JSON should be an array.%s\n", col::kRed, col::kReset);
-            resultEvents.clear();
+            // not a trace file, ignore
             return;
         }
         fileEvents.clear();
@@ -308,16 +281,97 @@ struct JsonTraverser
     }
 };
 
-void ParseBuildEvents(std::string& jsonText, BuildEvents& outEvents, BuildNames& outNames)
+void ParseBuildEvents(const std::string& fileName, std::string& jsonText, BuildEvents& outEvents, BuildNames& outNames, NameToIndexMap& inoutNameToIndex)
 {
     const sajson::document& doc = sajson::parse(sajson::dynamic_allocation(), sajson::mutable_string_view(jsonText.size(), &jsonText[0]));
     if (!doc.is_valid())
     {
-        printf("%sERROR: JSON parse error %s.%s\n", col::kRed, doc.get_error_message_as_cstring(), col::kReset);
+        printf("%sWARN: JSON parse error %s.%s\n", col::kYellow, doc.get_error_message_as_cstring(), col::kReset);
         return;
     }
 
-    JsonTraverser traverser(outEvents, outNames);
+    JsonTraverser traverser(outEvents, outNames, inoutNameToIndex);
+    traverser.curFileName = fileName;
     traverser.ParseRoot(doc.get_root());
     //DebugPrintEvents(outEvents, outNames);
+}
+
+bool SaveBuildEvents(const std::string& fileName, const BuildEvents& events, const BuildNames& names)
+{
+    FILE* f = fopen(fileName.c_str(), "wb");
+    if (f == nullptr)
+    {
+        printf("%sERROR: failed to save to file '%s'%s\n", col::kRed, fileName.c_str(), col::kReset);
+        return false;
+    }
+    
+    int64_t eventsCount = events.size();
+    fwrite(&eventsCount, sizeof(eventsCount), 1, f);
+    for(const auto& e : events)
+    {
+        int32_t eType = (int32_t)e.type;
+        fwrite(&eType, sizeof(eType), 1, f);
+        fwrite(&e.ts, sizeof(e.ts), 1, f);
+        fwrite(&e.dur, sizeof(e.dur), 1, f);
+        fwrite(&e.detailIndex.idx, sizeof(e.detailIndex.idx), 1, f);
+        fwrite(&e.parent.idx, sizeof(e.parent.idx), 1, f);
+        int64_t childCount = e.children.size();
+        fwrite(&childCount, sizeof(childCount), 1, f);
+        fwrite(e.children.data(), childCount, sizeof(e.children[0]), f);
+    }
+
+    int64_t namesCount = names.size();
+    fwrite(&namesCount, sizeof(namesCount), 1, f);
+    for(const auto& n : names)
+    {
+        uint32_t nSize = (uint32_t)n.size();
+        fwrite(&nSize, sizeof(nSize), 1, f);
+        fwrite(n.data(), nSize, 1, f);
+    }
+
+    fclose(f);
+    return true;
+}
+
+bool LoadBuildEvents(const std::string& fileName, BuildEvents& outEvents, BuildNames& outNames)
+{
+    FILE* f = fopen(fileName.c_str(), "rb");
+    if (f == nullptr)
+    {
+        printf("%sERROR: failed to open file '%s'%s\n", col::kRed, fileName.c_str(), col::kReset);
+        return false;
+    }
+    
+    int64_t eventsCount = 0;
+    fread(&eventsCount, sizeof(eventsCount), 1, f);
+    outEvents.resize(eventsCount);
+    for(auto& e : outEvents)
+    {
+        int32_t eType;
+        fread(&eType, sizeof(eType), 1, f);
+        e.type = (BuildEventType)eType;
+        fread(&e.ts, sizeof(e.ts), 1, f);
+        fread(&e.dur, sizeof(e.dur), 1, f);
+        fread(&e.detailIndex.idx, sizeof(e.detailIndex.idx), 1, f);
+        fread(&e.parent.idx, sizeof(e.parent.idx), 1, f);
+        int64_t childCount = 0;
+        fread(&childCount, sizeof(childCount), 1, f);
+        e.children.resize(childCount);
+        fread(e.children.data(), childCount, sizeof(e.children[0]), f);
+    }
+
+    int64_t namesCount = 0;
+    fread(&namesCount, sizeof(namesCount), 1, f);
+    outNames.resize(namesCount);
+    for(auto& n : outNames)
+    {
+        uint32_t nSize = 0;
+        fread(&nSize, sizeof(nSize), 1, f);
+        n.resize(nSize);
+        fread(&*n.begin(), nSize, 1, f);
+    }
+
+    fclose(f);
+
+    return true;
 }

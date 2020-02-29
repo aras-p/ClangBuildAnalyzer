@@ -449,7 +449,7 @@ void Analysis::EndAnalysis()
             if (dname.size() > config.maxName)
                 dname = dname.substr(0, config.maxName-2) + "...";
             int ms = int(e.second.us / 1000);
-            int avg = int(ms / e.second.count);
+            int avg = int(ms / std::max(e.second.count,1));
             fprintf(out, "%s%6i%s ms: %s (%i times, avg %i ms)\n", col::kBold, ms, col::kReset, dname.c_str(), e.second.count, avg);
         }
         fprintf(out, "\n");

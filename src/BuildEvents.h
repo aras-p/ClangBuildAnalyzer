@@ -4,7 +4,9 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include <unordered_map>
 #include <utility>
+
 
 enum class BuildEventType
 {
@@ -82,5 +84,9 @@ struct IndexedVector : std::vector<T>
 };
 typedef IndexedVector<std::string, DetailIndex> BuildNames;
 typedef IndexedVector<BuildEvent, EventIndex> BuildEvents;
+typedef std::unordered_map<std::string, DetailIndex> NameToIndexMap;
 
-void ParseBuildEvents(std::string& jsonText, BuildEvents& outEvents, BuildNames& outNames);
+void ParseBuildEvents(const std::string& fileName, std::string& jsonText, BuildEvents& outEvents, BuildNames& outNames, NameToIndexMap& inoutNameToIndex);
+
+bool SaveBuildEvents(const std::string& fileName, const BuildEvents& events, const BuildNames& names);
+bool LoadBuildEvents(const std::string& fileName, BuildEvents& outEvents, BuildNames& outNames);
