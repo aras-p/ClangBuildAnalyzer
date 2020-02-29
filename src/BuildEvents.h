@@ -87,7 +87,7 @@ typedef IndexedVector<BuildEvent, EventIndex> BuildEvents;
 struct BuildEventsParser;
 BuildEventsParser* CreateBuildEventsParser();
 void DeleteBuildEventsParser(BuildEventsParser* parser);
-bool ParseBuildEvents(BuildEventsParser* parser, const std::string& fileName, std::string& jsonText);
+bool ParseBuildEvents(BuildEventsParser* parser, const std::string& fileName, char* jsonText, size_t jsonTextSize);
 bool SaveBuildEvents(BuildEventsParser* parser, const std::string& fileName);
 
 bool LoadBuildEvents(const std::string& fileName, BuildEvents& outEvents, BuildNames& outNames);

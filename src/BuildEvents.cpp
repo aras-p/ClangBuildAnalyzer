@@ -324,9 +324,9 @@ void DeleteBuildEventsParser(BuildEventsParser* parser)
 }
 
 
-bool ParseBuildEvents(BuildEventsParser* parser, const std::string& fileName, std::string& jsonText)
+bool ParseBuildEvents(BuildEventsParser* parser, const std::string& fileName, char* jsonText, size_t jsonTextSize)
 {
-    const sajson::document& doc = sajson::parse(sajson::dynamic_allocation(), sajson::mutable_string_view(jsonText.size(), &jsonText[0]));
+    const sajson::document& doc = sajson::parse(sajson::dynamic_allocation(), sajson::mutable_string_view(jsonTextSize, jsonText));
     if (!doc.is_valid())
     {
         printf("%sWARN: JSON parse error %s.%s\n", col::kYellow, doc.get_error_message_as_cstring(), col::kReset);

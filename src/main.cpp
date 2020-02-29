@@ -25,19 +25,18 @@ struct IUnknown; // workaround for old Win SDK header failures when using /permi
 
 size_t GetTotalAllocatedBytes();
 
-static std::string ReadFileToString(const std::string& path)
+static void ReadFileToString(const std::string& path, std::string& str)
 {
+    str.resize(0);
     FILE* f = fopen(path.c_str(), "rb");
     if (!f)
-        return "";
+        return;
     fseek(f, 0, SEEK_END);
     size_t fsize = ftello64(f);
     fseek(f, 0, SEEK_SET);
-    std::string str;
     str.resize(fsize);
     fread(&str[0], 1, fsize, f);
     fclose(f);
-    return str;
 }
 
 static bool CompareIgnoreNewlines(const std::string& a, const std::string& b)
@@ -199,10 +198,11 @@ static int RunStop(int argc, const char* argv[])
     BuildEventsParser* parser = CreateBuildEventsParser();
     int fileCount = 0;
     
+    std::string str;
     for (const auto& fileName : jsonFiles.files)
     {
         // read the file
-        std::string str = ReadFileToString(fileName);
+        ReadFileToString(fileName, str);
         if (str.empty())
         {
             printf("%s  WARN: could not read file '%s'.%s\n", col::kYellow, fileName.c_str(), col::kReset);
@@ -211,7 +211,7 @@ static int RunStop(int argc, const char* argv[])
 
         // parse the build events inside the file into our data structure
         //printf("    debug: reading %s\n", fileName.c_str());
-        if (ParseBuildEvents(parser, fileName, str))
+        if (ParseBuildEvents(parser, fileName, &str[0], str.size()))
             ++fileCount;
     }
     if (fileCount == 0)
@@ -300,8 +300,9 @@ static int RunOneTest(const std::string& folder)
     if (analysisResult != 0)
         return false;
 
-    std::string gotAnalysis = ReadFileToString(analyzeFile);
-    std::string expAnalysis = ReadFileToString(analyzeExpFile);
+    std::string gotAnalysis, expAnalysis;
+    ReadFileToString(analyzeFile, gotAnalysis);
+    ReadFileToString(analyzeExpFile, expAnalysis);
     if (!CompareIgnoreNewlines(gotAnalysis, expAnalysis))
     {
         printf("%sAnalysis output (%s) and expected output (%s) do not match%s\n", col::kRed, analyzeFile.c_str(), analyzeExpFile.c_str(), col::kReset);
