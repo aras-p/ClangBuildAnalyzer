@@ -1,0 +1,171 @@
+**** Time summary:
+Compilation (2 times):
+  Parsing (frontend):            3.0 s
+  Codegen & opts (backend):      0.2 s
+
+**** Files that took longest to parse (compiler frontend):
+  2876 ms: tests/libreoffice-skiahelper-clang-11-dev/SkiaHelper.json
+    83 ms: tests/libreoffice-skiahelper-clang-11-dev/SkiaHelper.json
+
+**** Files that took longest to codegen (compiler backend):
+   210 ms: tests/libreoffice-skiahelper-clang-11-dev/SkiaHelper.json
+
+**** Templates that took longest to instantiate:
+    23 ms: std::unique_ptr<SkFILEStream, std::default_delete<SkFILEStream> > (1 times, avg 23 ms)
+    22 ms: std::__uniq_ptr_impl<SkFILEStream, std::default_delete<SkFILEStream> > (1 times, avg 22 ms)
+    15 ms: std::__cxx11::basic_ostringstream<char, std::char_traits<char>, std:... (1 times, avg 15 ms)
+    15 ms: __gnu_debug::__valid_range<char *> (2 times, avg 7 ms)
+    15 ms: std::__cxx11::basic_stringbuf<char, std::char_traits<char>, std::all... (1 times, avg 15 ms)
+    13 ms: std::unique_ptr<SkRasterHandleAllocator, std::default_delete<SkRaste... (1 times, avg 13 ms)
+    13 ms: std::unique_ptr<SkArenaAlloc, std::default_delete<SkArenaAlloc> > (1 times, avg 13 ms)
+    12 ms: std::unique_ptr<unsigned char [], std::default_delete<unsigned char ... (1 times, avg 12 ms)
+    12 ms: std::__cxx11::basic_string<char, std::char_traits<char>, std::alloca... (2 times, avg 6 ms)
+    12 ms: std::__cxx1998::unordered_map<int, int, std::hash<int>, std::equal_t... (1 times, avg 12 ms)
+    12 ms: std::unique_ptr<SkMemoryStream, std::default_delete<SkMemoryStream> > (1 times, avg 12 ms)
+    12 ms: std::unique_ptr<SkStreamMemory, std::default_delete<SkStreamMemory> > (1 times, avg 12 ms)
+    12 ms: std::unique_ptr<GrOpMemoryPool, std::default_delete<GrOpMemoryPool> > (1 times, avg 12 ms)
+    12 ms: std::unique_ptr<SkStreamSeekable, std::default_delete<SkStreamSeekab... (1 times, avg 12 ms)
+    12 ms: std::unique_ptr<SkStreamAsset, std::default_delete<SkStreamAsset> > (1 times, avg 12 ms)
+    12 ms: std::unique_ptr<GrProxyProvider, std::default_delete<GrProxyProvider... (1 times, avg 12 ms)
+    12 ms: std::unique_ptr<SkStreamRewindable, std::default_delete<SkStreamRewi... (1 times, avg 12 ms)
+    12 ms: std::unique_ptr<SkGlyphRunBuilder, std::default_delete<SkGlyphRunBui... (1 times, avg 12 ms)
+    12 ms: std::unique_ptr<GrTextBlobCache, std::default_delete<GrTextBlobCache... (1 times, avg 12 ms)
+    11 ms: std::unique_ptr<GrClientMappedBufferManager, std::default_delete<GrC... (1 times, avg 11 ms)
+    11 ms: std::__cxx11::basic_string<char, std::char_traits<char>, std::alloca... (1 times, avg 11 ms)
+    11 ms: std::unique_ptr<SkCanvas, std::default_delete<SkCanvas> > (1 times, avg 11 ms)
+    11 ms: std::unique_ptr<GrAuditTrail, std::default_delete<GrAuditTrail> > (1 times, avg 11 ms)
+    11 ms: std::unique_ptr<SkStream, std::default_delete<SkStream> > (1 times, avg 11 ms)
+    11 ms: std::unique_ptr<GrStrikeCache, std::default_delete<GrStrikeCache> > (1 times, avg 11 ms)
+    11 ms: std::__uniq_ptr_impl<SkRasterHandleAllocator, std::default_delete<Sk... (1 times, avg 11 ms)
+    11 ms: std::unique_ptr<sk_app::WindowContext, std::default_delete<sk_app::W... (1 times, avg 11 ms)
+    11 ms: std::unique_ptr<SkTaskGroup, std::default_delete<SkTaskGroup> > (1 times, avg 11 ms)
+    11 ms: std::__uniq_ptr_impl<SkMemoryStream, std::default_delete<SkMemoryStr... (1 times, avg 11 ms)
+    11 ms: std::__uniq_ptr_impl<unsigned char, std::default_delete<unsigned cha... (1 times, avg 11 ms)
+
+**** Template sets that took longest to instantiate:
+   266 ms: std::unique_ptr<$> (21 times, avg 12 ms)
+   235 ms: std::__uniq_ptr_impl<$> (21 times, avg 11 ms)
+   109 ms: std::tuple<$> (21 times, avg 5 ms)
+    97 ms: std::__and_<$> (104 times, avg 0 ms)
+    53 ms: std::_Tuple_impl<$> (21 times, avg 2 ms)
+    39 ms: std::is_convertible<$> (69 times, avg 0 ms)
+    30 ms: rtl::OUString::OUString<$> (56 times, avg 0 ms)
+    26 ms: std::_TC<$>::_ImplicitlyConvertibleTuple<$> (21 times, avg 1 ms)
+    23 ms: std::_TC<$>::_ImplicitlyMoveConvertibleTuple<$> (22 times, avg 1 ms)
+    22 ms: std::unique_ptr<$>::~unique_ptr (9 times, avg 2 ms)
+    18 ms: std::make_pair<$> (4 times, avg 4 ms)
+    18 ms: std::_Head_base<$> (21 times, avg 0 ms)
+    17 ms: std::__is_referenceable<$> (30 times, avg 0 ms)
+    17 ms: std::__cxx11::basic_string<$>::_M_construct<$> (7 times, avg 2 ms)
+    16 ms: std::__cxx11::basic_string<$>::_M_construct_aux<$> (7 times, avg 2 ms)
+    15 ms: std::__cxx11::basic_ostringstream<$>::str (1 times, avg 15 ms)
+    15 ms: std::__cxx11::basic_stringbuf<$>::str (1 times, avg 15 ms)
+    14 ms: std::__or_<$> (25 times, avg 0 ms)
+    14 ms: std::__cxx11::basic_string<$>::basic_string (6 times, avg 2 ms)
+    14 ms: std::add_lvalue_reference<$> (21 times, avg 0 ms)
+    14 ms: std::__uniq_ptr_impl<$>::_M_ptr (13 times, avg 1 ms)
+    14 ms: std::__cxx11::basic_string<$> (5 times, avg 2 ms)
+    13 ms: std::_Hashtable<$> (2 times, avg 6 ms)
+    13 ms: std::__debug::vector<$> (3 times, avg 4 ms)
+    12 ms: std::__cxx11::basic_string<$>::replace (2 times, avg 6 ms)
+    12 ms: std::__cxx1998::unordered_map<$> (1 times, avg 12 ms)
+    12 ms: __gnu_cxx::__to_xstring<$> (2 times, avg 6 ms)
+    11 ms: std::__cxx11::basic_string<$>::assign<$> (1 times, avg 11 ms)
+    11 ms: std::pair<$> (5 times, avg 2 ms)
+    10 ms: std::unique_ptr<$>::unique_ptr<$> (7 times, avg 1 ms)
+
+**** Functions that took longest to compile:
+    19 ms: SkiaHelper::isVCLSkiaEnabled() (/libo2/vcl/skia/SkiaHelper.cxx)
+     4 ms: SkiaHelper::isVulkanBlacklisted(VkPhysicalDeviceProperties const&) (/libo2/vcl/skia/SkiaHelper.cxx)
+     3 ms: SkiaHelper::createSkSurface(int, int, SkColorType) (/libo2/vcl/skia/SkiaHelper.cxx)
+     3 ms: SkiaHelper::checkDeviceBlacklisted() (/libo2/vcl/skia/SkiaHelper.cxx)
+     3 ms: SkiaHelper::prefillSurface(sk_sp<SkSurface>&) (/libo2/vcl/skia/SkiaHelper.cxx)
+     2 ms: SkiaHelper::getSharedGrContext() (/libo2/vcl/skia/SkiaHelper.cxx)
+     2 ms: SkNVRefCnt<SkColorSpace>::unref() const (/libo2/vcl/skia/SkiaHelper.cxx)
+     2 ms: SkNVRefCnt<SkData>::unref() const (/libo2/vcl/skia/SkiaHelper.cxx)
+     1 ms: SkiaHelper::isVCLSkiaEnabled() (tests/libreoffice-skiahelper-clang-11-dev/SkiaHelper.json)
+     1 ms: bool com::sun::star::uno::Any::get<bool>() const (/libo2/vcl/skia/SkiaHelper.cxx)
+     1 ms: comphelper::ConfigurationProperty<officecfg::Office::Common::VCL::Fo... (/libo2/vcl/skia/SkiaHelper.cxx)
+     1 ms: SkNVRefCnt<SkColorSpace>::~SkNVRefCnt() (/libo2/vcl/skia/SkiaHelper.cxx)
+     1 ms: com::sun::star::uno::detail::theRuntimeExceptionType::operator()() c... (/libo2/vcl/skia/SkiaHelper.cxx)
+     1 ms: SkiaHelper::dump(sk_sp<SkImage> const&, char const*) (/libo2/vcl/skia/SkiaHelper.cxx)
+     1 ms: SkImageInfo::Make(int, int, SkColorType, SkAlphaType, sk_sp<SkColorS... (/libo2/vcl/skia/SkiaHelper.cxx)
+     1 ms: SkRefCntBase::getRefCnt() const (/libo2/vcl/skia/SkiaHelper.cxx)
+     1 ms: SkRefCntBase::unref() const (/libo2/vcl/skia/SkiaHelper.cxx)
+     1 ms: SkRefCntBase::ref() const (/libo2/vcl/skia/SkiaHelper.cxx)
+     1 ms: rtl::libreoffice_internal::ConstCharArrayDetector<char const [44], v... (/libo2/vcl/skia/SkiaHelper.cxx)
+     1 ms: SkiaHelper::initRenderMethodToUse() (/libo2/vcl/skia/SkiaHelper.cxx)
+     1 ms: std::__cxx11::basic_string<char, std::char_traits<char>, std::alloca... (/libo2/vcl/skia/SkiaHelper.cxx)
+     1 ms: rtl::OUString::boolean(bool) (/libo2/vcl/skia/SkiaHelper.cxx)
+     1 ms: comphelper::ConfigurationProperty<officecfg::Office::Common::VCL::Fo... (/libo2/vcl/skia/SkiaHelper.cxx)
+     1 ms: comphelper::ConfigurationProperty<officecfg::Office::Common::VCL::Us... (/libo2/vcl/skia/SkiaHelper.cxx)
+     1 ms: com::sun::star::uno::Reference<com::sun::star::uno::XComponentContex... (/libo2/vcl/skia/SkiaHelper.cxx)
+     1 ms: std::__atomic_base<unsigned int>::operator++(int) (/libo2/vcl/skia/SkiaHelper.cxx)
+     1 ms: sal::detail::log(sal_detail_LogLevel, char const*, char const*, std:... (/libo2/vcl/skia/SkiaHelper.cxx)
+     0 ms: SkBitmap::getAddr32(int, int) const (/libo2/vcl/skia/SkiaHelper.cxx)
+     0 ms: SkiaHelper::dump(sk_sp<SkSurface> const&, char const*) (/libo2/vcl/skia/SkiaHelper.cxx)
+     0 ms: SkPixmap::addr32(int, int) const (/libo2/vcl/skia/SkiaHelper.cxx)
+
+**** Function sets that took longest to compile / optimize:
+    21 ms: SkiaHelper::isVCLSkiaEnabled() (2 times, avg 10 ms)
+     4 ms: SkNVRefCnt<$>::unref() const (2 times, avg 2 ms)
+     4 ms: SkiaHelper::isVulkanBlacklisted(VkPhysicalDeviceProperties const&) (1 times, avg 4 ms)
+     4 ms: comphelper::ConfigurationProperty<$>::get(com::sun::star::uno::Refer... (3 times, avg 1 ms)
+     3 ms: SkiaHelper::createSkSurface(int, int, SkColorType) (1 times, avg 3 ms)
+     3 ms: SkiaHelper::checkDeviceBlacklisted() (1 times, avg 3 ms)
+     3 ms: SkiaHelper::prefillSurface(sk_sp<$>&) (1 times, avg 3 ms)
+     2 ms: SkiaHelper::getSharedGrContext() (1 times, avg 2 ms)
+     2 ms: SkiaHelper::dump(sk_sp<$> const&, char const*) (2 times, avg 1 ms)
+     2 ms: sk_sp<$>::~sk_sp() (4 times, avg 0 ms)
+     1 ms: bool com::sun::star::uno::Any::get<$>() const (1 times, avg 1 ms)
+     1 ms: com::sun::star::uno::Reference<$>::~Reference() (2 times, avg 0 ms)
+     1 ms: SkNVRefCnt<$>::~SkNVRefCnt() (1 times, avg 1 ms)
+     1 ms: com::sun::star::uno::detail::theRuntimeExceptionType::operator()() c... (1 times, avg 1 ms)
+     1 ms: SkImageInfo::Make(int, int, SkColorType, SkAlphaType, sk_sp<$>) (1 times, avg 1 ms)
+     1 ms: SkRefCntBase::getRefCnt() const (1 times, avg 1 ms)
+     1 ms: SkRefCntBase::unref() const (1 times, avg 1 ms)
+     1 ms: SkRefCntBase::ref() const (1 times, avg 1 ms)
+     1 ms: rtl::libreoffice_internal::ConstCharArrayDetector<$>::isValid(char c... (1 times, avg 1 ms)
+     1 ms: SkiaHelper::initRenderMethodToUse() (1 times, avg 1 ms)
+     1 ms: std::__cxx11::basic_string<$>::c_str() const (1 times, avg 1 ms)
+     1 ms: rtl::OUString::boolean(bool) (1 times, avg 1 ms)
+     1 ms: std::__atomic_base<unsigned int>::operator++(int) (1 times, avg 1 ms)
+     1 ms: sal::detail::log(sal_detail_LogLevel, char const*, char const*, std:... (1 times, avg 1 ms)
+     0 ms: SkBitmap::getAddr32(int, int) const (1 times, avg 0 ms)
+     0 ms: SkPixmap::addr32(int, int) const (1 times, avg 0 ms)
+     0 ms: com::sun::star::uno::RuntimeException::RuntimeException(rtl::OUStrin... (1 times, avg 0 ms)
+     0 ms: std::__cxx11::basic_string<$>::_M_destroy(unsigned long) (1 times, avg 0 ms)
+     0 ms: std::unique_ptr<$>::~unique_ptr() (1 times, avg 0 ms)
+     0 ms: SkSurface::MakeRenderTarget(GrContext*, SkBudgeted, SkImageInfo cons... (1 times, avg 0 ms)
+
+*** Expensive headers:
+1287 ms: /libo2/include/vcl/svapp.hxx (included 1 times, avg 1287 ms), included via:
+  SkiaHelper.json  (1287 ms)
+
+927 ms: /libo2/vcl/inc/skia/utils.hxx (included 1 times, avg 927 ms), included via:
+  SkiaHelper.json  (927 ms)
+
+246 ms: /libo2/workdir/CustomTarget/officecfg/registry/officecfg/Office/Common.hxx (included 1 times, avg 246 ms), included via:
+  SkiaHelper.json  (246 ms)
+
+47 ms: /libo2/include/desktop/crashreport.hxx (included 1 times, avg 47 ms), included via:
+  SkiaHelper.json  (47 ms)
+
+10 ms: /libo2/vcl/inc/skia/zone.hxx (included 1 times, avg 10 ms), included via:
+  SkiaHelper.json  (10 ms)
+
+8 ms: /libo2/vcl/inc/watchdog.hxx (included 1 times, avg 8 ms), included via:
+  SkiaHelper.json  (8 ms)
+
+4 ms: /libo2/include/vcl/skia/SkiaHelper.hxx (included 1 times, avg 4 ms), included via:
+  SkiaHelper.json  (4 ms)
+
+3 ms: /usr/lib/gcc/x86_64-redhat-linux/9/../../../../include/c++/9/x86_64-redhat-linux/bits/basic_file.h (included 1 times, avg 3 ms), included via:
+  fstream  (3 ms)
+
+3 ms: /libo2/workdir/UnpackedTarball/skia/include/core/SkSurface.h (included 1 times, avg 3 ms), included via:
+  SkiaHelper.json  (3 ms)
+
+1 ms: /libo2/include/sal/log.hxx (included 1 times, avg 1 ms), included via:
+  SkiaHelper.json  (1 ms)
+

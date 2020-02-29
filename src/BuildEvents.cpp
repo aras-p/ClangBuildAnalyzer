@@ -225,7 +225,7 @@ struct JsonTraverser
             }
             else if (StrEqual(nodeKey, kTid))
             {
-                if (nodeVal.get_type() == sajson::TYPE_INTEGER && nodeVal.get_integer_value() != 0)
+                if (nodeVal.get_type() != sajson::TYPE_INTEGER) // starting with Clang/LLVM 11 thread IDs are not necessarily 0
                     return;
             }
             else if (StrEqual(nodeKey, kPh))
@@ -269,6 +269,8 @@ struct JsonTraverser
                 else if (!strcmp(name, "RunPass"))
                     ;
                 else if (!strcmp(name, "RunLoopPass"))
+                    ;
+                else if (!strncmp(name, "Total ", 6)) // ignore "Total XYZ" events
                     ;
                 else
                 {
