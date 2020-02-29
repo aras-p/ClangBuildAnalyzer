@@ -5,7 +5,7 @@
 #include "external/sajson.h"
 #include <assert.h>
 #include <iterator>
-#include <unordered_map>
+#include "external/flat_hash_map/bytell_hash_map.hpp"
 
 struct HashedString
 {
@@ -34,7 +34,7 @@ struct std::equal_to<HashedString>
     }
 };
 
-typedef std::unordered_map<HashedString, DetailIndex> NameToIndexMap;
+typedef ska::bytell_hash_map<HashedString, DetailIndex> NameToIndexMap;
 
 
 static void DebugPrintEvents(const BuildEvents& events, const BuildNames& names)

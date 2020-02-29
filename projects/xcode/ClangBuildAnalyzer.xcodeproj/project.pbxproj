@@ -46,6 +46,8 @@
 		2B0993262308259400344A93 /* cute_files.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cute_files.h; sourceTree = "<group>"; };
 		2B09932A2309600400344A93 /* BuildEvents.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BuildEvents.h; sourceTree = "<group>"; };
 		2B09932B2309600400344A93 /* BuildEvents.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BuildEvents.cpp; sourceTree = "<group>"; };
+		2B3092D3240AEE8A002A24F4 /* bytell_hash_map.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = bytell_hash_map.hpp; sourceTree = "<group>"; };
+		2B3092D4240AEE8A002A24F4 /* flat_hash_map.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = flat_hash_map.hpp; sourceTree = "<group>"; };
 		2B6FBE04230B0D8100095E82 /* Analysis.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Analysis.h; sourceTree = "<group>"; };
 		2B6FBE05230B0D8100095E82 /* Analysis.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Analysis.cpp; sourceTree = "<group>"; };
 		2B6FBE07230B280400095E82 /* Utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Utils.cpp; sourceTree = "<group>"; };
@@ -114,6 +116,7 @@
 		2B09931A23080EF500344A93 /* external */ = {
 			isa = PBXGroup;
 			children = (
+				2B3092D1240AEE6D002A24F4 /* flat_hash_map */,
 				2B6FBE1D230BD70100095E82 /* sajson.h */,
 				2B6FBE0B230BB8DF00095E82 /* llvm-Demangle */,
 				2B09931C23080F0E00344A93 /* inih */,
@@ -132,6 +135,15 @@
 				2B09931E23080F2200344A93 /* ini.h */,
 			);
 			path = inih;
+			sourceTree = "<group>";
+		};
+		2B3092D1240AEE6D002A24F4 /* flat_hash_map */ = {
+			isa = PBXGroup;
+			children = (
+				2B3092D3240AEE8A002A24F4 /* bytell_hash_map.hpp */,
+				2B3092D4240AEE8A002A24F4 /* flat_hash_map.hpp */,
+			);
+			path = flat_hash_map;
 			sourceTree = "<group>";
 		};
 		2B6FBE0B230BB8DF00095E82 /* llvm-Demangle */ = {
