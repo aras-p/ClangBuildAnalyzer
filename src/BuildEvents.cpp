@@ -340,6 +340,50 @@ bool ParseBuildEvents(BuildEventsParser* parser, const std::string& fileName, ch
     //DebugPrintEvents(outEvents, outNames);
 }
 
+struct BufferedWriter
+{
+    BufferedWriter(FILE* f)
+    : file(f)
+    , size(0)
+    {
+        
+    }
+    ~BufferedWriter()
+    {
+        Flush();
+        fclose(file);
+    }
+    
+    template<typename T> void Write(const T& t)
+    {
+        Write(&t, sizeof(t));
+    }
+    void Write(const void* ptr, size_t sz)
+    {
+        if (sz >= kBufferSize)
+        {
+            fwrite(ptr, sz, 1, file);
+            return;
+        }
+        if (sz + size > kBufferSize)
+            Flush();
+        memcpy(&buffer[size], ptr, sz);
+        size += sz;
+    }
+
+    
+    void Flush()
+    {
+        fwrite(buffer, size, 1, file);
+        size = 0;
+    }
+    
+    enum { kBufferSize = 65536 };
+    uint8_t buffer[kBufferSize];
+    int size;
+    FILE* file;
+};
+
 bool SaveBuildEvents(BuildEventsParser* parser, const std::string& fileName)
 {
     FILE* f = fopen(fileName.c_str(), "wb");
@@ -349,31 +393,32 @@ bool SaveBuildEvents(BuildEventsParser* parser, const std::string& fileName)
         return false;
     }
     
+    BufferedWriter w(f);
+
     int64_t eventsCount = parser->resultEvents.size();
-    fwrite(&eventsCount, sizeof(eventsCount), 1, f);
+    w.Write(eventsCount);
     for(const auto& e : parser->resultEvents)
     {
         int32_t eType = (int32_t)e.type;
-        fwrite(&eType, sizeof(eType), 1, f);
-        fwrite(&e.ts, sizeof(e.ts), 1, f);
-        fwrite(&e.dur, sizeof(e.dur), 1, f);
-        fwrite(&e.detailIndex.idx, sizeof(e.detailIndex.idx), 1, f);
-        fwrite(&e.parent.idx, sizeof(e.parent.idx), 1, f);
+        w.Write(eType);
+        w.Write(e.ts);
+        w.Write(e.dur);
+        w.Write(e.detailIndex.idx);
+        w.Write(e.parent.idx);
         int64_t childCount = e.children.size();
-        fwrite(&childCount, sizeof(childCount), 1, f);
-        fwrite(e.children.data(), childCount, sizeof(e.children[0]), f);
+        w.Write(childCount);
+        w.Write(e.children.data(), childCount * sizeof(e.children[0]));
     }
 
     int64_t namesCount = parser->resultNames.size();
-    fwrite(&namesCount, sizeof(namesCount), 1, f);
+    w.Write(namesCount);
     for(const auto& n : parser->resultNames)
     {
         uint32_t nSize = (uint32_t)n.size();
-        fwrite(&nSize, sizeof(nSize), 1, f);
-        fwrite(n.data(), nSize, 1, f);
+        w.Write(nSize);
+        w.Write(n.data(), nSize);
     }
 
-    fclose(f);
     return true;
 }
 
