@@ -5,7 +5,7 @@
 #include "Arena.h"
 #include "Colors.h"
 #include "external/flat_hash_map/bytell_hash_map.hpp"
-#include "external/sajson.h"
+#include "external/simdjson/simdjson.h"
 #include "external/xxHash/xxhash.h"
 #include <assert.h>
 #include <iterator>
@@ -160,29 +160,28 @@ struct BuildEventsParser
         return index;
     }
 
-    void ParseRoot(const sajson::value& node)
+    void ParseRoot(simdjson::document::parser::Iterator& it)
     {
-        if (node.get_type() != sajson::TYPE_OBJECT)
-        {
-            // not a trace file, ignore
+        if (!it.is_object())
             return;
-        }
-        const auto& traceEventsVal = node.get_value_of_key(sajson::literal("traceEvents"));
-        ParseTraceEvents(traceEventsVal);
+        if (!it.move_to_key("traceEvents"))
+            return;
+        ParseTraceEvents(it);
     }
 
-    void ParseTraceEvents(const sajson::value& node)
+    void ParseTraceEvents(simdjson::document::parser::Iterator& it)
     {
-        if (node.get_type() != sajson::TYPE_ARRAY)
-        {
-            // not a trace file, ignore
+        if (!it.is_array())
             return;
-        }
         fileEvents.clear();
-        fileEvents.reserve(node.get_length());
-        for (size_t i = 0, n = node.get_length(); i != n; ++i)
+        if (it.down())
         {
-            ParseEvent(node.get_array_element(i));
+            fileEvents.reserve(256);
+            do
+            {
+                ParseEvent(it);
+            } while(it.next());
+            it.up();
         }
 
         FindParentChildrenIndices(fileEvents);
@@ -198,58 +197,55 @@ struct BuildEventsParser
         AddEvents(resultEvents, fileEvents);
     }
 
-    static bool StrEqual(const sajson::string& s1, const sajson::string& s2)
+    static bool StrEqual(const char* a, const char* b)
     {
-        if (s1.length() != s2.length())
-            return false;
-        if (memcmp(s1.data(), s2.data(), s2.length()) != 0)
-            return false;
-        return true;
+        return strcmp(a,b) == 0;
     }
 
-    const sajson::string kPid = sajson::literal("pid");
-    const sajson::string kTid = sajson::literal("tid");
-    const sajson::string kPh = sajson::literal("ph");
-    const sajson::string kName = sajson::literal("name");
-    const sajson::string kTs = sajson::literal("ts");
-    const sajson::string kDur = sajson::literal("dur");
-    const sajson::string kArgs = sajson::literal("args");
-    const sajson::string kDetail = sajson::literal("detail");
+    const char* kPid = "pid";
+    const char* kTid = "tid";
+    const char* kPh = "ph";
+    const char* kName = "name";
+    const char* kTs = "ts";
+    const char* kDur = "dur";
+    const char* kArgs = "args";
+    const char* kDetail = "detail";
 
-    void ParseEvent(const sajson::value& node)
+    void ParseEvent(simdjson::document::parser::Iterator& it)
     {
-        if (node.get_type() != sajson::TYPE_OBJECT)
+        if (!it.is_object())
         {
             printf("%sERROR: 'traceEvents' elements in JSON should be objects.%s\n", col::kRed, col::kReset);
             resultEvents.clear();
             return;
         }
-
+        
+        if (!it.down())
+            return;
         BuildEvent event;
-        for (size_t i = 0, n = node.get_length(); i != n; ++i)
+        bool valid = true;
+        do
         {
-            const auto& nodeKey = node.get_object_key(i);
-            const auto& nodeVal = node.get_object_value(i);
+            const char* nodeKey = it.get_string();
+            it.next();
             if (StrEqual(nodeKey, kPid))
             {
-                if (nodeVal.get_type() == sajson::TYPE_INTEGER && nodeVal.get_integer_value() != 1)
-                    return;
+                if (!it.is_integer() || it.get_integer() != 1)
+                    valid = false;
             }
             else if (StrEqual(nodeKey, kTid))
             {
-                if (nodeVal.get_type() != sajson::TYPE_INTEGER) // starting with Clang/LLVM 11 thread IDs are not necessarily 0
-                    return;
+                if (!it.is_integer()) // starting with Clang/LLVM 11 thread IDs are not necessarily 0
+                    valid = false;
             }
             else if (StrEqual(nodeKey, kPh))
             {
-                if (nodeVal.get_type() != sajson::TYPE_STRING || strcmp(nodeVal.as_cstring(), "X") != 0)
-                    return;
+                if (!it.is_string() || !StrEqual(it.get_string(), "X"))
+                    valid = false;
             }
-            else if (StrEqual(nodeKey, kName))
+            else if (StrEqual(nodeKey, kName) && it.is_string() && valid)
             {
-                if (nodeVal.get_type() != sajson::TYPE_STRING)
-                    return;
-                const char* name = nodeVal.as_cstring();
+                const char* name = it.get_string();
                 if (!strcmp(name, "ExecuteCompiler"))
                     event.type = BuildEventType::kCompiler;
                 else if (!strcmp(name, "Frontend"))
@@ -288,31 +284,36 @@ struct BuildEventsParser
                 {
                     printf("%sWARN: unknown trace event '%s' in '%s', skipping.%s\n", col::kYellow, name, curFileName.c_str(), col::kReset);
                 }
-                if (event.type== BuildEventType::kUnknown)
-                    return;
             }
             else if (StrEqual(nodeKey, kTs))
             {
-                if (nodeVal.get_type() != sajson::TYPE_INTEGER)
-                    return;
-                event.ts = nodeVal.get_integer_value();
+                if (it.is_integer())
+                    event.ts = it.get_integer();
+                else
+                    valid = false;
             }
             else if (StrEqual(nodeKey, kDur))
             {
-                if (nodeVal.get_type() != sajson::TYPE_INTEGER)
-                    return;
-                event.dur = nodeVal.get_integer_value();
+                if (it.is_integer())
+                    event.dur = it.get_integer();
+                else
+                    valid = false;
             }
             else if (StrEqual(nodeKey, kArgs))
             {
-                if (nodeVal.get_type() == sajson::TYPE_OBJECT && nodeVal.get_length() == 1)
+                if (it.is_object() && it.down())
                 {
-                    const auto& nodeDetail = nodeVal.get_object_value(0);
-                    if (nodeDetail.get_type() == sajson::TYPE_STRING)
-                        event.detailIndex = NameToIndex(nodeDetail.as_cstring());
+                    it.next();
+                    if (it.is_string())
+                        event.detailIndex = NameToIndex(it.get_string());
+                    it.up();
                 }
             }
-        }
+        } while (it.next());
+        it.up();
+        
+        if (event.type== BuildEventType::kUnknown || !valid)
+            return;
 
         if (event.detailIndex == DetailIndex() && event.type == BuildEventType::kCompiler)
             event.detailIndex = NameToIndex(curFileName.c_str());
@@ -333,16 +334,18 @@ void DeleteBuildEventsParser(BuildEventsParser* parser)
 
 bool ParseBuildEvents(BuildEventsParser* parser, const std::string& fileName, char* jsonText, size_t jsonTextSize)
 {
-    const sajson::document& doc = sajson::parse(sajson::dynamic_allocation(), sajson::mutable_string_view(jsonTextSize, jsonText));
-    if (!doc.is_valid())
+    using namespace simdjson;
+    auto [doc, error] = document::parse(get_corpus(fileName));
+    if (error)
     {
-        printf("%sWARN: JSON parse error %s.%s\n", col::kYellow, doc.get_error_message_as_cstring(), col::kReset);
+        printf("%sWARN: JSON parse error %s.%s\n", col::kYellow, error_message(error).c_str(), col::kReset);
         return false;
     }
-
+    
     parser->curFileName = fileName;
     size_t prevEventsSize = parser->resultEvents.size();
-    parser->ParseRoot(doc.get_root());
+    document::parser::Iterator it(doc);
+    parser->ParseRoot(it);
     return parser->resultEvents.size() > prevEventsSize;
     //DebugPrintEvents(outEvents, outNames);
 }

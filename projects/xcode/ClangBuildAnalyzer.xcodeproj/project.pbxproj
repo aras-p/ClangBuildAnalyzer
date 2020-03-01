@@ -15,6 +15,7 @@
 		2B3092D9240BB4E8002A24F4 /* TaskScheduler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3092D7240BB4E8002A24F4 /* TaskScheduler.cpp */; };
 		2B3092DC240BB919002A24F4 /* Arena.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3092DB240BB919002A24F4 /* Arena.cpp */; };
 		2B3092E1240BBEAB002A24F4 /* xxhash.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B3092E0240BBEAB002A24F4 /* xxhash.c */; };
+		2B3092E5240C2F38002A24F4 /* simdjson.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3092E3240C2F38002A24F4 /* simdjson.cpp */; };
 		2B6FBE06230B0D8100095E82 /* Analysis.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B6FBE05230B0D8100095E82 /* Analysis.cpp */; };
 		2B6FBE09230B280400095E82 /* Utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B6FBE07230B280400095E82 /* Utils.cpp */; };
 		2B6FBE17230BB90300095E82 /* ItaniumDemangle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B6FBE13230BB90300095E82 /* ItaniumDemangle.cpp */; };
@@ -58,6 +59,8 @@
 		2B3092DE240BBEAA002A24F4 /* xxh3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = xxh3.h; sourceTree = "<group>"; };
 		2B3092DF240BBEAB002A24F4 /* xxhash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = xxhash.h; sourceTree = "<group>"; };
 		2B3092E0240BBEAB002A24F4 /* xxhash.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = xxhash.c; sourceTree = "<group>"; };
+		2B3092E3240C2F38002A24F4 /* simdjson.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = simdjson.cpp; sourceTree = "<group>"; };
+		2B3092E4240C2F38002A24F4 /* simdjson.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = simdjson.h; sourceTree = "<group>"; };
 		2B6FBE04230B0D8100095E82 /* Analysis.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Analysis.h; sourceTree = "<group>"; };
 		2B6FBE05230B0D8100095E82 /* Analysis.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Analysis.cpp; sourceTree = "<group>"; };
 		2B6FBE07230B280400095E82 /* Utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Utils.cpp; sourceTree = "<group>"; };
@@ -73,7 +76,6 @@
 		2B6FBE14230BB90300095E82 /* Demangle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Demangle.cpp; path = lib/Demangle.cpp; sourceTree = "<group>"; };
 		2B6FBE15230BB90300095E82 /* MicrosoftDemangle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MicrosoftDemangle.cpp; path = lib/MicrosoftDemangle.cpp; sourceTree = "<group>"; };
 		2B6FBE16230BB90300095E82 /* MicrosoftDemangleNodes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MicrosoftDemangleNodes.cpp; path = lib/MicrosoftDemangleNodes.cpp; sourceTree = "<group>"; };
-		2B6FBE1D230BD70100095E82 /* sajson.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sajson.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -126,10 +128,10 @@
 		2B09931A23080EF500344A93 /* external */ = {
 			isa = PBXGroup;
 			children = (
+				2B3092E2240C2F22002A24F4 /* simdjson */,
 				2B3092DD240BBE7F002A24F4 /* xxHash */,
 				2B3092D5240BB4A6002A24F4 /* enkiTS */,
 				2B3092D1240AEE6D002A24F4 /* flat_hash_map */,
-				2B6FBE1D230BD70100095E82 /* sajson.h */,
 				2B6FBE0B230BB8DF00095E82 /* llvm-Demangle */,
 				2B09931C23080F0E00344A93 /* inih */,
 				2B0993262308259400344A93 /* cute_files.h */,
@@ -176,6 +178,15 @@
 				2B3092DF240BBEAB002A24F4 /* xxhash.h */,
 			);
 			path = xxHash;
+			sourceTree = "<group>";
+		};
+		2B3092E2240C2F22002A24F4 /* simdjson */ = {
+			isa = PBXGroup;
+			children = (
+				2B3092E3240C2F38002A24F4 /* simdjson.cpp */,
+				2B3092E4240C2F38002A24F4 /* simdjson.h */,
+			);
+			path = simdjson;
 			sourceTree = "<group>";
 		};
 		2B6FBE0B230BB8DF00095E82 /* llvm-Demangle */ = {
@@ -262,6 +273,7 @@
 				2B09932223080F2800344A93 /* INIReader.cpp in Sources */,
 				2B6FBE06230B0D8100095E82 /* Analysis.cpp in Sources */,
 				2B3092D9240BB4E8002A24F4 /* TaskScheduler.cpp in Sources */,
+				2B3092E5240C2F38002A24F4 /* simdjson.cpp in Sources */,
 				2B6FBE1A230BB90300095E82 /* MicrosoftDemangleNodes.cpp in Sources */,
 				2B3092E1240BBEAB002A24F4 /* xxhash.c in Sources */,
 				2B6FBE18230BB90300095E82 /* Demangle.cpp in Sources */,
@@ -278,7 +290,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -337,7 +349,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
