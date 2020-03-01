@@ -117,4 +117,5 @@ includes several external library source files (all under `src/external`), each 
 * `inih`, from [benhoyt/inih](https://github.com/benhoyt/inih): BSD 3 clause,
 * `llvm-Demangle`, part of [LLVM](https://llvm.org/): Apache-2.0 with LLVM-exception,
 * `sajson.h` from [chadaustin/sajson](https://github.com/chadaustin/sajson): MIT,
-* `sokol_time.h` from [floooh/sokol](https://github.com/floooh/sokol): zlib/libpng.
+* `sokol_time.h` from [floooh/sokol](https://github.com/floooh/sokol): zlib/libpng,
+* `xxHash` from [Cyan4973/xxHash](https://github.com/Cyan4973/xxHash): BSD 2 clause.
