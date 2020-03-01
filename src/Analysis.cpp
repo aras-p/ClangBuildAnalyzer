@@ -71,6 +71,7 @@ struct Analysis
 
     const std::string_view GetBuildName(DetailIndex index)
     {
+        assert(index.idx >= 0 && index.idx < buildNames.size());
         const std::string_view& origName = buildNames[index];
         if (buildNamesDone[index])
             return origName;

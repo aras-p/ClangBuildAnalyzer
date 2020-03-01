@@ -9,6 +9,7 @@
 #include "external/xxHash/xxhash.h"
 #include <assert.h>
 #include <iterator>
+#include <mutex>
 
 struct HashedString
 {
@@ -16,12 +17,11 @@ struct HashedString
     {
         len = strlen(s);
         hash = XXH64(s, len, 0);
-        str = (char*)ArenaAllocate(len+1);
-        memcpy(str, s, len+1);
+        str = s;
     }
     size_t hash;
     size_t len;
-    char* str;
+    const char* str;
 };
 namespace std
 {
@@ -117,84 +117,132 @@ static void FindParentChildrenIndices(BuildEvents& events)
     }
 }
 
-static void AddEvents(BuildEvents& res, BuildEvents& add)
-{
-    int offset = (int)res.size();
-    std::move(add.begin(), add.end(), std::back_inserter(res));
-    add.clear();
-    for (size_t i = offset, n = res.size(); i != n; ++i)
-    {
-        BuildEvent& ev = res[EventIndex(int(i))];
-        if (ev.parent.idx >= 0)
-            ev.parent.idx += offset;
-        for (auto& ch : ev.children)
-            ch.idx += offset;
-    }
-}
-
 struct BuildEventsParser
 {
     BuildEventsParser()
     {
-        NameToIndex(""); // make sure zero index is empty
+        // make sure zero index is empty
+        NameToIndex("", resultNameToIndex);
+        resultNames.push_back(std::string_view(resultNameToIndex.begin()->first.str, 0));
+        
         resultEvents.reserve(2048);
         resultNames.reserve(2048);
     }
 
-    std::string curFileName;
     BuildEvents resultEvents;
     BuildNames resultNames;
-    NameToIndexMap nameToIndex;
-    BuildEvents fileEvents;
+    NameToIndexMap resultNameToIndex;
+    std::mutex resultMutex;
+    std::mutex arenaMutex;
+    
+    void AddEvents(BuildEvents& add, const NameToIndexMap& nameToIndex)
+    {
+        // we got job-local build events and name-to-index mapping;
+        // add them to the global result with any necessary remapping.
+        // gotta take a mutex since we're modifying shared state here.
+        std::scoped_lock lock(resultMutex);
+        
+        // move events to end of result events list
+        int offset = (int)resultEvents.size();
+        std::move(add.begin(), add.end(), std::back_inserter(resultEvents));
+        add.clear();
+        
+        // create remapping from name indices, adding them to global remapping
+        // list if necessary.
+        ska::bytell_hash_map<DetailIndex, DetailIndex> detailRemap;
+        for (const auto& kvp : nameToIndex)
+        {
+            const auto& existing = resultNameToIndex.find(kvp.first);
+            if (existing == resultNameToIndex.end())
+            {
+                DetailIndex index((int)resultNameToIndex.size());
+                resultNameToIndex.insert(std::make_pair(kvp.first, index));
+                resultNames.push_back(std::string_view(kvp.first.str, kvp.first.len));
+                detailRemap[kvp.second] = index;
+            }
+            else
+            {
+                detailRemap[kvp.second] = existing->second;
+            }
+        }
+        
+        // adjust the added event indices
+        for (size_t i = offset, n = resultEvents.size(); i != n; ++i)
+        {
+            BuildEvent& ev = resultEvents[EventIndex(int(i))];
+            if (ev.parent.idx >= 0)
+                ev.parent.idx += offset;
+            for (auto& ch : ev.children)
+                ch.idx += offset;
+            if (ev.detailIndex.idx != 0)
+            {
+                assert(ev.detailIndex.idx >= 0 && ev.detailIndex.idx < nameToIndex.size());
+                ev.detailIndex = detailRemap[ev.detailIndex];
+                assert(ev.detailIndex.idx >= 0 && ev.detailIndex.idx < resultNameToIndex.size());
+            }
+        }
+        
+        assert(resultNameToIndex.size() == resultNames.size());
+    }
 
 
-    DetailIndex NameToIndex(const char* str)
+    DetailIndex NameToIndex(const char* str, NameToIndexMap& nameToIndex)
     {
         HashedString hashedName(str);
         auto it = nameToIndex.find(hashedName);
         if (it != nameToIndex.end())
             return it->second;
+
+        char* strCopy;
+        {
+            // arena allocator is not thread safe, take a mutex
+            std::scoped_lock lock(arenaMutex);
+            strCopy = (char*)ArenaAllocate(hashedName.len+1);
+        }
+        memcpy(strCopy, str, hashedName.len+1);
+        hashedName.str = strCopy;
+
         DetailIndex index((int)nameToIndex.size());
         nameToIndex.insert(std::make_pair(hashedName, index));
-        resultNames.push_back(std::string_view(hashedName.str, hashedName.len));
         return index;
     }
 
-    void ParseRoot(simdjson::document::parser::Iterator& it)
+    bool ParseRoot(simdjson::document::parser::Iterator& it, const std::string& curFileName)
     {
         if (!it.is_object())
-            return;
+            return false;
         if (!it.move_to_key("traceEvents"))
-            return;
-        ParseTraceEvents(it);
+            return false;
+        return ParseTraceEvents(it, curFileName);
     }
 
-    void ParseTraceEvents(simdjson::document::parser::Iterator& it)
+    bool ParseTraceEvents(simdjson::document::parser::Iterator& it, const std::string& curFileName)
     {
         if (!it.is_array())
-            return;
-        fileEvents.clear();
-        if (it.down())
+            return false;
+        if (!it.down())
+            return false;
+
+        NameToIndexMap nameToIndexLocal;
+        NameToIndex("", nameToIndexLocal); // make sure zero index is empty
+        BuildEvents fileEvents;
+        fileEvents.reserve(256);
+        do
         {
-            fileEvents.reserve(256);
-            do
-            {
-                ParseEvent(it);
-            } while(it.next());
-            it.up();
-        }
+            ParseEvent(it, curFileName, fileEvents, nameToIndexLocal);
+        } while(it.next());
+        it.up();
+        if (fileEvents.empty())
+            return false;
 
         FindParentChildrenIndices(fileEvents);
-        if (!fileEvents.empty())
+        if (fileEvents.back().parent.idx != -1)
         {
-            if (fileEvents.back().parent.idx != -1)
-            {
-                printf("%sERROR: the last trace event should be root; was not in '%s'.%s\n", col::kRed, curFileName.c_str(), col::kReset);
-                resultEvents.clear();
-                return;
-            }
+            printf("%sWARN: the last trace event should be root; was not in '%s'.%s\n", col::kRed, curFileName.c_str(), col::kReset);
+            return false;
         }
-        AddEvents(resultEvents, fileEvents);
+        AddEvents(fileEvents, nameToIndexLocal);
+        return true;
     }
 
     static bool StrEqual(const char* a, const char* b)
@@ -211,7 +259,7 @@ struct BuildEventsParser
     const char* kArgs = "args";
     const char* kDetail = "detail";
 
-    void ParseEvent(simdjson::document::parser::Iterator& it)
+    void ParseEvent(simdjson::document::parser::Iterator& it, const std::string& curFileName, BuildEvents& fileEvents, NameToIndexMap& nameToIndexLocal)
     {
         if (!it.is_object())
         {
@@ -305,7 +353,7 @@ struct BuildEventsParser
                 {
                     it.next();
                     if (it.is_string())
-                        event.detailIndex = NameToIndex(it.get_string());
+                        event.detailIndex = NameToIndex(it.get_string(), nameToIndexLocal);
                     it.up();
                 }
             }
@@ -316,7 +364,7 @@ struct BuildEventsParser
             return;
 
         if (event.detailIndex == DetailIndex() && event.type == BuildEventType::kCompiler)
-            event.detailIndex = NameToIndex(curFileName.c_str());
+            event.detailIndex = NameToIndex(curFileName.c_str(), nameToIndexLocal);
         fileEvents.emplace_back(event);
     }
 };
@@ -332,7 +380,7 @@ void DeleteBuildEventsParser(BuildEventsParser* parser)
 }
 
 
-bool ParseBuildEvents(BuildEventsParser* parser, const std::string& fileName, char* jsonText, size_t jsonTextSize)
+bool ParseBuildEvents(BuildEventsParser* parser, const std::string& fileName)
 {
     using namespace simdjson;
     auto [doc, error] = document::parse(get_corpus(fileName));
@@ -342,11 +390,8 @@ bool ParseBuildEvents(BuildEventsParser* parser, const std::string& fileName, ch
         return false;
     }
     
-    parser->curFileName = fileName;
-    size_t prevEventsSize = parser->resultEvents.size();
     document::parser::Iterator it(doc);
-    parser->ParseRoot(it);
-    return parser->resultEvents.size() > prevEventsSize;
+    return parser->ParseRoot(it, fileName);
     //DebugPrintEvents(outEvents, outNames);
 }
 

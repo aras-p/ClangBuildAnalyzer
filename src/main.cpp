@@ -16,6 +16,7 @@
 struct IUnknown; // workaround for old Win SDK header failures when using /permissive-
 #endif
 
+#include "external/enkiTS/TaskScheduler.h"
 #define SOKOL_IMPL
 #include "external/sokol_time.h"
 #define CUTE_FILES_IMPLEMENTATION
@@ -113,7 +114,7 @@ struct JsonFileFinder
 
     time_t startTime;
     time_t endTime;
-    std::set<std::string> files; // have them sorted by path
+    std::vector<std::string> files;
     
     void OnFile(cf_file_t* f)
     {
@@ -138,7 +139,7 @@ struct JsonFileFinder
         
         std::string path = f->path;
         std::replace(path.begin(), path.end(), '\\', '/'); // replace path to forward slashes
-        files.insert(path);
+        files.emplace_back(path);
     }
 
     static void Callback(cf_file_t* f, void* userData)
@@ -189,26 +190,26 @@ static int RunStop(int argc, const char* argv[])
         printf("%sERROR: no .json files found under '%s'.%s\n", col::kRed, artifactsDir.c_str(), col::kReset);
         return 1;
     }
-    
-    // parse the json files into our data structures
-    BuildEventsParser* parser = CreateBuildEventsParser();
-    int fileCount = 0;
-    
-    std::string str;
-    for (const auto& fileName : jsonFiles.files)
-    {
-        // read the file
-        ReadFileToString(fileName, str);
-        if (str.empty())
-        {
-            printf("%s  WARN: could not read file '%s'.%s\n", col::kYellow, fileName.c_str(), col::kReset);
-            continue;
-        }
+    // sort input filenames so that runs are deterministic on different file systems
+    // with the same input data
+    std::sort(jsonFiles.files.begin(), jsonFiles.files.end());
 
-        // parse the build events inside the file into our data structure
-        //printf("    debug: reading %s\n", fileName.c_str());
-        if (ParseBuildEvents(parser, fileName, &str[0], str.size()))
-            ++fileCount;
+    // parse the json files into our data structures (in parallel)
+    BuildEventsParser* parser = CreateBuildEventsParser();
+    std::atomic<int> fileCount = 0;
+    {
+        enki::TaskScheduler ts;
+        ts.Initialize(std::min(std::thread::hardware_concurrency(), (uint32_t)jsonFiles.files.size()));
+        enki::TaskSet task((uint32_t)jsonFiles.files.size(), [&](enki::TaskSetPartition range, uint32_t threadnum)
+        {
+            for (auto idx = range.start; idx < range.end; ++idx)
+            {
+                if (ParseBuildEvents(parser, jsonFiles.files[idx]))
+                    fileCount++;
+            }
+        });
+        ts.AddTaskSetToPipe(&task);
+        ts.WaitforTask(&task);
     }
     if (fileCount == 0)
     {
@@ -221,6 +222,7 @@ static int RunStop(int argc, const char* argv[])
         return 1;
     
     DeleteBuildEventsParser(parser);
+    jsonFiles.files.clear();
     
     double tDuration = stm_sec(stm_since(tStart));
     printf("%s  done in %.1fs. Run 'ClangBuildAnalyzer --analyze %s' to analyze it.%s\n", col::kYellow, tDuration, outFile.c_str(), col::kReset);
