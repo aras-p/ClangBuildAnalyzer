@@ -9,6 +9,7 @@ on:
 jobs:
   windows:
     runs-on: windows-2016
+    timeout-minutes: 5
     strategy:
       fail-fast: false
     steps:
@@ -26,6 +27,7 @@ jobs:
 
   mac:
     runs-on: macOS-latest
+    timeout-minutes: 5
     strategy:
       fail-fast: false
     steps:
@@ -42,12 +44,19 @@ jobs:
 
   linux:
     runs-on: ubuntu-16.04
+    timeout-minutes: 5
     strategy:
       fail-fast: false
     steps:
     - uses: actions/checkout@v1
     - name: Ubuntu 16
       run: |
+        mkdir buildCmake
+        cd buildCmake
+        cmake -DCMAKE_BUILD_TYPE=Release
+        make -j 2
+        cd ..
+        buildCmake/ClangBuildAnalyzer --test tests
         make -f projects/make/Makefile -j 2
         build/ClangBuildAnalyzer --test tests
     - uses: actions/upload-artifact@v1
