@@ -5,8 +5,7 @@ add_executable(ClangBuildAnalyzer)
 target_sources(ClangBuildAnalyzer PRIVATE
 # C sources
     "src/external/inih/ini.c"
-# C++ sources	
-    "src/Allocator.cpp"
+# C++ sources
     "src/Analysis.cpp"
     "src/BuildEvents.cpp"
     "src/Colors.cpp"

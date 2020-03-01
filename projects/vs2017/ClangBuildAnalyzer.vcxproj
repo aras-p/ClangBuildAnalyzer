@@ -11,7 +11,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\Allocator.cpp" />
     <ClCompile Include="..\..\src\Analysis.cpp" />
     <ClCompile Include="..\..\src\BuildEvents.cpp" />
     <ClCompile Include="..\..\src\Colors.cpp" />

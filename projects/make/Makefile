@@ -6,7 +6,6 @@ C_SRCS= \
 src/external/inih/ini.c
 
 CPP_SRCS= \
-src/Allocator.cpp \
 src/Analysis.cpp \
 src/BuildEvents.cpp \
 src/Colors.cpp \
