@@ -49,7 +49,7 @@ static void DebugPrintEvents(const BuildEvents& events, const BuildNames& names)
     for (size_t i = 0; i < events.size(); ++i)
     {
         const BuildEvent& event = events[EventIndex(int(i))];
-        printf("%4zi: t=%i t1=%7llu t2=%7llu par=%4i ch=%4zi det=%s\n", i, event.type, event.ts, event.ts+event.dur, event.parent.idx, event.children.size(), names[event.detailIndex].substr(0,130).c_str());
+        printf("%4zi: t=%i t1=%7llu t2=%7llu par=%4i ch=%4zi det=%s\n", i, event.type, event.ts, event.ts+event.dur, event.parent.idx, event.children.size(), std::string(names[event.detailIndex].substr(0,130)).c_str());
     }
 }
 
@@ -156,7 +156,7 @@ struct BuildEventsParser
             return it->second;
         DetailIndex index((int)nameToIndex.size());
         nameToIndex.insert(std::make_pair(hashedName, index));
-        resultNames.push_back(hashedName.str);
+        resultNames.push_back(std::string_view(hashedName.str, hashedName.len));
         return index;
     }
 
@@ -504,9 +504,11 @@ bool LoadBuildEvents(const std::string& fileName, BuildEvents& outEvents, BuildN
     {
         uint32_t nSize = 0;
         r.Read(nSize);
-        n.resize(nSize);
+        char* ptr = (char*)ArenaAllocate(nSize+1);
+        memset(ptr, 0, nSize+1);
+        n = std::string_view(ptr, nSize);
         if (nSize != 0)
-            r.Read(&n[0], nSize);
+            r.Read(ptr, nSize);
     }
 
     fclose(f);

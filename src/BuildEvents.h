@@ -3,6 +3,7 @@
 #pragma once
 #include <stdint.h>
 #include <string>
+#include <string_view>
 #include <vector>
 #include <utility>
 
@@ -88,7 +89,7 @@ struct IndexedVector : std::vector<T>
     typename std::vector<T>::reference       operator[](Idx pos) { return this->begin()[pos.idx]; }
     typename std::vector<T>::const_reference operator[](Idx pos) const { return this->begin()[pos.idx]; }
 };
-typedef IndexedVector<std::string, DetailIndex> BuildNames;
+typedef IndexedVector<std::string_view, DetailIndex> BuildNames;
 typedef IndexedVector<BuildEvent, EventIndex> BuildEvents;
 
 struct BuildEventsParser;

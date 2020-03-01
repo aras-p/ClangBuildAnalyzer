@@ -72,7 +72,7 @@ bool utils::BeginsWith(const std::string& str, const std::string& prefix)
     return true;
 }
 
-bool utils::EndsWith(const std::string& str, const std::string& suffix)
+bool utils::EndsWith(const std::string_view& str, const std::string& suffix)
 {
     if (str.size() < suffix.size())
         return false;
@@ -88,7 +88,7 @@ bool utils::EndsWith(const std::string& str, const std::string& suffix)
 }
 
 
-bool utils::IsHeader(const std::string& path)
+bool utils::IsHeader(const std::string_view& path)
 {
     size_t dot = path.rfind('.');
     if (dot == std::string::npos)
@@ -102,45 +102,9 @@ bool utils::IsHeader(const std::string& path)
 }
 
 
-std::string utils::GetNicePath(const char* path)
+std::string utils::GetNicePath(const std::string_view& path)
 {
-    const char* ptr = path;
-    const char* curDir = s_CurrentDir.c_str();
-    while (*ptr && *curDir)
-    {
-        char c = *ptr;
-        char c2 = *curDir;
-        if (c == '\\')
-            c = '/';
-        c = ToLower(c);
-        c2 = ToLower(c2);
-        if (c != c2)
-        {
-            std::string res = path;
-            utils::ForwardSlashify(res);
-            return res;
-        }
-        ++ptr;
-        ++curDir;
-    }
-    if (*ptr == 0 && *curDir != 0)
-    {
-        std::string res = path;
-        utils::ForwardSlashify(res);
-        return res;
-    }
-    if (ptr[0] == '.' && ptr[1] == '/')
-        ptr += 2;
-
-    std::string res = ptr;
-    utils::ForwardSlashify(res);
-    return res;
-}
-
-
-std::string utils::GetNicePath(const std::string& path)
-{
-    std::string res = path;
+    std::string res(path);
     ForwardSlashify(res);
     if (BeginsWith(res, s_CurrentDir))
         res = res.substr(s_CurrentDir.size(), res.size() - s_CurrentDir.size());
@@ -149,7 +113,7 @@ std::string utils::GetNicePath(const std::string& path)
     return res;
 }
 
-std::string utils::GetFilename(const std::string& path)
+std::string_view utils::GetFilename(const std::string_view& path)
 {
     size_t dirIdx = path.rfind('/');
     if (dirIdx != std::string::npos)

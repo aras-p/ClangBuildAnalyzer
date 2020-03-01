@@ -2,20 +2,20 @@
 // SPDX-License-Identifier: Unlicense
 #pragma once
 #include <string>
+#include <string_view>
 
 namespace utils
 {
     void Initialize();
 
-    std::string GetNicePath(const char* path);
-    std::string GetNicePath(const std::string& path);
-    std::string GetFilename(const std::string& path);
+    std::string GetNicePath(const std::string_view& path);
+    std::string_view GetFilename(const std::string_view& path);
 
-    bool IsHeader(const std::string& path);
+    bool IsHeader(const std::string_view& path);
 
     void Lowercase(std::string& path);
     void ForwardSlashify(std::string& path);
 
     bool BeginsWith(const std::string& str, const std::string& prefix);
-    bool EndsWith(const std::string& str, const std::string& suffix);
+    bool EndsWith(const std::string_view& str, const std::string& suffix);
 }
