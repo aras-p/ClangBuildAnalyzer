@@ -1,6 +1,7 @@
 // Clang Build Analyzer https://github.com/aras-p/ClangBuildAnalyzer
 // SPDX-License-Identifier: Unlicense
 #include "Analysis.h"
+#include "Arena.h"
 #include "BuildEvents.h"
 #include "Colors.h"
 #include "Utils.h"
@@ -375,7 +376,9 @@ int main(int argc, const char* argv[])
         return 1;
     }
 
+    ArenaInitialize();
     int retCode = ProcessCommands(argc, argv);
+    ArenaDelete();
 
     return retCode;
 }

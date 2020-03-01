@@ -13,6 +13,7 @@
 		2B09932523080F6400344A93 /* Colors.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B09932323080F6400344A93 /* Colors.cpp */; };
 		2B09932C2309600400344A93 /* BuildEvents.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B09932B2309600400344A93 /* BuildEvents.cpp */; };
 		2B3092D9240BB4E8002A24F4 /* TaskScheduler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3092D7240BB4E8002A24F4 /* TaskScheduler.cpp */; };
+		2B3092DC240BB919002A24F4 /* Arena.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3092DB240BB919002A24F4 /* Arena.cpp */; };
 		2B3092E1240BBEAB002A24F4 /* xxhash.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B3092E0240BBEAB002A24F4 /* xxhash.c */; };
 		2B6FBE06230B0D8100095E82 /* Analysis.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B6FBE05230B0D8100095E82 /* Analysis.cpp */; };
 		2B6FBE09230B280400095E82 /* Utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B6FBE07230B280400095E82 /* Utils.cpp */; };
@@ -52,6 +53,8 @@
 		2B3092D6240BB4E8002A24F4 /* TaskScheduler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TaskScheduler.h; sourceTree = "<group>"; };
 		2B3092D7240BB4E8002A24F4 /* TaskScheduler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TaskScheduler.cpp; sourceTree = "<group>"; };
 		2B3092D8240BB4E8002A24F4 /* LockLessMultiReadPipe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LockLessMultiReadPipe.h; sourceTree = "<group>"; };
+		2B3092DA240BB919002A24F4 /* Arena.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Arena.h; sourceTree = "<group>"; };
+		2B3092DB240BB919002A24F4 /* Arena.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Arena.cpp; sourceTree = "<group>"; };
 		2B3092DE240BBEAA002A24F4 /* xxh3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = xxh3.h; sourceTree = "<group>"; };
 		2B3092DF240BBEAB002A24F4 /* xxhash.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = xxhash.h; sourceTree = "<group>"; };
 		2B3092E0240BBEAB002A24F4 /* xxhash.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = xxhash.c; sourceTree = "<group>"; };
@@ -105,6 +108,8 @@
 			children = (
 				2B6FBE05230B0D8100095E82 /* Analysis.cpp */,
 				2B6FBE04230B0D8100095E82 /* Analysis.h */,
+				2B3092DB240BB919002A24F4 /* Arena.cpp */,
+				2B3092DA240BB919002A24F4 /* Arena.h */,
 				2B09932B2309600400344A93 /* BuildEvents.cpp */,
 				2B09932A2309600400344A93 /* BuildEvents.h */,
 				2B09932323080F6400344A93 /* Colors.cpp */,
@@ -251,6 +256,7 @@
 				2B09932C2309600400344A93 /* BuildEvents.cpp in Sources */,
 				2B09931F23080F2200344A93 /* ini.c in Sources */,
 				2B6FBE09230B280400095E82 /* Utils.cpp in Sources */,
+				2B3092DC240BB919002A24F4 /* Arena.cpp in Sources */,
 				2B09932523080F6400344A93 /* Colors.cpp in Sources */,
 				2B09931523080DB300344A93 /* main.cpp in Sources */,
 				2B09932223080F2800344A93 /* INIReader.cpp in Sources */,

@@ -1,21 +1,27 @@
 // Clang Build Analyzer https://github.com/aras-p/ClangBuildAnalyzer
 // SPDX-License-Identifier: Unlicense
 #include "BuildEvents.h"
+
+#include "Arena.h"
 #include "Colors.h"
+#include "external/flat_hash_map/bytell_hash_map.hpp"
 #include "external/sajson.h"
+#include "external/xxHash/xxhash.h"
 #include <assert.h>
 #include <iterator>
-#include "external/flat_hash_map/bytell_hash_map.hpp"
 
 struct HashedString
 {
     explicit HashedString(const char* s)
-    : str(s)
     {
-        hash = std::hash<std::string>()(str);
+        len = strlen(s);
+        hash = XXH64(s, len, 0);
+        str = (char*)ArenaAllocate(len+1);
+        memcpy(str, s, len+1);
     }
     size_t hash;
-    std::string str;
+    size_t len;
+    char* str;
 };
 namespace std
 {
@@ -30,7 +36,7 @@ namespace std
     {
         bool operator()(const HashedString& a, const HashedString& b) const
         {
-            return a.hash == b.hash && a.str == b.str;
+            return a.hash == b.hash && a.len == b.len && memcmp(a.str, b.str, a.len) == 0;
         }
     };
 } // namespace std
