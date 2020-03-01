@@ -12,6 +12,7 @@
 		2B09932223080F2800344A93 /* INIReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B09932023080F2800344A93 /* INIReader.cpp */; };
 		2B09932523080F6400344A93 /* Colors.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B09932323080F6400344A93 /* Colors.cpp */; };
 		2B09932C2309600400344A93 /* BuildEvents.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B09932B2309600400344A93 /* BuildEvents.cpp */; };
+		2B3092D9240BB4E8002A24F4 /* TaskScheduler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3092D7240BB4E8002A24F4 /* TaskScheduler.cpp */; };
 		2B6FBE06230B0D8100095E82 /* Analysis.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B6FBE05230B0D8100095E82 /* Analysis.cpp */; };
 		2B6FBE09230B280400095E82 /* Utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B6FBE07230B280400095E82 /* Utils.cpp */; };
 		2B6FBE17230BB90300095E82 /* ItaniumDemangle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B6FBE13230BB90300095E82 /* ItaniumDemangle.cpp */; };
@@ -47,6 +48,9 @@
 		2B09932B2309600400344A93 /* BuildEvents.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BuildEvents.cpp; sourceTree = "<group>"; };
 		2B3092D3240AEE8A002A24F4 /* bytell_hash_map.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = bytell_hash_map.hpp; sourceTree = "<group>"; };
 		2B3092D4240AEE8A002A24F4 /* flat_hash_map.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = flat_hash_map.hpp; sourceTree = "<group>"; };
+		2B3092D6240BB4E8002A24F4 /* TaskScheduler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TaskScheduler.h; sourceTree = "<group>"; };
+		2B3092D7240BB4E8002A24F4 /* TaskScheduler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TaskScheduler.cpp; sourceTree = "<group>"; };
+		2B3092D8240BB4E8002A24F4 /* LockLessMultiReadPipe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LockLessMultiReadPipe.h; sourceTree = "<group>"; };
 		2B6FBE04230B0D8100095E82 /* Analysis.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Analysis.h; sourceTree = "<group>"; };
 		2B6FBE05230B0D8100095E82 /* Analysis.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Analysis.cpp; sourceTree = "<group>"; };
 		2B6FBE07230B280400095E82 /* Utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Utils.cpp; sourceTree = "<group>"; };
@@ -113,6 +117,7 @@
 		2B09931A23080EF500344A93 /* external */ = {
 			isa = PBXGroup;
 			children = (
+				2B3092D5240BB4A6002A24F4 /* enkiTS */,
 				2B3092D1240AEE6D002A24F4 /* flat_hash_map */,
 				2B6FBE1D230BD70100095E82 /* sajson.h */,
 				2B6FBE0B230BB8DF00095E82 /* llvm-Demangle */,
@@ -141,6 +146,16 @@
 				2B3092D4240AEE8A002A24F4 /* flat_hash_map.hpp */,
 			);
 			path = flat_hash_map;
+			sourceTree = "<group>";
+		};
+		2B3092D5240BB4A6002A24F4 /* enkiTS */ = {
+			isa = PBXGroup;
+			children = (
+				2B3092D8240BB4E8002A24F4 /* LockLessMultiReadPipe.h */,
+				2B3092D7240BB4E8002A24F4 /* TaskScheduler.cpp */,
+				2B3092D6240BB4E8002A24F4 /* TaskScheduler.h */,
+			);
+			path = enkiTS;
 			sourceTree = "<group>";
 		};
 		2B6FBE0B230BB8DF00095E82 /* llvm-Demangle */ = {
@@ -225,6 +240,7 @@
 				2B09931523080DB300344A93 /* main.cpp in Sources */,
 				2B09932223080F2800344A93 /* INIReader.cpp in Sources */,
 				2B6FBE06230B0D8100095E82 /* Analysis.cpp in Sources */,
+				2B3092D9240BB4E8002A24F4 /* TaskScheduler.cpp in Sources */,
 				2B6FBE1A230BB90300095E82 /* MicrosoftDemangleNodes.cpp in Sources */,
 				2B6FBE18230BB90300095E82 /* Demangle.cpp in Sources */,
 				2B6FBE19230BB90300095E82 /* MicrosoftDemangle.cpp in Sources */,

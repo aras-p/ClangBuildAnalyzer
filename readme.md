@@ -112,6 +112,7 @@ License for the Clang Build Analyzer itself is [Unlicense](https://unlicense.org
 includes several external library source files (all under `src/external`), each with their own license:
 
 * `cute_files.h` from [RandyGaul/cute_headers](https://github.com/RandyGaul/cute_headers): zlib or public domain,
+* `enkiTS`, from [dougbinks/enkiTS](https://github.com/dougbinks/enkiTS): zlib,
 * `flat_hash_map`, from [skarupke/flat_hash_map](https://github.com/skarupke/flat_hash_map): Boost 1.0,
 * `inih`, from [benhoyt/inih](https://github.com/benhoyt/inih): BSD 3 clause,
 * `llvm-Demangle`, part of [LLVM](https://llvm.org/): Apache-2.0 with LLVM-exception,
