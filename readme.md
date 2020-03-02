@@ -21,9 +21,9 @@ reports from multiple compilations, and output "what took the most time" summary
 1. **Do your build**. Does not matter how; an IDE build, a makefile, a shell script, whatever. As long as it invokes
    Clang and passes `-ftime-trace` flag to the compiler (**Clang 9.0 or later is required** for this).
 1. **Stop the build capture**: `ClangBuildAnalyzer --stop <artifacts_folder> <capture_file>`<br/>
-   This will find all Clang time trace compatible `*.json` files under the given `artifacts_folder` that were modified after
-   `--start` step was done (Clang `-ftime-trace` produces one JSON file next to each object file), and smashes them together into
-   one big `capture_file`.
+   This will load all Clang time trace compatible `*.json` files under the given `artifacts_folder` that were modified after
+   `--start` step was done (Clang `-ftime-trace` produces one JSON file next to each object file), process them and store data file into
+   a binary `capture_file`.
 1. **Run the build analysis**: `ClangBuildAnalyzer --analyze <capture_file>`<br/>
    This will read the `capture_file` produced by `--stop` step, calculate the slowest things and print them. If a
    `ClangBuildAnalyzer.ini` file exists in the current folder, it will be read to control how many of various things to print.
@@ -34,7 +34,7 @@ reports from multiple compilations, and output "what took the most time" summary
 The analysis output will look something like this:
 
 ```
-Analyzing build trace from 'artifacts/FullCapture.json'...
+Analyzing build trace from 'artifacts/FullCapture.bin'...
 **** Time summary:
 Compilation (1761 times):
   Parsing (frontend):         5167.4 s
@@ -93,17 +93,15 @@ Granularity and amount of most expensive things (files, functions, templates, in
 ### Building it
 
 * Windows: Visual Studio 2019 solution at `projects/vs2019/ClangBuildAnalyzer.sln`.
-* Mac: Xcode 9.x project at `projects/xcode/ClangBuildAnalyzer.xcodeproj`.
+* Mac: Xcode 10.x project at `projects/xcode/ClangBuildAnalyzer.xcodeproj`.
 * Linux: Makefile for gcc (tested with 7.4), build with `make -f projects/make/Makefile`.
 * You can also use provided `CMakeLists.txt`, if you want to build using `CMake`.
 
 ### Limitations
 
-* Does not capture anything related to linking (or LTO, I guess) right now.
-* I haven't tried running it on _huge_ builds; largest I ran was several thousand compiler invocations; and
-  the analysis step runs in about 10 seconds on that. I haven't tried on something ginormous like a Chrome build;
-  I expect some of my lazy code might not scale to that (I do have one `O(N^2)` place... yeah yeah, I know, shame on
-  me).
+* Does not capture anything related to linking or LTO right now.
+* May or might no scale to _huge_ builds (I haven't tried on something ginormous like a Chrome
+  build). However I have tried it on Unity editor build and it was not terrible.
 
 
 ### License
