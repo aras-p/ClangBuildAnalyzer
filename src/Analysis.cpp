@@ -9,7 +9,6 @@ struct IUnknown; // workaround for old Win SDK header failures when using /permi
 #include "Arena.h"
 #include "Colors.h"
 #include "Utils.h"
-#include "external/llvm-Demangle/include/Demangle.h"
 #include "external/inih/cpp/INIReader.h"
 #include <algorithm>
 #include <assert.h>
@@ -352,7 +351,7 @@ void Analysis::EmitCollapsedTemplateOpt()
         auto fnCacheIt = collapsedNameCache.find(fnName);
         if (fnCacheIt == collapsedNameCache.end())
         {
-            fnCacheIt = collapsedNameCache.insert(std::make_pair(fnName, CollapseName(llvm::demangle(std::string(GetBuildName(fnName)))))).first;
+            fnCacheIt = collapsedNameCache.insert(std::make_pair(fnName, CollapseName(GetBuildName(fnName)))).first;
         }
         auto &stats = collapsed[fnCacheIt->second];
         ++stats.count;
@@ -437,7 +436,7 @@ void Analysis::EndAnalysis()
         for (size_t i = 0; i != n; ++i)
         {
             const auto& e = instArray[i];
-            std::string dname = llvm::demangle(std::string(GetBuildName(e.first)));
+            std::string dname = std::string(GetBuildName(e.first));
             if (dname.size() > config.maxName)
                 dname = dname.substr(0, config.maxName-2) + "...";
             int ms = int(e.second.us / 1000);
@@ -472,7 +471,7 @@ void Analysis::EndAnalysis()
         for (size_t i = 0, n = std::min<size_t>(config.functionCount, indices.size()); i != n; ++i)
         {
             const auto& e = functionsArray[indices[i]];
-            std::string dname = llvm::demangle(std::string(GetBuildName(e.first.first)));
+            std::string dname = std::string(GetBuildName(e.first.first));
             if (dname.size() > config.maxName)
                 dname = dname.substr(0, config.maxName-2) + "...";
             int ms = int(e.second / 1000);

@@ -7,6 +7,7 @@
 #include "Utils.h"
 #include "external/cute_files.h"
 #include "external/flat_hash_map/bytell_hash_map.hpp"
+#include "external/llvm-Demangle/include/Demangle.h"
 #include "external/simdjson/simdjson.h"
 #include "external/xxHash/xxhash.h"
 #include <assert.h>
@@ -396,6 +397,10 @@ struct BuildEventsParser
                         detailString = candidate;
                 }
             }
+            // demangle possibly mangled names
+            if (event.type == BuildEventType::kOptFunction || event.type == BuildEventType::kInstantiateClass || event.type == BuildEventType::kInstantiateFunction)
+                detailString = llvm::demangle(detailString);
+
             event.detailIndex = NameToIndex(detailString.c_str(), nameToIndexLocal);
         }
 

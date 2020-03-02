@@ -15,12 +15,12 @@
 		2B3092D9240BB4E8002A24F4 /* TaskScheduler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3092D7240BB4E8002A24F4 /* TaskScheduler.cpp */; };
 		2B3092DC240BB919002A24F4 /* Arena.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3092DB240BB919002A24F4 /* Arena.cpp */; };
 		2B3092E1240BBEAB002A24F4 /* xxhash.c in Sources */ = {isa = PBXBuildFile; fileRef = 2B3092E0240BBEAB002A24F4 /* xxhash.c */; };
-		2B3092E5240C2F38002A24F4 /* simdjson.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3092E3240C2F38002A24F4 /* simdjson.cpp */; };
+		2B3092E5240C2F38002A24F4 /* simdjson.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B3092E3240C2F38002A24F4 /* simdjson.cpp */; settings = {COMPILER_FLAGS = "-Wno-shorten-64-to-32"; }; };
 		2B6FBE06230B0D8100095E82 /* Analysis.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B6FBE05230B0D8100095E82 /* Analysis.cpp */; };
 		2B6FBE09230B280400095E82 /* Utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B6FBE07230B280400095E82 /* Utils.cpp */; };
-		2B6FBE17230BB90300095E82 /* ItaniumDemangle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B6FBE13230BB90300095E82 /* ItaniumDemangle.cpp */; };
+		2B6FBE17230BB90300095E82 /* ItaniumDemangle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B6FBE13230BB90300095E82 /* ItaniumDemangle.cpp */; settings = {COMPILER_FLAGS = "-Wno-comma"; }; };
 		2B6FBE18230BB90300095E82 /* Demangle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B6FBE14230BB90300095E82 /* Demangle.cpp */; };
-		2B6FBE19230BB90300095E82 /* MicrosoftDemangle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B6FBE15230BB90300095E82 /* MicrosoftDemangle.cpp */; };
+		2B6FBE19230BB90300095E82 /* MicrosoftDemangle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B6FBE15230BB90300095E82 /* MicrosoftDemangle.cpp */; settings = {COMPILER_FLAGS = "-Wno-shorten-64-to-32"; }; };
 		2B6FBE1A230BB90300095E82 /* MicrosoftDemangleNodes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B6FBE16230BB90300095E82 /* MicrosoftDemangleNodes.cpp */; };
 /* End PBXBuildFile section */
 
