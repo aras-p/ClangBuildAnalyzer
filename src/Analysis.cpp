@@ -14,6 +14,7 @@ struct IUnknown; // workaround for old Win SDK header failures when using /permi
 #include <algorithm>
 #include <assert.h>
 #include <string>
+#include <string.h>
 #include <vector>
 
 struct Config
