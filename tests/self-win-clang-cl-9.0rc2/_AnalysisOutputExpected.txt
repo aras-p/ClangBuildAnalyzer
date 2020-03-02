@@ -102,20 +102,16 @@ Compilation (3 times):
 **** Function sets that took longest to compile / optimize:
     27 ms: class std::basic_string<$> __cdecl utils::GetNicePath(class std::bas... (1 times, avg 27 ms)
     25 ms: class std::basic_string<$> __cdecl utils::GetNicePath(char const *) (1 times, avg 25 ms)
-    18 ms: void __cdecl utils::Initialize(void) (1 times, avg 18 ms)
     10 ms: class std::basic_string<$> __cdecl utils::GetFilename(class std::bas... (1 times, avg 10 ms)
      7 ms: private: class std::basic_string<$> & __cdecl std::basic_string<$>::... (1 times, avg 7 ms)
      6 ms: private: class std::basic_string<$> & __cdecl std::basic_string<$>::... (1 times, avg 6 ms)
      6 ms: void __cdecl utils::ForwardSlashify(class std::basic_string<$> &) (1 times, avg 6 ms)
-     6 ms: void __cdecl `dynamic atexit destructor for 's_CurrentDir''(void) (1 times, avg 6 ms)
      6 ms: bool __cdecl utils::IsHeader(class std::basic_string<$> const &) (1 times, avg 6 ms)
      6 ms: void __cdecl utils::Lowercase(class std::basic_string<$> &) (1 times, avg 6 ms)
      6 ms: private: class std::basic_string<$> & __cdecl std::basic_string<$>::... (1 times, avg 6 ms)
      5 ms: bool __cdecl utils::EndsWith(class std::basic_string<$> const &, cla... (1 times, avg 5 ms)
-     5 ms: void __cdecl col::Initialize(void) (2 times, avg 2 ms)
      4 ms: bool __cdecl utils::BeginsWith(class std::basic_string<$> const &, c... (1 times, avg 4 ms)
      4 ms: class std::basic_string<$> __cdecl WideToUtf(class std::basic_string... (1 times, avg 4 ms)
-     2 ms: void __cdecl `dynamic atexit destructor for 's_Root''(void) (1 times, avg 2 ms)
      2 ms: private: void __cdecl std::basic_string<$>::_Tidy_deallocate(void) (2 times, avg 1 ms)
      1 ms: public: __cdecl std::basic_string<$>::~basic_string<$>(void) (2 times, avg 0 ms)
      1 ms: private: void __cdecl std::basic_string<$>::_Construct_lv_contents(c... (1 times, avg 1 ms)
@@ -129,7 +125,11 @@ Compilation (3 times):
      1 ms: private: static void __cdecl std::basic_string<$>::_Xlen(void) (2 times, avg 0 ms)
      1 ms: public: class std::basic_string<$> & __cdecl std::basic_string<$>::a... (1 times, avg 1 ms)
      0 ms: private: void __cdecl std::basic_string<$>::_Move_assign(class std::... (1 times, avg 0 ms)
-     0 ms: _GLOBAL__sub_I_Utils.cpp (1 times, avg 0 ms)
+     0 ms: public: class std::basic_string<$> __cdecl std::basic_string<$>::sub... (1 times, avg 0 ms)
+     0 ms: public: __cdecl std::basic_string<$>::basic_string<$>(wchar_t const ... (1 times, avg 0 ms)
+     0 ms: public: __cdecl std::basic_string<$>::basic_string<$>(char const *co... (1 times, avg 0 ms)
+     0 ms: public: class std::basic_string<$> & __cdecl std::basic_string<$>::a... (1 times, avg 0 ms)
+     0 ms: public: void __cdecl std::allocator<$>::deallocate(wchar_t *const, u... (1 times, avg 0 ms)
 
 *** Expensive headers:
 1740 ms: C:/Program Files (x86)/Windows Kits/10/include/10.0.17763.0/um/windows.h (included 3 times, avg 580 ms), included via:

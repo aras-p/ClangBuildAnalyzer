@@ -102,7 +102,7 @@ struct Analysis
     };
 
     ska::bytell_hash_map<DetailIndex, std::string_view> collapsedNames;
-    std::string_view GetCollapsedName(EventIndex idx);
+    std::string_view GetCollapsedName(DetailIndex idx);
     void EmitCollapsedTemplates();
     void EmitCollapsedTemplateOpt();
     void EmitCollapsedInfo(
@@ -272,9 +272,8 @@ static std::string_view CollapseName(const std::string_view& elt)
     return std::string_view(ptr, size);
 }
 
-std::string_view Analysis::GetCollapsedName(EventIndex idx)
+std::string_view Analysis::GetCollapsedName(DetailIndex detail)
 {
-    DetailIndex detail = events[idx].detailIndex;
     std::string_view& name = collapsedNames[detail];
     if (name.empty())
         name = CollapseName(GetBuildName(detail));
@@ -312,7 +311,7 @@ void Analysis::EmitCollapsedTemplates()
     ska::bytell_hash_map<std::string_view, InstantiateEntry> collapsed;
     for (const auto& inst : instantiations)
     {
-        const std::string_view name = GetCollapsedName(inst.first);
+        const std::string_view name = GetCollapsedName(events[inst.first].detailIndex);
         auto &stats = collapsed[name];
 
         bool recursive = false;
@@ -322,7 +321,7 @@ void Analysis::EmitCollapsedTemplates()
             auto &event = events[p];
             if (event.type == BuildEventType::kInstantiateClass || event.type == BuildEventType::kInstantiateFunction)
             {
-                const std::string_view ancestor_name = GetCollapsedName(p);
+                const std::string_view ancestor_name = GetCollapsedName(event.detailIndex);
                 if (ancestor_name == name)
                 {
                     recursive = true;
@@ -343,17 +342,15 @@ void Analysis::EmitCollapsedTemplates()
 void Analysis::EmitCollapsedTemplateOpt()
 {
     ska::bytell_hash_map<std::string_view, InstantiateEntry> collapsed;
-    ska::bytell_hash_map<DetailIndex, std::string_view> collapsedNameCache;
-    
     for (const auto& fn : functions)
     {
-        auto fnName = fn.first.first;
-        auto fnCacheIt = collapsedNameCache.find(fnName);
-        if (fnCacheIt == collapsedNameCache.end())
-        {
-            fnCacheIt = collapsedNameCache.insert(std::make_pair(fnName, CollapseName(GetBuildName(fnName)))).first;
-        }
-        auto &stats = collapsed[fnCacheIt->second];
+        auto fnNameIndex = fn.first.first;
+        const std::string_view fnName = GetBuildName(fnNameIndex);
+        // if we're not related to templates at all, skip
+        if (fnName.find('<') == std::string::npos)
+            continue;
+
+        auto &stats = collapsed[GetCollapsedName(fnNameIndex)];
         ++stats.count;
         stats.us += fn.second;
     }
