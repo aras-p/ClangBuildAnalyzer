@@ -4,6 +4,8 @@
 
 #include "Arena.h"
 #include "Colors.h"
+#include "Utils.h"
+#include "external/cute_files.h"
 #include "external/flat_hash_map/bytell_hash_map.hpp"
 #include "external/simdjson/simdjson.h"
 #include "external/xxHash/xxhash.h"
@@ -115,6 +117,13 @@ static void FindParentChildrenIndices(BuildEvents& events)
         if (e.parent.idx != -1)
             e.parent = sortedIndices[e.parent.idx];
     }
+    
+#ifndef NDEBUG
+    for (int i = 0, n = (int)events.size(); i != n; ++i)
+    {
+        assert(i != events[EventIndex(i)].parent.idx);
+    }
+#endif
 }
 
 struct BuildEventsParser
@@ -272,6 +281,7 @@ struct BuildEventsParser
             return;
         BuildEvent event;
         bool valid = true;
+        const char* detailPtr = nullptr;
         do
         {
             const char* nodeKey = it.get_string();
@@ -353,7 +363,7 @@ struct BuildEventsParser
                 {
                     it.next();
                     if (it.is_string())
-                        event.detailIndex = NameToIndex(it.get_string(), nameToIndexLocal);
+                        detailPtr = it.get_string();
                     it.up();
                 }
             }
@@ -363,8 +373,32 @@ struct BuildEventsParser
         if (event.type== BuildEventType::kUnknown || !valid)
             return;
 
-        if (event.detailIndex == DetailIndex() && event.type == BuildEventType::kCompiler)
-            event.detailIndex = NameToIndex(curFileName.c_str(), nameToIndexLocal);
+        // if the "compiler" event has no detail name, use the current json file name
+        if ((detailPtr == nullptr || detailPtr[0]==0) && event.type == BuildEventType::kCompiler)
+            detailPtr = curFileName.c_str();
+        if (detailPtr != nullptr && detailPtr[0]!=0)
+        {
+            // do various cleanups/nice-ifications of the detail name:
+            // make paths shorter (i.e. relative to project) where possible
+            std::string detailString = utils::GetNicePath(detailPtr);
+            // don't report the clang trace .json file, instead get the object file at the same location if it's there
+            if (utils::EndsWith(detailString, ".json"))
+            {
+                std::string candidate = std::string(detailString.substr(0, detailString.length()-4)) + "o";
+                // check for .o
+                if (cf_file_exists(candidate.c_str()))
+                    detailString = candidate;
+                else
+                {
+                    // check for .obj
+                    candidate += "bj";
+                    if (cf_file_exists(candidate.c_str()))
+                        detailString = candidate;
+                }
+            }
+            event.detailIndex = NameToIndex(detailString.c_str(), nameToIndexLocal);
+        }
+
         fileEvents.emplace_back(event);
     }
 };

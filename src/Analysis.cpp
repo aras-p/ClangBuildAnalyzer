@@ -11,7 +11,6 @@ struct IUnknown; // workaround for old Win SDK header failures when using /permi
 #include "Utils.h"
 #include "external/llvm-Demangle/include/Demangle.h"
 #include "external/inih/cpp/INIReader.h"
-#include "external/cute_files.h"
 #include <algorithm>
 #include <assert.h>
 #include <string>
@@ -51,10 +50,8 @@ struct Analysis
     Analysis(const BuildEvents& events_, BuildNames& buildNames_, FILE* out_)
     : events(events_)
     , buildNames(buildNames_)
-    , buildNamesDone(buildNames_.size(), 0)
     , out(out_)
     {
-        buildNamesDone.resize(buildNames.size());
         functions.reserve(256);
         instantiations.reserve(256);
         parseFiles.reserve(64);
@@ -64,39 +61,13 @@ struct Analysis
 
     const BuildEvents& events;
     BuildNames& buildNames;
-    IndexedVector<char, DetailIndex> buildNamesDone;
 
     FILE* out;
 
     const std::string_view GetBuildName(DetailIndex index)
     {
         assert(index.idx >= 0 && index.idx < buildNames.size());
-        const std::string_view& origName = buildNames[index];
-        if (buildNamesDone[index])
-            return origName;
-        
-        std::string name = utils::GetNicePath(origName);
-        // don't report the clang trace .json file, instead get the object file at the same location if it's there
-        if (utils::EndsWith(name, ".json"))
-        {
-            std::string candidate = std::string(name.substr(0, name.length()-4)) + "o";
-            if (cf_file_exists(candidate.c_str()))
-                name = candidate;
-            else
-            {
-                candidate += "bj";
-                if (cf_file_exists(candidate.c_str()))
-                    name = candidate;
-            }
-        }
-        buildNamesDone[index] = 1;
-        
-        size_t size = name.size();
-        char* ptr = (char*)ArenaAllocate(size + 1);
-        memcpy(ptr, name.c_str(), size + 1);
-        auto res = std::string_view(ptr, size);
-        buildNames[index] = res;
-        return res;
+        return buildNames[index];
     }
 
     void ProcessEvent(EventIndex eventIndex);
@@ -157,7 +128,7 @@ struct Analysis
 
 DetailIndex Analysis::FindPath(EventIndex eventIndex) const
 {
-    while(eventIndex >= EventIndex())
+    while(eventIndex > EventIndex())
     {
         const BuildEvent& ev = events[eventIndex];
         if (ev.type == BuildEventType::kCompiler || ev.type == BuildEventType::kFrontend || ev.type == BuildEventType::kBackend || ev.type == BuildEventType::kOptModule)
