@@ -12,22 +12,37 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\Analysis.cpp" />
+    <ClCompile Include="..\..\src\Arena.cpp" />
     <ClCompile Include="..\..\src\BuildEvents.cpp" />
     <ClCompile Include="..\..\src\Colors.cpp" />
+    <ClCompile Include="..\..\src\external\enkiTS\TaskScheduler.cpp" />
     <ClCompile Include="..\..\src\external\inih\cpp\INIReader.cpp" />
     <ClCompile Include="..\..\src\external\inih\ini.c" />
     <ClCompile Include="..\..\src\external\llvm-Demangle\lib\Demangle.cpp" />
     <ClCompile Include="..\..\src\external\llvm-Demangle\lib\ItaniumDemangle.cpp" />
-    <ClCompile Include="..\..\src\external\llvm-Demangle\lib\MicrosoftDemangle.cpp" />
+    <ClCompile Include="..\..\src\external\llvm-Demangle\lib\MicrosoftDemangle.cpp">
+      <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4244</DisableSpecificWarnings>
+      <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4244</DisableSpecificWarnings>
+    </ClCompile>
     <ClCompile Include="..\..\src\external\llvm-Demangle\lib\MicrosoftDemangleNodes.cpp" />
+    <ClCompile Include="..\..\src\external\simdjson\simdjson.cpp">
+      <SDLCheck Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</SDLCheck>
+      <SDLCheck Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</SDLCheck>
+      <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4244;4267;4805;4305</DisableSpecificWarnings>
+      <DisableSpecificWarnings Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4244;4267;4805;4305</DisableSpecificWarnings>
+    </ClCompile>
+    <ClCompile Include="..\..\src\external\xxHash\xxhash.c" />
     <ClCompile Include="..\..\src\main.cpp" />
     <ClCompile Include="..\..\src\Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\Analysis.h" />
+    <ClInclude Include="..\..\src\Arena.h" />
     <ClInclude Include="..\..\src\BuildEvents.h" />
     <ClInclude Include="..\..\src\Colors.h" />
     <ClInclude Include="..\..\src\external\cute_files.h" />
+    <ClInclude Include="..\..\src\external\enkiTS\LockLessMultiReadPipe.h" />
+    <ClInclude Include="..\..\src\external\enkiTS\TaskScheduler.h" />
     <ClInclude Include="..\..\src\external\inih\cpp\INIReader.h" />
     <ClInclude Include="..\..\src\external\inih\ini.h" />
     <ClInclude Include="..\..\src\external\llvm-Demangle\include\Demangle.h" />
@@ -37,8 +52,10 @@
     <ClInclude Include="..\..\src\external\llvm-Demangle\include\MicrosoftDemangleNodes.h" />
     <ClInclude Include="..\..\src\external\llvm-Demangle\include\StringView.h" />
     <ClInclude Include="..\..\src\external\llvm-Demangle\include\Utility.h" />
-    <ClInclude Include="..\..\src\external\sajson.h" />
+    <ClInclude Include="..\..\src\external\simdjson\simdjson.h" />
     <ClInclude Include="..\..\src\external\sokol_time.h" />
+    <ClInclude Include="..\..\src\external\xxHash\xxh3.h" />
+    <ClInclude Include="..\..\src\external\xxHash\xxhash.h" />
     <ClInclude Include="..\..\src\Utils.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -51,13 +68,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -89,9 +106,11 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -105,9 +124,11 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

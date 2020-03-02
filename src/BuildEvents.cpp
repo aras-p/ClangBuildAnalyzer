@@ -435,7 +435,7 @@ struct BufferedWriter
     
     enum { kBufferSize = 65536 };
     uint8_t buffer[kBufferSize];
-    int size;
+    size_t size;
     FILE* file;
 };
 

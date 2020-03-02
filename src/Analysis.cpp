@@ -3,7 +3,6 @@
 
 #ifdef _MSC_VER
 struct IUnknown; // workaround for old Win SDK header failures when using /permissive-
-#define NOMINMAX
 #endif
 
 #include "Analysis.h"

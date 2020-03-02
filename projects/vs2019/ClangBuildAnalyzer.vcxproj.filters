@@ -24,6 +24,16 @@
     <ClCompile Include="..\..\src\external\llvm-Demangle\lib\MicrosoftDemangleNodes.cpp">
       <Filter>external\llvm-Demangle</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\external\xxHash\xxhash.c">
+      <Filter>external\xxHash</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\external\simdjson\simdjson.cpp">
+      <Filter>external\simdjson</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\external\enkiTS\TaskScheduler.cpp">
+      <Filter>external\enkiTS</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\Arena.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\Analysis.h" />
@@ -31,9 +41,6 @@
     <ClInclude Include="..\..\src\Colors.h" />
     <ClInclude Include="..\..\src\Utils.h" />
     <ClInclude Include="..\..\src\external\cute_files.h">
-      <Filter>external</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\external\sajson.h">
       <Filter>external</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\external\sokol_time.h">
@@ -66,6 +73,22 @@
     <ClInclude Include="..\..\src\external\llvm-Demangle\include\Utility.h">
       <Filter>external\llvm-Demangle</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\external\xxHash\xxh3.h">
+      <Filter>external\xxHash</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\external\xxHash\xxhash.h">
+      <Filter>external\xxHash</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\external\simdjson\simdjson.h">
+      <Filter>external\simdjson</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\external\enkiTS\LockLessMultiReadPipe.h">
+      <Filter>external\enkiTS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\external\enkiTS\TaskScheduler.h">
+      <Filter>external\enkiTS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Arena.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="external">
@@ -76,6 +99,15 @@
     </Filter>
     <Filter Include="external\llvm-Demangle">
       <UniqueIdentifier>{cddd9c12-630b-4077-8e2f-4a7fa782e204}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external\xxHash">
+      <UniqueIdentifier>{c3b8fee3-ed0a-4ea4-b747-8dde58fdbffa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external\simdjson">
+      <UniqueIdentifier>{52f79781-bd11-45d0-ab4d-c214a25a08e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external\enkiTS">
+      <UniqueIdentifier>{16a4320a-ef87-49da-8035-b6b048c5ee45}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
