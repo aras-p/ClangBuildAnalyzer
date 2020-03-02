@@ -51,6 +51,9 @@ jobs:
     - uses: actions/checkout@v1
     - name: Ubuntu 16
       run: |
+        apt install gcc-7
+        export CC=gcc-7
+        export CXX=g++-7
         mkdir buildCmake
         cd buildCmake
         cmake -DCMAKE_BUILD_TYPE=Release ..
