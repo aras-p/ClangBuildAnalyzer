@@ -30,7 +30,7 @@ clean:
 	rm -f build/ClangBuildAnalyzer $(C_OBJS) $(CPP_OBJS)
 
 build/ClangBuildAnalyzer: $(C_OBJS) $(CPP_OBJS)
-	$(CXX) -o $@ $(C_OBJS) $(CPP_OBJS) $(LDFLAGS)
+	$(CXX) -o $@ $(C_OBJS) $(CPP_OBJS) $(LDFLAGS) -lpthread
 
 build/%.o: %.c
 	mkdir -p $(dir $@)

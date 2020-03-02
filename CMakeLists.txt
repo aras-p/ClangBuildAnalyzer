@@ -22,3 +22,4 @@ target_sources(ClangBuildAnalyzer PRIVATE
     "src/external/simdjson/simdjson.cpp"
 )
 target_compile_features(ClangBuildAnalyzer PRIVATE cxx_std_17)
+target_link_libraries(ClangBuildAnalyzer -lpthread)
