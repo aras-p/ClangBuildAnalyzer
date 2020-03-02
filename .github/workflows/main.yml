@@ -54,9 +54,6 @@ jobs:
         CC: gcc-7
         CXX: g++-7
       run: |
-        sudo apt install gcc-7 g++-7
-        export CC=gcc-7
-        export CXX=g++-7
         mkdir buildCmake
         cd buildCmake
         cmake -DCMAKE_BUILD_TYPE=Release ..

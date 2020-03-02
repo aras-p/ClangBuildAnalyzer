@@ -1,7 +1,7 @@
 // Clang Build Analyzer https://github.com/aras-p/ClangBuildAnalyzer
 // SPDX-License-Identifier: Unlicense
 
-#include <stddef.h>
+#include <cstdint>
 #include <algorithm>
 #include <vector>
 
