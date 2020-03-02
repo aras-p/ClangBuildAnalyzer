@@ -559,7 +559,5 @@ bool LoadBuildEvents(const std::string& fileName, BuildEvents& outEvents, BuildN
             r.Read(ptr, nSize);
     }
 
-    fclose(f);
-
     return true;
 }
