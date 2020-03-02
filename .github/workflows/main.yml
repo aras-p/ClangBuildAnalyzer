@@ -8,15 +8,16 @@ on:
 
 jobs:
   windows:
-    runs-on: windows-2016
+    runs-on: windows-2019
+    timeout-minutes: 5
     strategy:
       fail-fast: false
     steps:
     - uses: actions/checkout@v1
-    - name: Windows VS2017
+    - name: Windows VS2019
       run: |
-        call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars64.bat" && msbuild.exe projects/vs2017/ClangBuildAnalyzer.sln /p:Configuration=Debug /p:CL_MPCount=2
-        call "C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\VC\Auxiliary\Build\vcvars64.bat" && msbuild.exe projects/vs2017/ClangBuildAnalyzer.sln /p:Configuration=Release /p:CL_MPCount=2
+        call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat" && msbuild.exe projects/vs2019/ClangBuildAnalyzer.sln /p:Configuration=Debug /p:CL_MPCount=2
+        call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat" && msbuild.exe projects/vs2019/ClangBuildAnalyzer.sln /p:Configuration=Release /p:CL_MPCount=2
         build\ClangBuildAnalyzer.exe --test tests
       shell: cmd
     - uses: actions/upload-artifact@v1
@@ -26,6 +27,7 @@ jobs:
 
   mac:
     runs-on: macOS-latest
+    timeout-minutes: 5
     strategy:
       fail-fast: false
     steps:
@@ -42,12 +44,22 @@ jobs:
 
   linux:
     runs-on: ubuntu-16.04
+    timeout-minutes: 5
     strategy:
       fail-fast: false
     steps:
     - uses: actions/checkout@v1
-    - name: Ubuntu 16
+    - name: Ubuntu16 Gcc7
+      env:
+        CC: gcc-7
+        CXX: g++-7
       run: |
+        mkdir buildCmake
+        cd buildCmake
+        cmake -DCMAKE_BUILD_TYPE=Release ..
+        make -j 2
+        cd ..
+        buildCmake/ClangBuildAnalyzer --test tests
         make -f projects/make/Makefile -j 2
         build/ClangBuildAnalyzer --test tests
     - uses: actions/upload-artifact@v1

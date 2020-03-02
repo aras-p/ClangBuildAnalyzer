@@ -1,18 +1,58 @@
 // Clang Build Analyzer https://github.com/aras-p/ClangBuildAnalyzer
 // SPDX-License-Identifier: Unlicense
 #include "BuildEvents.h"
+
+#include "Arena.h"
 #include "Colors.h"
-#include "external/sajson.h"
+#include "Utils.h"
+#include "external/cute_files.h"
+#include "external/flat_hash_map/bytell_hash_map.hpp"
+#include "external/llvm-Demangle/include/Demangle.h"
+#include "external/simdjson/simdjson.h"
+#include "external/xxHash/xxhash.h"
 #include <assert.h>
-#include <unordered_map>
 #include <iterator>
+#include <mutex>
+
+struct HashedString
+{
+    explicit HashedString(const char* s)
+    {
+        len = strlen(s);
+        hash = XXH64(s, len, 0);
+        str = s;
+    }
+    size_t hash;
+    size_t len;
+    const char* str;
+};
+namespace std
+{
+    template<> struct hash<HashedString>
+    {
+        size_t operator()(const HashedString& v) const
+        {
+            return v.hash;
+        }
+    };
+    template<> struct equal_to<HashedString>
+    {
+        bool operator()(const HashedString& a, const HashedString& b) const
+        {
+            return a.hash == b.hash && a.len == b.len && memcmp(a.str, b.str, a.len) == 0;
+        }
+    };
+} // namespace std
+
+typedef ska::bytell_hash_map<HashedString, DetailIndex> NameToIndexMap;
+
 
 static void DebugPrintEvents(const BuildEvents& events, const BuildNames& names)
 {
     for (size_t i = 0; i < events.size(); ++i)
     {
         const BuildEvent& event = events[EventIndex(int(i))];
-        printf("%4zi: t=%i t1=%7llu t2=%7llu par=%4i ch=%4zi det=%s\n", i, event.type, event.ts, event.ts+event.dur, event.parent.idx, event.children.size(), names[event.detailIndex].substr(0,130).c_str());
+        printf("%4zi: t=%i t1=%7llu t2=%7llu par=%4i ch=%4zi det=%s\n", i, event.type, event.ts, event.ts+event.dur, event.parent.idx, event.children.size(), std::string(names[event.detailIndex].substr(0,130)).c_str());
     }
 }
 
@@ -78,166 +118,193 @@ static void FindParentChildrenIndices(BuildEvents& events)
         if (e.parent.idx != -1)
             e.parent = sortedIndices[e.parent.idx];
     }
+    
+#ifndef NDEBUG
+    for (int i = 0, n = (int)events.size(); i != n; ++i)
+    {
+        assert(i != events[EventIndex(i)].parent.idx);
+    }
+#endif
 }
 
-static void AddEvents(BuildEvents& res, BuildEvents& add)
+struct BuildEventsParser
 {
-    int offset = (int)res.size();
-    std::move(add.begin(), add.end(), std::back_inserter(res));
-    add.clear();
-    for (size_t i = offset, n = res.size(); i != n; ++i)
+    BuildEventsParser()
     {
-        BuildEvent& ev = res[EventIndex(int(i))];
-        if (ev.parent.idx >= 0)
-            ev.parent.idx += offset;
-        for (auto& ch : ev.children)
-            ch.idx += offset;
-    }
-}
-
-struct JsonTraverser
-{
-    JsonTraverser(BuildEvents& outEvents, BuildNames& outNames)
-    : resultEvents(outEvents), resultNames(outNames)
-    {
-        NameToIndex(""); // make sure zero index is empty
+        // make sure zero index is empty
+        NameToIndex("", resultNameToIndex);
+        resultNames.push_back(std::string_view(resultNameToIndex.begin()->first.str, 0));
+        
+        resultEvents.reserve(2048);
+        resultNames.reserve(2048);
     }
 
-    std::string curFileName;
-    BuildEvents& resultEvents;
-    BuildNames& resultNames;
-    BuildEvents fileEvents;
-
-    std::unordered_map<std::string, DetailIndex> nameToIndex;
-
-    DetailIndex NameToIndex(const std::string& name)
+    BuildEvents resultEvents;
+    BuildNames resultNames;
+    NameToIndexMap resultNameToIndex;
+    std::mutex resultMutex;
+    std::mutex arenaMutex;
+    
+    void AddEvents(BuildEvents& add, const NameToIndexMap& nameToIndex)
     {
-        auto it = nameToIndex.find(name);
+        // we got job-local build events and name-to-index mapping;
+        // add them to the global result with any necessary remapping.
+        // gotta take a mutex since we're modifying shared state here.
+        std::scoped_lock lock(resultMutex);
+        
+        // move events to end of result events list
+        int offset = (int)resultEvents.size();
+        std::move(add.begin(), add.end(), std::back_inserter(resultEvents));
+        add.clear();
+        
+        // create remapping from name indices, adding them to global remapping
+        // list if necessary.
+        ska::bytell_hash_map<DetailIndex, DetailIndex> detailRemap;
+        for (const auto& kvp : nameToIndex)
+        {
+            const auto& existing = resultNameToIndex.find(kvp.first);
+            if (existing == resultNameToIndex.end())
+            {
+                DetailIndex index((int)resultNameToIndex.size());
+                resultNameToIndex.insert(std::make_pair(kvp.first, index));
+                resultNames.push_back(std::string_view(kvp.first.str, kvp.first.len));
+                detailRemap[kvp.second] = index;
+            }
+            else
+            {
+                detailRemap[kvp.second] = existing->second;
+            }
+        }
+        
+        // adjust the added event indices
+        for (size_t i = offset, n = resultEvents.size(); i != n; ++i)
+        {
+            BuildEvent& ev = resultEvents[EventIndex(int(i))];
+            if (ev.parent.idx >= 0)
+                ev.parent.idx += offset;
+            for (auto& ch : ev.children)
+                ch.idx += offset;
+            if (ev.detailIndex.idx != 0)
+            {
+                assert(ev.detailIndex.idx >= 0 && ev.detailIndex.idx < nameToIndex.size());
+                ev.detailIndex = detailRemap[ev.detailIndex];
+                assert(ev.detailIndex.idx >= 0 && ev.detailIndex.idx < resultNameToIndex.size());
+            }
+        }
+        
+        assert(resultNameToIndex.size() == resultNames.size());
+    }
+
+
+    DetailIndex NameToIndex(const char* str, NameToIndexMap& nameToIndex)
+    {
+        HashedString hashedName(str);
+        auto it = nameToIndex.find(hashedName);
         if (it != nameToIndex.end())
             return it->second;
+
+        char* strCopy;
+        {
+            // arena allocator is not thread safe, take a mutex
+            std::scoped_lock lock(arenaMutex);
+            strCopy = (char*)ArenaAllocate(hashedName.len+1);
+        }
+        memcpy(strCopy, str, hashedName.len+1);
+        hashedName.str = strCopy;
+
         DetailIndex index((int)nameToIndex.size());
-        nameToIndex.insert(std::make_pair(name, index));
-        resultNames.push_back(name);
+        nameToIndex.insert(std::make_pair(hashedName, index));
         return index;
     }
 
-    void ParseRoot(const sajson::value& node)
+    bool ParseRoot(simdjson::document::parser::Iterator& it, const std::string& curFileName)
     {
-        if (node.get_type() != sajson::TYPE_OBJECT)
-        {
-            printf("%sERROR: root of JSON should be an object.%s\n", col::kRed, col::kReset);
-            resultEvents.clear();
-            return;
-        }
-        const auto& files = node.get_value_of_key(sajson::literal("files"));
-        ParseFiles(files);
+        if (!it.is_object())
+            return false;
+        if (!it.move_to_key("traceEvents"))
+            return false;
+        return ParseTraceEvents(it, curFileName);
     }
 
-    void ParseFiles(const sajson::value& node)
+    bool ParseTraceEvents(simdjson::document::parser::Iterator& it, const std::string& curFileName)
     {
-        if (node.get_type() != sajson::TYPE_OBJECT)
-        {
-            printf("%sERROR: 'files' of JSON should be an object.%s\n", col::kRed, col::kReset);
-            resultEvents.clear();
-            return;
-        }
+        if (!it.is_array())
+            return false;
+        if (!it.down())
+            return false;
 
-        for (size_t i = 0, n = node.get_length(); i != n; ++i)
+        NameToIndexMap nameToIndexLocal;
+        NameToIndex("", nameToIndexLocal); // make sure zero index is empty
+        BuildEvents fileEvents;
+        fileEvents.reserve(256);
+        do
         {
-            const auto& fileName = node.get_object_key(i);
-            curFileName = fileName.as_string();
-            const auto& fileVal = node.get_object_value(i);
-            if (fileVal.get_type() != sajson::TYPE_OBJECT)
-            {
-                printf("%sERROR: 'files' elements in JSON should be objects.%s\n", col::kRed, col::kReset);
-                resultEvents.clear();
-                return;
-            }
-            const auto& traceEventsVal = fileVal.get_value_of_key(sajson::literal("traceEvents"));
-            ParseTraceEvents(traceEventsVal);
-        }
-    }
-
-    void ParseTraceEvents(const sajson::value& node)
-    {
-        if (node.get_type() != sajson::TYPE_ARRAY)
-        {
-            printf("%sERROR: 'traceEvents' of JSON should be an array.%s\n", col::kRed, col::kReset);
-            resultEvents.clear();
-            return;
-        }
-        fileEvents.clear();
-        fileEvents.reserve(node.get_length());
-        for (size_t i = 0, n = node.get_length(); i != n; ++i)
-        {
-            ParseEvent(node.get_array_element(i));
-        }
+            ParseEvent(it, curFileName, fileEvents, nameToIndexLocal);
+        } while(it.next());
+        it.up();
+        if (fileEvents.empty())
+            return false;
 
         FindParentChildrenIndices(fileEvents);
-        if (!fileEvents.empty())
+        if (fileEvents.back().parent.idx != -1)
         {
-            if (fileEvents.back().parent.idx != -1)
-            {
-                printf("%sERROR: the last trace event should be root; was not in '%s'.%s\n", col::kRed, curFileName.c_str(), col::kReset);
-                resultEvents.clear();
-                return;
-            }
+            printf("%sWARN: the last trace event should be root; was not in '%s'.%s\n", col::kRed, curFileName.c_str(), col::kReset);
+            return false;
         }
-        AddEvents(resultEvents, fileEvents);
-    }
-
-    static bool StrEqual(const sajson::string& s1, const sajson::string& s2)
-    {
-        if (s1.length() != s2.length())
-            return false;
-        if (memcmp(s1.data(), s2.data(), s2.length()) != 0)
-            return false;
+        AddEvents(fileEvents, nameToIndexLocal);
         return true;
     }
 
-    const sajson::string kPid = sajson::literal("pid");
-    const sajson::string kTid = sajson::literal("tid");
-    const sajson::string kPh = sajson::literal("ph");
-    const sajson::string kName = sajson::literal("name");
-    const sajson::string kTs = sajson::literal("ts");
-    const sajson::string kDur = sajson::literal("dur");
-    const sajson::string kArgs = sajson::literal("args");
-    const sajson::string kDetail = sajson::literal("detail");
-
-    void ParseEvent(const sajson::value& node)
+    static bool StrEqual(const char* a, const char* b)
     {
-        if (node.get_type() != sajson::TYPE_OBJECT)
+        return strcmp(a,b) == 0;
+    }
+
+    const char* kPid = "pid";
+    const char* kTid = "tid";
+    const char* kPh = "ph";
+    const char* kName = "name";
+    const char* kTs = "ts";
+    const char* kDur = "dur";
+    const char* kArgs = "args";
+    const char* kDetail = "detail";
+
+    void ParseEvent(simdjson::document::parser::Iterator& it, const std::string& curFileName, BuildEvents& fileEvents, NameToIndexMap& nameToIndexLocal)
+    {
+        if (!it.is_object())
         {
             printf("%sERROR: 'traceEvents' elements in JSON should be objects.%s\n", col::kRed, col::kReset);
             resultEvents.clear();
             return;
         }
-
+        
+        if (!it.down())
+            return;
         BuildEvent event;
-        for (size_t i = 0, n = node.get_length(); i != n; ++i)
+        bool valid = true;
+        const char* detailPtr = nullptr;
+        do
         {
-            const auto& nodeKey = node.get_object_key(i);
-            const auto& nodeVal = node.get_object_value(i);
+            const char* nodeKey = it.get_string();
+            it.next();
             if (StrEqual(nodeKey, kPid))
             {
-                if (nodeVal.get_type() == sajson::TYPE_INTEGER && nodeVal.get_integer_value() != 1)
-                    return;
+                if (!it.is_integer() || it.get_integer() != 1)
+                    valid = false;
             }
             else if (StrEqual(nodeKey, kTid))
             {
-                if (nodeVal.get_type() != sajson::TYPE_INTEGER) // starting with Clang/LLVM 11 thread IDs are not necessarily 0
-                    return;
+                if (!it.is_integer()) // starting with Clang/LLVM 11 thread IDs are not necessarily 0
+                    valid = false;
             }
             else if (StrEqual(nodeKey, kPh))
             {
-                if (nodeVal.get_type() != sajson::TYPE_STRING || strcmp(nodeVal.as_cstring(), "X") != 0)
-                    return;
+                if (!it.is_string() || !StrEqual(it.get_string(), "X"))
+                    valid = false;
             }
-            else if (StrEqual(nodeKey, kName))
+            else if (StrEqual(nodeKey, kName) && it.is_string() && valid)
             {
-                if (nodeVal.get_type() != sajson::TYPE_STRING)
-                    return;
-                const char* name = nodeVal.as_cstring();
+                const char* name = it.get_string();
                 if (!strcmp(name, "ExecuteCompiler"))
                     event.type = BuildEventType::kCompiler;
                 else if (!strcmp(name, "Frontend"))
@@ -276,48 +343,288 @@ struct JsonTraverser
                 {
                     printf("%sWARN: unknown trace event '%s' in '%s', skipping.%s\n", col::kYellow, name, curFileName.c_str(), col::kReset);
                 }
-                if (event.type== BuildEventType::kUnknown)
-                    return;
             }
             else if (StrEqual(nodeKey, kTs))
             {
-                if (nodeVal.get_type() != sajson::TYPE_INTEGER)
-                    return;
-                event.ts = nodeVal.get_integer_value();
+                if (it.is_integer())
+                    event.ts = it.get_integer();
+                else
+                    valid = false;
             }
             else if (StrEqual(nodeKey, kDur))
             {
-                if (nodeVal.get_type() != sajson::TYPE_INTEGER)
-                    return;
-                event.dur = nodeVal.get_integer_value();
+                if (it.is_integer())
+                    event.dur = it.get_integer();
+                else
+                    valid = false;
             }
             else if (StrEqual(nodeKey, kArgs))
             {
-                if (nodeVal.get_type() == sajson::TYPE_OBJECT && nodeVal.get_length() == 1)
+                if (it.is_object() && it.down())
                 {
-                    const auto& nodeDetail = nodeVal.get_object_value(0);
-                    if (nodeDetail.get_type() == sajson::TYPE_STRING)
-                        event.detailIndex = NameToIndex(nodeDetail.as_string());
+                    it.next();
+                    if (it.is_string())
+                        detailPtr = it.get_string();
+                    it.up();
                 }
             }
+        } while (it.next());
+        it.up();
+        
+        if (event.type== BuildEventType::kUnknown || !valid)
+            return;
+
+        // if the "compiler" event has no detail name, use the current json file name
+        if ((detailPtr == nullptr || detailPtr[0]==0) && event.type == BuildEventType::kCompiler)
+            detailPtr = curFileName.c_str();
+        if (detailPtr != nullptr && detailPtr[0]!=0)
+        {
+            // do various cleanups/nice-ifications of the detail name:
+            // make paths shorter (i.e. relative to project) where possible
+            std::string detailString = utils::GetNicePath(detailPtr);
+            // don't report the clang trace .json file, instead get the object file at the same location if it's there
+            if (utils::EndsWith(detailString, ".json"))
+            {
+                std::string candidate = std::string(detailString.substr(0, detailString.length()-4)) + "o";
+                // check for .o
+                if (cf_file_exists(candidate.c_str()))
+                    detailString = candidate;
+                else
+                {
+                    // check for .obj
+                    candidate += "bj";
+                    if (cf_file_exists(candidate.c_str()))
+                        detailString = candidate;
+                }
+            }
+            // demangle possibly mangled names
+            if (event.type == BuildEventType::kOptFunction || event.type == BuildEventType::kInstantiateClass || event.type == BuildEventType::kInstantiateFunction)
+                detailString = llvm::demangle(detailString);
+
+            event.detailIndex = NameToIndex(detailString.c_str(), nameToIndexLocal);
         }
 
-        if (event.detailIndex == DetailIndex() && event.type == BuildEventType::kCompiler)
-            event.detailIndex = NameToIndex(curFileName);
         fileEvents.emplace_back(event);
     }
 };
 
-void ParseBuildEvents(std::string& jsonText, BuildEvents& outEvents, BuildNames& outNames)
+BuildEventsParser* CreateBuildEventsParser()
 {
-    const sajson::document& doc = sajson::parse(sajson::dynamic_allocation(), sajson::mutable_string_view(jsonText.size(), &jsonText[0]));
-    if (!doc.is_valid())
+    BuildEventsParser* p = new BuildEventsParser();
+    return p;
+}
+void DeleteBuildEventsParser(BuildEventsParser* parser)
+{
+    delete parser;
+}
+
+
+bool ParseBuildEvents(BuildEventsParser* parser, const std::string& fileName)
+{
+    using namespace simdjson;
+    auto [doc, error] = document::parse(get_corpus(fileName));
+    if (error)
     {
-        printf("%sERROR: JSON parse error %s.%s\n", col::kRed, doc.get_error_message_as_cstring(), col::kReset);
-        return;
+        printf("%sWARN: JSON parse error %s.%s\n", col::kYellow, error_message(error).c_str(), col::kReset);
+        return false;
+    }
+    
+    document::parser::Iterator it(doc);
+    return parser->ParseRoot(it, fileName);
+    //DebugPrintEvents(outEvents, outNames);
+}
+
+struct BufferedWriter
+{
+    BufferedWriter(FILE* f)
+    : file(f)
+    , size(0)
+    {
+        hasher = XXH64_createState();
+        XXH64_reset(hasher, 0);
+    }
+    ~BufferedWriter()
+    {
+        Flush();
+        XXH64_hash_t hash = XXH64_digest(hasher);
+        fwrite(&hash, sizeof(hash), 1, file);
+        fclose(file);
+    }
+    
+    template<typename T> void Write(const T& t)
+    {
+        Write(&t, sizeof(t));
+    }
+    void Write(const void* ptr, size_t sz)
+    {
+        if (sz >= kBufferSize)
+        {
+            fwrite(ptr, sz, 1, file);
+            return;
+        }
+        if (sz + size > kBufferSize)
+            Flush();
+        memcpy(&buffer[size], ptr, sz);
+        size += sz;
     }
 
-    JsonTraverser traverser(outEvents, outNames);
-    traverser.ParseRoot(doc.get_root());
-    //DebugPrintEvents(outEvents, outNames);
+    
+    void Flush()
+    {
+        fwrite(buffer, size, 1, file);
+        XXH64_update(hasher, buffer, size);
+        size = 0;
+    }
+    
+    enum { kBufferSize = 65536 };
+    uint8_t buffer[kBufferSize];
+    size_t size;
+    FILE* file;
+    XXH64_state_t* hasher;
+};
+
+struct BufferedReader
+{
+    BufferedReader(FILE* f)
+    : pos(0)
+    {
+        fseek(f, 0, SEEK_END);
+        size_t fsize = ftello64(f);
+        fseek(f, 0, SEEK_SET);
+        buffer = new uint8_t[fsize];
+        bufferSize = fsize;
+        fread(buffer, bufferSize, 1, f);
+        fclose(f);
+    }
+    ~BufferedReader()
+    {
+        delete[] buffer;
+    }
+    
+    template<typename T> void Read(T& t)
+    {
+        Read(&t, sizeof(t));
+    }
+    void Read(void* ptr, size_t sz)
+    {
+        if (pos + sz > bufferSize)
+        {
+            memset(ptr, 0, sz);
+            return;
+        }
+        memcpy(ptr, &buffer[pos], sz);
+        pos += sz;
+    }
+    
+    uint8_t* buffer;
+    size_t pos;
+    size_t bufferSize;
+};
+
+const uint32_t kFileMagic = 'CBA0';
+
+bool SaveBuildEvents(BuildEventsParser* parser, const std::string& fileName)
+{
+    FILE* f = fopen(fileName.c_str(), "wb");
+    if (f == nullptr)
+    {
+        printf("%sERROR: failed to save to file '%s'%s\n", col::kRed, fileName.c_str(), col::kReset);
+        return false;
+    }
+    
+    BufferedWriter w(f);
+
+    w.Write(kFileMagic);
+    int64_t eventsCount = parser->resultEvents.size();
+    w.Write(eventsCount);
+    for(const auto& e : parser->resultEvents)
+    {
+        int32_t eType = (int32_t)e.type;
+        w.Write(eType);
+        w.Write(e.ts);
+        w.Write(e.dur);
+        w.Write(e.detailIndex.idx);
+        w.Write(e.parent.idx);
+        int64_t childCount = e.children.size();
+        w.Write(childCount);
+        w.Write(e.children.data(), childCount * sizeof(e.children[0]));
+    }
+
+    int64_t namesCount = parser->resultNames.size();
+    w.Write(namesCount);
+    for(const auto& n : parser->resultNames)
+    {
+        uint32_t nSize = (uint32_t)n.size();
+        w.Write(nSize);
+        w.Write(n.data(), nSize);
+    }
+
+    return true;
+}
+
+bool LoadBuildEvents(const std::string& fileName, BuildEvents& outEvents, BuildNames& outNames)
+{
+    FILE* f = fopen(fileName.c_str(), "rb");
+    if (f == nullptr)
+    {
+        printf("%sERROR: failed to open file '%s'%s\n", col::kRed, fileName.c_str(), col::kReset);
+        return false;
+    }
+    
+    BufferedReader r(f);
+    if (r.bufferSize < 12) // 4 bytes magic header, 8 bytes hash at end
+    {
+        printf("%sERROR: corrupt input file '%s' (size too small)%s\n", col::kRed, fileName.c_str(), col::kReset);
+        return false;
+    }
+    // check header magic
+    int32_t magic = 0;
+    r.Read(magic);
+    if (magic != kFileMagic)
+    {
+        printf("%sERROR: unknown format of input file '%s'%s\n", col::kRed, fileName.c_str(), col::kReset);
+        return false;
+    }
+    // chech hash checksum
+    XXH64_hash_t hash = XXH64(r.buffer, r.bufferSize-sizeof(XXH64_hash_t), 0);
+    if (memcmp(&hash, r.buffer+r.bufferSize-sizeof(XXH64_hash_t), sizeof(XXH64_hash_t)) != 0)
+    {
+        printf("%sERROR: corrupt input file '%s' (checksum mismatch)%s\n", col::kRed, fileName.c_str(), col::kReset);
+        return false;
+    }
+
+    int64_t eventsCount = 0;
+    r.Read(eventsCount);
+    outEvents.resize(eventsCount);
+    for(auto& e : outEvents)
+    {
+        int32_t eType;
+        r.Read(eType);
+        e.type = (BuildEventType)eType;
+        r.Read(e.ts);
+        r.Read(e.dur);
+        r.Read(e.detailIndex.idx);
+        r.Read(e.parent.idx);
+        int64_t childCount = 0;
+        r.Read(childCount);
+        e.children.resize(childCount);
+        if (childCount != 0)
+            r.Read(&e.children[0], childCount * sizeof(e.children[0]));
+    }
+
+    int64_t namesCount = 0;
+    r.Read(namesCount);
+    outNames.resize(namesCount);
+    for(auto& n : outNames)
+    {
+        uint32_t nSize = 0;
+        r.Read(nSize);
+        char* ptr = (char*)ArenaAllocate(nSize+1);
+        memset(ptr, 0, nSize+1);
+        n = std::string_view(ptr, nSize);
+        if (nSize != 0)
+            r.Read(ptr, nSize);
+    }
+
+    return true;
 }

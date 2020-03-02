@@ -6,15 +6,15 @@ struct IUnknown; // workaround for old Win SDK header failures when using /permi
 #endif
 
 #include "Analysis.h"
+#include "Arena.h"
 #include "Colors.h"
 #include "Utils.h"
-#include "external/llvm-Demangle/include/Demangle.h"
+#include "external/flat_hash_map/bytell_hash_map.hpp"
 #include "external/inih/cpp/INIReader.h"
-#include "external/cute_files.h"
 #include <algorithm>
 #include <assert.h>
 #include <string>
-#include <unordered_map>
+#include <string.h>
 #include <vector>
 
 struct Config
@@ -50,10 +50,8 @@ struct Analysis
     Analysis(const BuildEvents& events_, BuildNames& buildNames_, FILE* out_)
     : events(events_)
     , buildNames(buildNames_)
-    , buildNamesDone(buildNames_.size(), 0)
     , out(out_)
     {
-        buildNamesDone.resize(buildNames.size());
         functions.reserve(256);
         instantiations.reserve(256);
         parseFiles.reserve(64);
@@ -63,32 +61,13 @@ struct Analysis
 
     const BuildEvents& events;
     BuildNames& buildNames;
-    IndexedVector<char, DetailIndex> buildNamesDone;
 
     FILE* out;
 
-    const std::string& GetBuildName(DetailIndex index)
+    const std::string_view GetBuildName(DetailIndex index)
     {
-        auto& name = buildNames[index];
-        if (!buildNamesDone[index])
-        {
-            name = utils::GetNicePath(name);
-            // don't report the clang trace .json file, instead get the object file at the same location if it's there
-            if (utils::EndsWith(name, ".json"))
-            {
-                std::string candidate = name.substr(0, name.length()-4) + "o";
-                if (cf_file_exists(candidate.c_str()))
-                    name = candidate;
-                else
-                {
-                    candidate += "bj";
-                    if (cf_file_exists(candidate.c_str()))
-                        name = candidate;
-                }
-            }
-            buildNamesDone[index] = 1;
-        }
-        return name;
+        assert(index.idx >= 0 && index.idx < buildNames.size());
+        return buildNames[index];
     }
 
     void ProcessEvent(EventIndex eventIndex);
@@ -123,33 +102,33 @@ struct Analysis
         std::vector<IncludeChain> includePaths;
     };
 
-    std::unordered_map<DetailIndex, std::string> collapsedNames;
-    const std::string &GetCollapsedName(EventIndex idx);
+    ska::bytell_hash_map<DetailIndex, std::string_view> collapsedNames;
+    std::string_view GetCollapsedName(DetailIndex idx);
     void EmitCollapsedTemplates();
     void EmitCollapsedTemplateOpt();
     void EmitCollapsedInfo(
-        const std::unordered_map<std::string, InstantiateEntry> &collapsed,
+        const ska::bytell_hash_map<std::string_view, InstantiateEntry> &collapsed,
         const char *header_string);
 
     // key is (name,objfile), value is milliseconds
     typedef std::pair<DetailIndex, DetailIndex> IndexPair;
-    std::unordered_map<IndexPair, int64_t, pair_hash> functions;
-    std::unordered_map<EventIndex, InstantiateEntry> instantiations;
+    ska::bytell_hash_map<IndexPair, int64_t, pair_hash> functions;
+    ska::bytell_hash_map<EventIndex, InstantiateEntry> instantiations;
     std::vector<FileEntry> parseFiles;
     std::vector<FileEntry> codegenFiles;
     int64_t totalParseUs = 0;
     int64_t totalCodegenUs = 0;
     int totalParseCount = 0;
 
-    std::unordered_map<std::string, IncludeEntry> headerMap;
-    std::vector<std::pair<std::string, int64_t>> expensiveHeaders;
+    ska::bytell_hash_map<std::string_view, IncludeEntry> headerMap;
+    std::vector<std::pair<std::string_view, int64_t>> expensiveHeaders;
 
     Config config;
 };
 
 DetailIndex Analysis::FindPath(EventIndex eventIndex) const
 {
-    while(eventIndex >= EventIndex())
+    while(eventIndex > EventIndex())
     {
         const BuildEvent& ev = events[eventIndex];
         if (ev.type == BuildEventType::kCompiler || ev.type == BuildEventType::kFrontend || ev.type == BuildEventType::kBackend || ev.type == BuildEventType::kOptModule)
@@ -203,7 +182,7 @@ void Analysis::ProcessEvent(EventIndex eventIndex)
     }
     if (event.type == BuildEventType::kParseFile)
     {
-        std::string path = GetBuildName(event.detailIndex);
+        std::string_view path = GetBuildName(event.detailIndex);
         if (utils::IsHeader(path))
         {
             IncludeEntry& e = headerMap[path];
@@ -221,7 +200,7 @@ void Analysis::ProcessEvent(EventIndex eventIndex)
                 const BuildEvent& ev2 = events[parseIndex];
                 if (ev2.type != BuildEventType::kParseFile)
                     break;
-                std::string ev2path = GetBuildName(ev2.detailIndex);
+                std::string_view ev2path = GetBuildName(ev2.detailIndex);
                 chain.files.push_back(ev2.detailIndex);
                 bool isHeader = utils::IsHeader(ev2path);
                 hasHeaderBefore |= isHeader;
@@ -239,11 +218,12 @@ void Analysis::ProcessEvent(EventIndex eventIndex)
     }
 }
 
-std::string collapseName(const std::string &elt)
+static std::string_view CollapseName(const std::string_view& elt)
 {
     // Parsing op<, op<<, op>, and op>> seems hard.  Just skip'm all
     if (elt.find("operator") != std::string::npos)
         return elt;
+
     std::string retval;
     retval.reserve(elt.size());
     auto b_range = elt.begin();
@@ -286,20 +266,23 @@ std::string collapseName(const std::string &elt)
     }
     // append the footer
     retval.append(b_range, e_range);
-    return retval;
+    
+    size_t size = retval.size();
+    char* ptr = (char*)ArenaAllocate(size+1);
+    memcpy(ptr, retval.c_str(), size+1);
+    return std::string_view(ptr, size);
 }
 
-const std::string &Analysis::GetCollapsedName(EventIndex idx)
+std::string_view Analysis::GetCollapsedName(DetailIndex detail)
 {
-    DetailIndex detail = events[idx].detailIndex;
-    std::string &name = collapsedNames[detail];
-    if(name.empty())
-        name = collapseName(GetBuildName(detail));
+    std::string_view& name = collapsedNames[detail];
+    if (name.empty())
+        name = CollapseName(GetBuildName(detail));
     return name;
 }
 
 void Analysis::EmitCollapsedInfo(
-    const std::unordered_map<std::string, InstantiateEntry> &collapsed,
+    const ska::bytell_hash_map<std::string_view, InstantiateEntry> &collapsed,
     const char *header_string)
 {
     std::vector<std::pair<std::string, InstantiateEntry>> sorted_collapsed;
@@ -326,10 +309,10 @@ void Analysis::EmitCollapsedInfo(
 }
 void Analysis::EmitCollapsedTemplates()
 {
-    std::unordered_map<std::string, InstantiateEntry> collapsed;
+    ska::bytell_hash_map<std::string_view, InstantiateEntry> collapsed;
     for (const auto& inst : instantiations)
     {
-        const std::string &name = GetCollapsedName(inst.first);
+        const std::string_view name = GetCollapsedName(events[inst.first].detailIndex);
         auto &stats = collapsed[name];
 
         bool recursive = false;
@@ -339,7 +322,7 @@ void Analysis::EmitCollapsedTemplates()
             auto &event = events[p];
             if (event.type == BuildEventType::kInstantiateClass || event.type == BuildEventType::kInstantiateFunction)
             {
-                const std::string &ancestor_name = GetCollapsedName(p);
+                const std::string_view ancestor_name = GetCollapsedName(event.detailIndex);
                 if (ancestor_name == name)
                 {
                     recursive = true;
@@ -359,10 +342,16 @@ void Analysis::EmitCollapsedTemplates()
 
 void Analysis::EmitCollapsedTemplateOpt()
 {
-    std::unordered_map<std::string, InstantiateEntry> collapsed;
+    ska::bytell_hash_map<std::string_view, InstantiateEntry> collapsed;
     for (const auto& fn : functions)
     {
-        auto &stats = collapsed[collapseName(llvm::demangle(GetBuildName(fn.first.first)))];
+        auto fnNameIndex = fn.first.first;
+        const std::string_view fnName = GetBuildName(fnNameIndex);
+        // if we're not related to templates at all, skip
+        if (fnName.find('<') == std::string::npos)
+            continue;
+
+        auto &stats = collapsed[GetCollapsedName(fnNameIndex)];
         ++stats.count;
         stats.us += fn.second;
     }
@@ -397,7 +386,7 @@ void Analysis::EndAnalysis()
         for (size_t i = 0, n = std::min<size_t>(config.fileParseCount, indices.size()); i != n; ++i)
         {
             const auto& e = parseFiles[indices[i]];
-            fprintf(out, "%s%6i%s ms: %s\n", col::kBold, int(e.us/1000), col::kReset, GetBuildName(e.file).c_str());
+            fprintf(out, "%s%6i%s ms: %s\n", col::kBold, int(e.us/1000), col::kReset, GetBuildName(e.file).data());
         }
         fprintf(out, "\n");
     }
@@ -418,7 +407,7 @@ void Analysis::EndAnalysis()
         for (size_t i = 0, n = std::min<size_t>(config.fileCodegenCount, indices.size()); i != n; ++i)
         {
             const auto& e = codegenFiles[indices[i]];
-            fprintf(out, "%s%6i%s ms: %s\n", col::kBold, int(e.us/1000), col::kReset, GetBuildName(e.file).c_str());
+            fprintf(out, "%s%6i%s ms: %s\n", col::kBold, int(e.us/1000), col::kReset, GetBuildName(e.file).data());
         }
         fprintf(out, "\n");
     }
@@ -445,11 +434,11 @@ void Analysis::EndAnalysis()
         for (size_t i = 0; i != n; ++i)
         {
             const auto& e = instArray[i];
-            std::string dname = llvm::demangle(GetBuildName(e.first));
+            std::string dname = std::string(GetBuildName(e.first));
             if (dname.size() > config.maxName)
                 dname = dname.substr(0, config.maxName-2) + "...";
             int ms = int(e.second.us / 1000);
-            int avg = int(ms / e.second.count);
+            int avg = int(ms / std::max(e.second.count,1));
             fprintf(out, "%s%6i%s ms: %s (%i times, avg %i ms)\n", col::kBold, ms, col::kReset, dname.c_str(), e.second.count, avg);
         }
         fprintf(out, "\n");
@@ -480,11 +469,11 @@ void Analysis::EndAnalysis()
         for (size_t i = 0, n = std::min<size_t>(config.functionCount, indices.size()); i != n; ++i)
         {
             const auto& e = functionsArray[indices[i]];
-            std::string dname = llvm::demangle(GetBuildName(e.first.first));
+            std::string dname = std::string(GetBuildName(e.first.first));
             if (dname.size() > config.maxName)
                 dname = dname.substr(0, config.maxName-2) + "...";
             int ms = int(e.second / 1000);
-            fprintf(out, "%s%6i%s ms: %s (%s)\n", col::kBold, ms, col::kReset, dname.c_str(), GetBuildName(e.first.second).c_str());
+            fprintf(out, "%s%6i%s ms: %s (%s)\n", col::kBold, ms, col::kReset, dname.c_str(), GetBuildName(e.first.second).data());
         }
         fprintf(out, "\n");
         EmitCollapsedTemplateOpt();
@@ -500,7 +489,7 @@ void Analysis::EndAnalysis()
             const auto& es = headerMap[e.first];
             int ms = int(e.second / 1000);
             int avg = ms / es.count;
-            fprintf(out, "%s%i%s ms: %s%s%s (included %i times, avg %i ms), included via:\n", col::kBold, ms, col::kReset, col::kBold, e.first.c_str(), col::kReset, es.count, avg);
+            fprintf(out, "%s%i%s ms: %s%s%s (included %i times, avg %i ms), included via:\n", col::kBold, ms, col::kReset, col::kBold, e.first.data(), col::kReset, es.count, avg);
             int pathCount = 0;
 
             auto sortedIncludeChains = es.includePaths;
@@ -516,7 +505,7 @@ void Analysis::EndAnalysis()
                 fprintf(out, "  ");
                 for (auto it = chain.files.rbegin(), itEnd = chain.files.rend(); it != itEnd; ++it)
                 {
-                    fprintf(out, "%s ", utils::GetFilename(GetBuildName(*it)).c_str());
+                    fprintf(out, "%s ", utils::GetFilename(GetBuildName(*it)).data());
                 }
                 fprintf(out, " (%i ms)\n", int(chain.us/1000));
                 ++pathCount;

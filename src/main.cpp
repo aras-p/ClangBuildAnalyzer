@@ -1,6 +1,7 @@
 // Clang Build Analyzer https://github.com/aras-p/ClangBuildAnalyzer
 // SPDX-License-Identifier: Unlicense
 #include "Analysis.h"
+#include "Arena.h"
 #include "BuildEvents.h"
 #include "Colors.h"
 #include "Utils.h"
@@ -8,34 +9,31 @@
 #include <stdio.h>
 #include <string>
 #include <time.h>
-#include <map>
 #include <algorithm>
+#include <set>
 
 #ifdef _MSC_VER
 struct IUnknown; // workaround for old Win SDK header failures when using /permissive-
-#define ftello64 _ftelli64
-#elif defined(__APPLE__)
-#define ftello64 ftello
 #endif
 
+#include "external/enkiTS/TaskScheduler.h"
 #define SOKOL_IMPL
 #include "external/sokol_time.h"
 #define CUTE_FILES_IMPLEMENTATION
 #include "external/cute_files.h"
 
-static std::string ReadFileToString(const std::string& path)
+static void ReadFileToString(const std::string& path, std::string& str)
 {
+    str.resize(0);
     FILE* f = fopen(path.c_str(), "rb");
     if (!f)
-        return "";
+        return;
     fseek(f, 0, SEEK_END);
     size_t fsize = ftello64(f);
     fseek(f, 0, SEEK_SET);
-    std::string str;
     str.resize(fsize);
     fread(&str[0], 1, fsize, f);
     fclose(f);
-    return str;
 }
 
 static bool CompareIgnoreNewlines(const std::string& a, const std::string& b)
@@ -110,10 +108,14 @@ static time_t FiletimeToTime(const FILETIME& ft)
 
 struct JsonFileFinder
 {
+    JsonFileFinder()
+    {
+    }
+
     time_t startTime;
     time_t endTime;
-    std::map<std::string, std::string> files; // have it sorted by path
-
+    std::vector<std::string> files;
+    
     void OnFile(cf_file_t* f)
     {
         // extension has to be json
@@ -134,31 +136,10 @@ struct JsonFileFinder
 
         if (fileModTime < startTime || fileModTime > endTime)
             return;
-
-        // read the file
-        std::string str = ReadFileToString(f->path);
-        if (str.empty())
-        {
-            printf("%s  WARN: could not read file '%s'.%s\n", col::kYellow, f->path, col::kReset);
-            return;
-        }
-
-        // there might be non-clang time trace json files around;
-        // the clang ones should have this inside them
-        const char* clangMarker = "{\"cat\":\"\",\"pid\":1,\"tid\":0,\"ts\":0,\"ph\":\"M\",\"name\":\"process_name\",\"args\":{\"name\":\"clang";
-        if (strstr(str.c_str(), clangMarker) == NULL)
-            return;
-
-        // do not grab our own merged json file!
-        const char* analyzerMarker = "{\"ClangBuildAnalyzerMarker\":\"BigJsonFile\",";
-        if (strstr(str.c_str(), analyzerMarker) != NULL)
-            return;
-
-        // replace backslash with forward slash to avoid json errors on Windows
+        
         std::string path = f->path;
-        std::replace(path.begin(), path.end(), '\\', '/');
-        files.insert(std::make_pair(path, str));
-        //printf("    debug: reading %s\n", f->path);
+        std::replace(path.begin(), path.end(), '\\', '/'); // replace path to forward slashes
+        files.emplace_back(path);
     }
 
     static void Callback(cf_file_t* f, void* userData)
@@ -199,52 +180,50 @@ static int RunStop(int argc, const char* argv[])
 #endif
     fclose(fsession);
 
+    // find .json files with modification times in our interval
     JsonFileFinder jsonFiles;
     jsonFiles.startTime = startTime;
     jsonFiles.endTime = stopTime;
     cf_traverse(artifactsDir.c_str(), JsonFileFinder::Callback, &jsonFiles);
-
     if (jsonFiles.files.empty())
+    {
+        printf("%sERROR: no .json files found under '%s'.%s\n", col::kRed, artifactsDir.c_str(), col::kReset);
+        return 1;
+    }
+    // sort input filenames so that runs are deterministic on different file systems
+    // with the same input data
+    std::sort(jsonFiles.files.begin(), jsonFiles.files.end());
+
+    // parse the json files into our data structures (in parallel)
+    BuildEventsParser* parser = CreateBuildEventsParser();
+    std::atomic<int> fileCount = 0;
+    {
+        enki::TaskScheduler ts;
+        ts.Initialize(std::min(std::thread::hardware_concurrency(), (uint32_t)jsonFiles.files.size()));
+        enki::TaskSet task((uint32_t)jsonFiles.files.size(), [&](enki::TaskSetPartition range, uint32_t threadnum)
+        {
+            for (auto idx = range.start; idx < range.end; ++idx)
+            {
+                if (ParseBuildEvents(parser, jsonFiles.files[idx]))
+                    fileCount++;
+            }
+        });
+        ts.AddTaskSetToPipe(&task);
+        ts.WaitforTask(&task);
+    }
+    if (fileCount == 0)
     {
         printf("%sERROR: no clang -ftime-trace .json files found under '%s'.%s\n", col::kRed, artifactsDir.c_str(), col::kReset);
         return 1;
     }
 
-    // create a big json file out of all the found ones
-    std::string bigJson;
-    bigJson.reserve(4*1024*1024);
-    bigJson += "{\"ClangBuildAnalyzerMarker\":\"BigJsonFile\",\n";
-    bigJson += "\"files\":{\n";
-    size_t jsonIndex = 0;
-    for (const auto& kvp : jsonFiles.files)
-    {
-        bigJson += "\"";
-        bigJson += kvp.first;
-        bigJson += "\":\n";
-        bigJson += kvp.second;
-        if (jsonIndex != jsonFiles.files.size()-1)
-            bigJson += ",";
-        bigJson += "\n";
-        ++jsonIndex;
-    }
-    bigJson += "\n}}\n";
-
-    FILE* fout = fopen(outFile.c_str(), "wb");
-    if (!fout)
-    {
-        printf("%sERROR: failed to write result file '%s'.%s\n", col::kRed, outFile.c_str(), col::kReset);
+    // create the data file
+    if (!SaveBuildEvents(parser, outFile))
         return 1;
-    }
-    const size_t numBytesWritten = fwrite(bigJson.data(), 1, bigJson.size(), fout);
-    if (numBytesWritten != bigJson.size())
-    {
-        printf("%sERROR: failed to write result file '%s', %zu of %zu bytes written.%s\n",
-            col::kRed, outFile.c_str(), numBytesWritten, bigJson.size(), col::kReset);
-        fclose(fout);
-        return 1;
-    }
-    fclose(fout);
-
+    
+    DeleteBuildEventsParser(parser);
+    jsonFiles.files.clear();
+    
     double tDuration = stm_sec(stm_since(tStart));
     printf("%s  done in %.1fs. Run 'ClangBuildAnalyzer --analyze %s' to analyze it.%s\n", col::kYellow, tDuration, outFile.c_str(), col::kReset);
 
@@ -265,19 +244,11 @@ static int RunAnalyze(int argc, const char* argv[], FILE* out)
     std::string inFile = argv[2];
     printf("%sAnalyzing build trace from '%s'...%s\n", col::kYellow, inFile.c_str(), col::kReset);
 
-    // read file
-    std::string inFileStr = ReadFileToString(inFile);
-    if (inFileStr.empty())
-    {
-        printf("%sERROR: failed to open file '%s'.%s\n", col::kRed, inFile.c_str(), col::kReset);
-        return 1;
-    }
-
+    // load data dump file
     BuildEvents events;
     BuildNames names;
-    events.reserve(2048);
-    names.reserve(2048);
-    ParseBuildEvents(inFileStr, events, names);
+    if (!LoadBuildEvents(inFile, events, names))
+        return 1;
     if (events.empty())
     {
         printf("%s  no trace events found.%s\n", col::kYellow, col::kReset);
@@ -295,8 +266,7 @@ static int RunAnalyze(int argc, const char* argv[], FILE* out)
 static int RunOneTest(const std::string& folder)
 {
     printf("%sRunning test '%s'...%s\n", col::kYellow, folder.c_str(), col::kReset);
-    std::string traceFile = folder + "/_TraceOutput.json";
-    std::string traceExpFile = folder + "/_TraceOutputExpected.json";
+    std::string traceFile = folder + "/_TraceOutput.bin";
     const char* kStopArgs[] =
     {
         "",
@@ -306,14 +276,6 @@ static int RunOneTest(const std::string& folder)
     };
     if (RunStop(4, kStopArgs) != 0)
         return false;
-
-    std::string gotTrace = ReadFileToString(traceFile);
-    std::string expTrace = ReadFileToString(traceExpFile);
-    if (!CompareIgnoreNewlines(gotTrace, expTrace))
-    {
-        printf("%sTrace json file (%s) and expected json file (%s) do not match%s\n", col::kRed, traceFile.c_str(), traceExpFile.c_str(), col::kReset);
-        return false;
-    }
 
     std::string analyzeFile = folder + "/_AnalysisOutput.txt";
     std::string analyzeExpFile = folder + "/_AnalysisOutputExpected.txt";
@@ -336,8 +298,9 @@ static int RunOneTest(const std::string& folder)
     if (analysisResult != 0)
         return false;
 
-    std::string gotAnalysis = ReadFileToString(analyzeFile);
-    std::string expAnalysis = ReadFileToString(analyzeExpFile);
+    std::string gotAnalysis, expAnalysis;
+    ReadFileToString(analyzeFile, gotAnalysis);
+    ReadFileToString(analyzeExpFile, expAnalysis);
     if (!CompareIgnoreNewlines(gotAnalysis, expAnalysis))
     {
         printf("%sAnalysis output (%s) and expected output (%s) do not match%s\n", col::kRed, analyzeFile.c_str(), analyzeExpFile.c_str(), col::kReset);
@@ -415,7 +378,9 @@ int main(int argc, const char* argv[])
         return 1;
     }
 
+    ArenaInitialize();
     int retCode = ProcessCommands(argc, argv);
+    ArenaDelete();
 
     return retCode;
 }

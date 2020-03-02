@@ -21,9 +21,9 @@ reports from multiple compilations, and output "what took the most time" summary
 1. **Do your build**. Does not matter how; an IDE build, a makefile, a shell script, whatever. As long as it invokes
    Clang and passes `-ftime-trace` flag to the compiler (**Clang 9.0 or later is required** for this).
 1. **Stop the build capture**: `ClangBuildAnalyzer --stop <artifacts_folder> <capture_file>`<br/>
-   This will find all Clang time trace compatible `*.json` files under the given `artifacts_folder` that were modified after
-   `--start` step was done (Clang `-ftime-trace` produces one JSON file next to each object file), and smashes them together into
-   one big `capture_file`.
+   This will load all Clang time trace compatible `*.json` files under the given `artifacts_folder` that were modified after
+   `--start` step was done (Clang `-ftime-trace` produces one JSON file next to each object file), process them and store data file into
+   a binary `capture_file`.
 1. **Run the build analysis**: `ClangBuildAnalyzer --analyze <capture_file>`<br/>
    This will read the `capture_file` produced by `--stop` step, calculate the slowest things and print them. If a
    `ClangBuildAnalyzer.ini` file exists in the current folder, it will be read to control how many of various things to print.
@@ -34,7 +34,7 @@ reports from multiple compilations, and output "what took the most time" summary
 The analysis output will look something like this:
 
 ```
-Analyzing build trace from 'artifacts/FullCapture.json'...
+Analyzing build trace from 'artifacts/FullCapture.bin'...
 **** Time summary:
 Compilation (1761 times):
   Parsing (frontend):         5167.4 s
@@ -92,18 +92,16 @@ Granularity and amount of most expensive things (files, functions, templates, in
 
 ### Building it
 
-* Windows: Visual Studio 2017 solution at `projects/vs2017/ClangBuildAnalyzer.sln`.
-* Mac: Xcode 9.x project at `projects/xcode/ClangBuildAnalyzer.xcodeproj`.
-* Linux: Makefile for gcc (tested with 5.4), build with `make -f projects/make/Makefile`.
+* Windows: Visual Studio 2019 solution at `projects/vs2019/ClangBuildAnalyzer.sln`.
+* Mac: Xcode 10.x project at `projects/xcode/ClangBuildAnalyzer.xcodeproj`.
+* Linux: Makefile for gcc (tested with 7.4), build with `make -f projects/make/Makefile`.
 * You can also use provided `CMakeLists.txt`, if you want to build using `CMake`.
 
 ### Limitations
 
-* Does not capture anything related to linking (or LTO, I guess) right now.
-* I haven't tried running it on _huge_ builds; largest I ran was several thousand compiler invocations; and
-  the analysis step runs in about 10 seconds on that. I haven't tried on something ginormous like a Chrome build;
-  I expect some of my lazy code might not scale to that (I do have one `O(N^2)` place... yeah yeah, I know, shame on
-  me).
+* Does not capture anything related to linking or LTO right now.
+* May or might no scale to _huge_ builds (I haven't tried on something ginormous like a Chrome
+  build). However I have tried it on Unity editor build and it was not terrible.
 
 
 ### License
@@ -112,7 +110,10 @@ License for the Clang Build Analyzer itself is [Unlicense](https://unlicense.org
 includes several external library source files (all under `src/external`), each with their own license:
 
 * `cute_files.h` from [RandyGaul/cute_headers](https://github.com/RandyGaul/cute_headers): zlib or public domain,
+* `enkiTS`, from [dougbinks/enkiTS](https://github.com/dougbinks/enkiTS): zlib,
+* `flat_hash_map`, from [skarupke/flat_hash_map](https://github.com/skarupke/flat_hash_map): Boost 1.0,
 * `inih`, from [benhoyt/inih](https://github.com/benhoyt/inih): BSD 3 clause,
 * `llvm-Demangle`, part of [LLVM](https://llvm.org/): Apache-2.0 with LLVM-exception,
-* `sajson.h` from [chadaustin/sajson](https://github.com/chadaustin/sajson): MIT,
-* `sokol_time.h` from [floooh/sokol](https://github.com/floooh/sokol): zlib/libpng.
+* `simdjson` from [lemire/simdjson](https://github.com/lemire/simdjson): Apache-2.0,
+* `sokol_time.h` from [floooh/sokol](https://github.com/floooh/sokol): zlib/libpng,
+* `xxHash` from [Cyan4973/xxHash](https://github.com/Cyan4973/xxHash): BSD 2 clause.

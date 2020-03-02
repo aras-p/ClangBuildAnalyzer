@@ -3,8 +3,17 @@
 #pragma once
 #include <stdint.h>
 #include <string>
+#include <string_view>
 #include <vector>
 #include <utility>
+
+
+#ifdef _MSC_VER
+#define ftello64 _ftelli64
+#elif defined(__APPLE__)
+#define ftello64 ftello
+#endif
+
 
 enum class BuildEventType
 {
@@ -80,7 +89,16 @@ struct IndexedVector : std::vector<T>
     typename std::vector<T>::reference       operator[](Idx pos) { return this->begin()[pos.idx]; }
     typename std::vector<T>::const_reference operator[](Idx pos) const { return this->begin()[pos.idx]; }
 };
-typedef IndexedVector<std::string, DetailIndex> BuildNames;
+typedef IndexedVector<std::string_view, DetailIndex> BuildNames;
 typedef IndexedVector<BuildEvent, EventIndex> BuildEvents;
 
-void ParseBuildEvents(std::string& jsonText, BuildEvents& outEvents, BuildNames& outNames);
+struct BuildEventsParser;
+BuildEventsParser* CreateBuildEventsParser();
+void DeleteBuildEventsParser(BuildEventsParser* parser);
+
+// NOTE: can be called in parallel
+bool ParseBuildEvents(BuildEventsParser* parser, const std::string& fileName);
+
+bool SaveBuildEvents(BuildEventsParser* parser, const std::string& fileName);
+
+bool LoadBuildEvents(const std::string& fileName, BuildEvents& outEvents, BuildNames& outNames);
