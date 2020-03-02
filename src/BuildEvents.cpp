@@ -401,11 +401,14 @@ struct BufferedWriter
     : file(f)
     , size(0)
     {
-        
+        hasher = XXH64_createState();
+        XXH64_reset(hasher, 0);
     }
     ~BufferedWriter()
     {
         Flush();
+        XXH64_hash_t hash = XXH64_digest(hasher);
+        fwrite(&hash, sizeof(hash), 1, file);
         fclose(file);
     }
     
@@ -430,6 +433,7 @@ struct BufferedWriter
     void Flush()
     {
         fwrite(buffer, size, 1, file);
+        XXH64_update(hasher, buffer, size);
         size = 0;
     }
     
@@ -437,6 +441,7 @@ struct BufferedWriter
     uint8_t buffer[kBufferSize];
     size_t size;
     FILE* file;
+    XXH64_state_t* hasher;
 };
 
 struct BufferedReader
@@ -477,6 +482,8 @@ struct BufferedReader
     size_t bufferSize;
 };
 
+const uint32_t kFileMagic = 'CBA0';
+
 bool SaveBuildEvents(BuildEventsParser* parser, const std::string& fileName)
 {
     FILE* f = fopen(fileName.c_str(), "wb");
@@ -488,6 +495,7 @@ bool SaveBuildEvents(BuildEventsParser* parser, const std::string& fileName)
     
     BufferedWriter w(f);
 
+    w.Write(kFileMagic);
     int64_t eventsCount = parser->resultEvents.size();
     w.Write(eventsCount);
     for(const auto& e : parser->resultEvents)
@@ -525,7 +533,27 @@ bool LoadBuildEvents(const std::string& fileName, BuildEvents& outEvents, BuildN
     }
     
     BufferedReader r(f);
-    
+    if (r.bufferSize < 12) // 4 bytes magic header, 8 bytes hash at end
+    {
+        printf("%sERROR: corrupt input file '%s' (size too small)%s\n", col::kRed, fileName.c_str(), col::kReset);
+        return false;
+    }
+    // check header magic
+    int32_t magic = 0;
+    r.Read(magic);
+    if (magic != kFileMagic)
+    {
+        printf("%sERROR: unknown format of input file '%s'%s\n", col::kRed, fileName.c_str(), col::kReset);
+        return false;
+    }
+    // chech hash checksum
+    XXH64_hash_t hash = XXH64(r.buffer, r.bufferSize-sizeof(XXH64_hash_t), 0);
+    if (memcmp(&hash, r.buffer+r.bufferSize-sizeof(XXH64_hash_t), sizeof(XXH64_hash_t)) != 0)
+    {
+        printf("%sERROR: corrupt input file '%s' (checksum mismatch)%s\n", col::kRed, fileName.c_str(), col::kReset);
+        return false;
+    }
+
     int64_t eventsCount = 0;
     r.Read(eventsCount);
     outEvents.resize(eventsCount);
