@@ -459,6 +459,12 @@ struct BufferedWriter
     {
         if (sz >= kBufferSize)
         {
+            if( size > 0 )
+            {
+                Flush();
+            }
+
+            XXH64_update(hasher, ptr, sz);
             fwrite(ptr, sz, 1, file);
             return;
         }
