@@ -1,0 +1,114 @@
+**** Time summary:
+Compilation (2 times):
+  Parsing (frontend):            0.4 s
+  Codegen & opts (backend):      0.0 s
+
+**** Files that took longest to parse (compiler frontend):
+   367 ms: tests/verylong-symbol-name-38/test.json
+    34 ms: tests/verylong-symbol-name-38/test.json
+
+**** Files that took longest to codegen (compiler backend):
+    23 ms: tests/verylong-symbol-name-38/test.json
+
+**** Templates that took longest to instantiate:
+    73 ms: std::_Tree<std::_Tmap_traits<std::map<std::map<std::map<std::vector<... (1 times, avg 73 ms)
+    51 ms: std::_Tree_val<std::_Tree_simple_types<std::pair<const std::map<std:... (1 times, avg 51 ms)
+    38 ms: std::_Tree_node<std::pair<const std::map<std::map<std::map<std::vect... (1 times, avg 38 ms)
+    31 ms: std::map<std::map<std::map<std::map<std::vector<std::basic_string<ch... (1 times, avg 31 ms)
+    29 ms: std::_Tree<std::_Tmap_traits<std::map<std::map<std::map<std::vector<... (1 times, avg 29 ms)
+    28 ms: std::_Default_allocator_traits<std::allocator<std::_Tree_node<std::p... (1 times, avg 28 ms)
+    26 ms: std::_Tree<std::_Tmap_traits<std::map<std::map<std::vector<std::basi... (1 times, avg 26 ms)
+    23 ms: std::_Tree_val<std::_Tree_simple_types<std::pair<const std::map<std:... (1 times, avg 23 ms)
+    15 ms: std::_Tree_val<std::_Tree_simple_types<std::pair<const std::map<std:... (1 times, avg 15 ms)
+    12 ms: std::_Tree_node<std::pair<const std::map<std::map<std::vector<std::b... (1 times, avg 12 ms)
+    11 ms: std::_Default_allocator_traits<std::allocator<std::_Tree_node<std::p... (1 times, avg 11 ms)
+    11 ms: std::_Tree<std::_Tmap_traits<std::map<std::vector<std::basic_string<... (1 times, avg 11 ms)
+    10 ms: std::_Tree_val<std::_Tree_simple_types<std::pair<const std::map<std:... (1 times, avg 10 ms)
+    10 ms: std::_Tree_node<std::pair<const std::map<std::map<std::map<std::vect... (1 times, avg 10 ms)
+     9 ms: std::pair<const std::map<std::map<std::map<std::vector<std::basic_st... (1 times, avg 9 ms)
+     8 ms: std::map<std::map<std::map<std::vector<std::basic_string<char, std::... (1 times, avg 8 ms)
+     7 ms: std::_Tree<std::_Tmap_traits<std::map<std::map<std::vector<std::basi... (1 times, avg 7 ms)
+     6 ms: std::_Tree_val<std::_Tree_simple_types<std::pair<const std::map<std:... (1 times, avg 6 ms)
+     5 ms: std::basic_string<char, std::char_traits<char>, std::allocator<char>... (3 times, avg 1 ms)
+     5 ms: std::_Tree_node<std::pair<const std::map<std::vector<std::basic_stri... (1 times, avg 5 ms)
+     5 ms: std::conjunction<std::is_nothrow_move_constructible<std::_Tree_node<... (1 times, avg 5 ms)
+     5 ms: std::_Tree_node<std::pair<const std::map<std::map<std::vector<std::b... (1 times, avg 5 ms)
+     4 ms: std::allocator_traits<std::allocator<std::_Tree_node<std::pair<const... (1 times, avg 4 ms)
+     4 ms: std::allocator_traits<std::allocator<std::pair<const std::map<std::m... (1 times, avg 4 ms)
+     4 ms: std::_Default_allocator_traits<std::allocator<std::_Tree_node<std::p... (1 times, avg 4 ms)
+     4 ms: std::pair<const std::map<std::map<std::vector<std::basic_string<char... (1 times, avg 4 ms)
+     4 ms: std::_Tree<std::_Tmap_traits<std::vector<std::basic_string<char, std... (1 times, avg 4 ms)
+     4 ms: std::_Tree<std::_Tmap_traits<std::map<std::map<std::map<std::vector<... (2 times, avg 2 ms)
+     4 ms: std::_Tree_node<std::pair<const std::map<std::map<std::map<std::vect... (1 times, avg 4 ms)
+     4 ms: std::_Tree_val<std::_Tree_simple_types<std::pair<const std::vector<s... (1 times, avg 4 ms)
+
+**** Template sets that took longest to instantiate:
+    73 ms: std::_Tree<$>::clear (1 times, avg 73 ms)
+    51 ms: std::_Tree_val<$>::_Erase_tree<$> (1 times, avg 51 ms)
+    47 ms: std::map<$> (4 times, avg 11 ms)
+    43 ms: std::_Tree<$> (4 times, avg 10 ms)
+    38 ms: std::_Tree_node<$>::_Freenode<$> (1 times, avg 38 ms)
+    28 ms: std::_Default_allocator_traits<$>::destroy<$> (1 times, avg 28 ms)
+    26 ms: std::_Tree<$>::~_Tree (1 times, avg 26 ms)
+    23 ms: std::_Tree_val<$>::_Erase_head<$> (1 times, avg 23 ms)
+    20 ms: std::_Tree_node<$> (4 times, avg 5 ms)
+    19 ms: std::pair<$> (4 times, avg 4 ms)
+    15 ms: std::basic_string<$>::basic_string (10 times, avg 1 ms)
+    12 ms: std::allocator_traits<$> (4 times, avg 3 ms)
+     9 ms: std::_Integral_to_string<$> (4 times, avg 2 ms)
+     9 ms: std::basic_string<$>::assign (6 times, avg 1 ms)
+     7 ms: std::basic_string<$> (4 times, avg 1 ms)
+     6 ms: std::conjunction<$> (2 times, avg 3 ms)
+     6 ms: std::_Tree_node<$>::_Freenode0<$> (3 times, avg 2 ms)
+     5 ms: std::basic_string<$>::_Reallocate_for<$> (4 times, avg 1 ms)
+     5 ms: std::_Tree<$>::_Get_scary (3 times, avg 1 ms)
+     4 ms: std::_Tree<$>::_Getal (2 times, avg 2 ms)
+     4 ms: std::_Compressed_pair<$> (2 times, avg 2 ms)
+     4 ms: std::disjunction<$> (6 times, avg 0 ms)
+     3 ms: std::_Tree<$>::size (1 times, avg 3 ms)
+     3 ms: std::_Disjunction<$> (6 times, avg 0 ms)
+     3 ms: std::_UIntegral_to_buff<$> (3 times, avg 1 ms)
+     3 ms: std::_Conjunction<$> (2 times, avg 1 ms)
+     2 ms: std::_Is_default_allocator<$> (2 times, avg 1 ms)
+     2 ms: std::basic_string<$>::basic_string<$> (2 times, avg 1 ms)
+     1 ms: std::addressof<$> (3 times, avg 0 ms)
+     1 ms: std::_Tree_val<$> (1 times, avg 1 ms)
+
+**** Functions that took longest to compile:
+     1 ms: ??@6f2d9f898f162a279d5c67be9ca9f814@ (test.cpp)
+     0 ms: void __cdecl std::_Deallocate<16, 0>(void *, unsigned __int64) (test.cpp)
+
+**** Function sets that took longest to compile / optimize:
+     0 ms: void __cdecl std::_Deallocate<$>(void *, unsigned __int64) (1 times, avg 0 ms)
+
+*** Expensive headers:
+29 ms: C:/Program Files (x86)/Windows Kits/10/Include/10.0.17763.0/ucrt/stdio.h (included 1 times, avg 29 ms), included via:
+  string xstring iosfwd cstdio  (29 ms)
+
+14 ms: C:/Program Files (x86)/Windows Kits/10/Include/10.0.17763.0/ucrt/wchar.h (included 1 times, avg 14 ms), included via:
+  string xstring iosfwd cwchar  (14 ms)
+
+10 ms: C:/Program Files (x86)/Windows Kits/10/Include/10.0.17763.0/ucrt/string.h (included 1 times, avg 10 ms), included via:
+  string xstring iosfwd cstring  (10 ms)
+
+9 ms: C:/Program Files (x86)/Windows Kits/10/Include/10.0.17763.0/ucrt/stdlib.h (included 1 times, avg 9 ms), included via:
+  string xstring iosfwd xstddef cstdlib  (9 ms)
+
+7 ms: C:/Program Files (x86)/Windows Kits/10/Include/10.0.17763.0/ucrt/math.h (included 1 times, avg 7 ms), included via:
+  string xstring iosfwd xstddef cstdlib  (7 ms)
+
+6 ms: C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/VC/Tools/MSVC/14.25.28610/include/yvals_core.h (included 1 times, avg 6 ms), included via:
+  string  (6 ms)
+
+4 ms: C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/VC/Tools/MSVC/14.25.28610/include/yvals.h (included 1 times, avg 4 ms), included via:
+  string xstring iosfwd  (4 ms)
+
+1 ms: C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/VC/Tools/MSVC/14.25.28610/include/vcruntime_exception.h (included 1 times, avg 1 ms), included via:
+  string xstring xmemory new exception  (1 ms)
+
+1 ms: C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/VC/Tools/MSVC/14.25.28610/include/xatomic.h (included 1 times, avg 1 ms), included via:
+  string xstring xmemory  (1 ms)
+
+1 ms: C:/Program Files (x86)/Windows Kits/10/Include/10.0.17763.0/ucrt/ctype.h (included 1 times, avg 1 ms), included via:
+  string cctype  (1 ms)
+
