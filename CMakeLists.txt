@@ -1,8 +1,7 @@
 cmake_minimum_required(VERSION 3.5.1)
 project(ClangBuildAnalyzer)
 
-add_executable(ClangBuildAnalyzer)
-target_sources(ClangBuildAnalyzer PRIVATE
+set(SRC
 # C sources
     "src/external/inih/ini.c"
     "src/external/xxHash/xxhash.c"
@@ -21,5 +20,6 @@ target_sources(ClangBuildAnalyzer PRIVATE
     "src/external/llvm-Demangle/lib/MicrosoftDemangleNodes.cpp"
     "src/external/simdjson/simdjson.cpp"
 )
+add_executable(ClangBuildAnalyzer "${SRC}")
 target_compile_features(ClangBuildAnalyzer PRIVATE cxx_std_17)
 target_link_libraries(ClangBuildAnalyzer -lpthread)
