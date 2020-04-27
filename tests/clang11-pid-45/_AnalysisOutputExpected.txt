@@ -1,0 +1,10 @@
+**** Time summary:
+Compilation (1 times):
+  Parsing (frontend):            0.0 s
+  Codegen & opts (backend):      0.0 s
+
+**** Functions that took longest to compile:
+     1 ms: main (test.cc)
+
+**** Function sets that took longest to compile / optimize:
+

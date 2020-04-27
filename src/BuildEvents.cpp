@@ -289,7 +289,7 @@ struct BuildEventsParser
             it.next();
             if (StrEqual(nodeKey, kPid))
             {
-                if (!it.is_integer() || it.get_integer() != 1)
+                if (!it.is_integer())  // starting with Clang/LLVM 11 process IDs are not necessarily 1
                     valid = false;
             }
             else if (StrEqual(nodeKey, kTid))
