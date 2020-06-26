@@ -11,6 +11,7 @@
 #include <time.h>
 #include <algorithm>
 #include <set>
+#include <regex>
 
 #ifdef _MSC_VER
 struct IUnknown; // workaround for old Win SDK header failures when using /permissive-
@@ -21,6 +22,7 @@ struct IUnknown; // workaround for old Win SDK header failures when using /permi
 #include "external/sokol_time.h"
 #define CUTE_FILES_IMPLEMENTATION
 #include "external/cute_files.h"
+#include "external/inih/cpp/INIReader.h"
 
 static void ReadFileToString(const std::string& path, std::string& str)
 {
@@ -106,16 +108,32 @@ static time_t FiletimeToTime(const FILETIME& ft)
 }
 #endif
 
+struct JSonConfig
+{
+    std::string exclusionRegEx = R"/(^$)/";
+};
+
 struct JsonFileFinder
 {
     JsonFileFinder()
     {
+        ReadConfig();
+        exclusion = std::regex{config.exclusionRegEx};
     }
 
     time_t startTime;
     time_t endTime;
     std::vector<std::string> files;
-    
+    std::regex exclusion;
+    JSonConfig config;
+
+    void ReadConfig()
+    {
+        INIReader ini("ClangBuildAnalyzer.ini");
+
+        config.exclusionRegEx = ini.GetString("json", "exclusionRegEx",  config.exclusionRegEx);
+    }
+
     void OnFile(cf_file_t* f)
     {
         // extension has to be json
@@ -136,10 +154,20 @@ struct JsonFileFinder
 
         if (fileModTime < startTime || fileModTime > endTime)
             return;
-        
+
         std::string path = f->path;
         std::replace(path.begin(), path.end(), '\\', '/'); // replace path to forward slashes
         files.emplace_back(path);
+    }
+    bool OnFilter(cf_file_t* f) {
+        if (f->is_dir && f->name[0] != '.') {
+            bool exclude = std::regex_search(f->name, exclusion);
+            if (exclude) {
+                printf("EXCLUDED: %s\n", f->name);
+            }
+            return !exclude;
+        }
+        return true;
     }
 
     static void Callback(cf_file_t* f, void* userData)
@@ -147,7 +175,42 @@ struct JsonFileFinder
         JsonFileFinder* self = (JsonFileFinder*)userData;
         self->OnFile(f);
     }
+    static bool Filter(cf_file_t* f, void* userData)
+    {
+        JsonFileFinder* self = (JsonFileFinder*)userData;
+        return self->OnFilter(f);
+    }
 };
+
+typedef bool (cf_filter_t)(cf_file_t* f, void* udata);
+
+void cf_filtered_traverse(const char* path, cf_callback_t* cb, cf_filter_t* filter, void* udata)
+{
+	cf_dir_t dir;
+	cf_dir_open(&dir, path);
+
+	while (dir.has_next)
+	{
+		cf_file_t file;
+		cf_read_file(&dir, &file);
+
+        if (filter(&file, udata)) {
+            if (file.is_dir && file.name[0] != '.')
+            {
+                char path2[CUTE_FILES_MAX_PATH];
+                int n = cf_safe_strcpy(path2, path, 0, CUTE_FILES_MAX_PATH);
+                n = cf_safe_strcpy(path2, "/", n - 1, CUTE_FILES_MAX_PATH);
+                cf_safe_strcpy(path2, file.name, n -1, CUTE_FILES_MAX_PATH);
+                cf_filtered_traverse(path2, cb, filter, udata);
+            }
+
+            if (file.is_reg) cb(&file, udata);
+        }
+		cf_dir_next(&dir);
+	}
+
+	cf_dir_close(&dir);
+}
 
 static int RunStop(int argc, const char* argv[])
 {
@@ -184,7 +247,7 @@ static int RunStop(int argc, const char* argv[])
     JsonFileFinder jsonFiles;
     jsonFiles.startTime = startTime;
     jsonFiles.endTime = stopTime;
-    cf_traverse(artifactsDir.c_str(), JsonFileFinder::Callback, &jsonFiles);
+    cf_filtered_traverse(artifactsDir.c_str(), JsonFileFinder::Callback, JsonFileFinder::Filter, &jsonFiles);
     if (jsonFiles.files.empty())
     {
         printf("%sERROR: no .json files found under '%s'.%s\n", col::kRed, artifactsDir.c_str(), col::kReset);
@@ -220,10 +283,10 @@ static int RunStop(int argc, const char* argv[])
     // create the data file
     if (!SaveBuildEvents(parser, outFile))
         return 1;
-    
+
     DeleteBuildEventsParser(parser);
     jsonFiles.files.clear();
-    
+
     double tDuration = stm_sec(stm_since(tStart));
     printf("%s  done in %.1fs. Run 'ClangBuildAnalyzer --analyze %s' to analyze it.%s\n", col::kYellow, tDuration, outFile.c_str(), col::kReset);
 
