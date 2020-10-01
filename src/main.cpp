@@ -196,7 +196,7 @@ static int RunStop(int argc, const char* argv[])
 
     // parse the json files into our data structures (in parallel)
     BuildEventsParser* parser = CreateBuildEventsParser();
-    std::atomic<int> fileCount = 0;
+    std::atomic<int> fileCount(0);
     {
         enki::TaskScheduler ts;
         ts.Initialize(std::min(std::thread::hardware_concurrency(), (uint32_t)jsonFiles.files.size()));
