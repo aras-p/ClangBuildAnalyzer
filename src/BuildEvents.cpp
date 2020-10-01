@@ -217,7 +217,7 @@ struct BuildEventsParser
         return index;
     }
 
-    bool ParseRoot(simdjson::document::parser::Iterator& it, const std::string& curFileName)
+    bool ParseRoot(simdjson::dom::parser::Iterator& it, const std::string& curFileName)
     {
         if (!it.is_object())
             return false;
@@ -226,7 +226,7 @@ struct BuildEventsParser
         return ParseTraceEvents(it, curFileName);
     }
 
-    bool ParseTraceEvents(simdjson::document::parser::Iterator& it, const std::string& curFileName)
+    bool ParseTraceEvents(simdjson::dom::parser::Iterator& it, const std::string& curFileName)
     {
         if (!it.is_array())
             return false;
@@ -269,7 +269,7 @@ struct BuildEventsParser
     const char* kArgs = "args";
     const char* kDetail = "detail";
 
-    void ParseEvent(simdjson::document::parser::Iterator& it, const std::string& curFileName, BuildEvents& fileEvents, NameToIndexMap& nameToIndexLocal)
+    void ParseEvent(simdjson::dom::parser::Iterator& it, const std::string& curFileName, BuildEvents& fileEvents, NameToIndexMap& nameToIndexLocal)
     {
         if (!it.is_object())
         {
@@ -422,14 +422,16 @@ void DeleteBuildEventsParser(BuildEventsParser* parser)
 bool ParseBuildEvents(BuildEventsParser* parser, const std::string& fileName)
 {
     using namespace simdjson;
-    auto [doc, error] = document::parse(get_corpus(fileName));
+    dom::parser p;
+    dom::element doc;
+    auto error = p.load(fileName).get(doc);
     if (error)
     {
-        printf("%sWARN: JSON parse error %s.%s\n", col::kYellow, error_message(error).c_str(), col::kReset);
+        printf("%sWARN: JSON parse error %s.%s\n", col::kYellow, error_message(error), col::kReset);
         return false;
     }
     
-    document::parser::Iterator it(doc);
+    dom::parser::Iterator it(p);
     return parser->ParseRoot(it, fileName);
     //DebugPrintEvents(outEvents, outNames);
 }
