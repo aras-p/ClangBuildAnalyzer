@@ -217,31 +217,27 @@ struct BuildEventsParser
         return index;
     }
 
-    bool ParseRoot(simdjson::document::parser::Iterator& it, const std::string& curFileName)
+    bool ParseRoot(simdjson::dom::element& it, const std::string& curFileName)
     {
-        if (!it.is_object())
+        simdjson::dom::element nit;
+        if (it["traceEvents"].get(nit))
             return false;
-        if (!it.move_to_key("traceEvents"))
-            return false;
-        return ParseTraceEvents(it, curFileName);
+        return ParseTraceEvents(nit, curFileName);
     }
 
-    bool ParseTraceEvents(simdjson::document::parser::Iterator& it, const std::string& curFileName)
+    bool ParseTraceEvents(simdjson::dom::element& it, const std::string& curFileName)
     {
         if (!it.is_array())
-            return false;
-        if (!it.down())
             return false;
 
         NameToIndexMap nameToIndexLocal;
         NameToIndex("", nameToIndexLocal); // make sure zero index is empty
         BuildEvents fileEvents;
         fileEvents.reserve(256);
-        do
+        for (simdjson::dom::element nit : it)
         {
-            ParseEvent(it, curFileName, fileEvents, nameToIndexLocal);
-        } while(it.next());
-        it.up();
+            ParseEvent(nit, curFileName, fileEvents, nameToIndexLocal);
+        }
         if (fileEvents.empty())
             return false;
 
@@ -255,9 +251,14 @@ struct BuildEventsParser
         return true;
     }
 
-    static bool StrEqual(const char* a, const char* b)
+    static bool StrEqual(std::string_view a, const char* b)
     {
-        return strcmp(a,b) == 0;
+        return a == b;
+    }
+
+    static bool StartsWith(std::string_view a, const char* b, int blen)
+    {
+        return a.size() >= blen && a.compare(0, blen, b) == 0;
     }
 
     const char* kPid = "pid";
@@ -269,115 +270,112 @@ struct BuildEventsParser
     const char* kArgs = "args";
     const char* kDetail = "detail";
 
-    void ParseEvent(simdjson::document::parser::Iterator& it, const std::string& curFileName, BuildEvents& fileEvents, NameToIndexMap& nameToIndexLocal)
+    void ParseEvent(simdjson::dom::element& it, const std::string& curFileName, BuildEvents& fileEvents, NameToIndexMap& nameToIndexLocal)
     {
-        if (!it.is_object())
+        simdjson::dom::object node;
+        if (it.get(node))
         {
             printf("%sERROR: 'traceEvents' elements in JSON should be objects.%s\n", col::kRed, col::kReset);
             resultEvents.clear();
             return;
         }
         
-        if (!it.down())
-            return;
         BuildEvent event;
         bool valid = true;
-        const char* detailPtr = nullptr;
-        do
+        std::string_view detailPtr;
+        for (simdjson::dom::key_value_pair kv : node)
         {
-            const char* nodeKey = it.get_string();
-            it.next();
+            std::string_view nodeKey = kv.key;
             if (StrEqual(nodeKey, kPid))
             {
-                if (!it.is_integer())  // starting with Clang/LLVM 11 process IDs are not necessarily 1
+                if (!kv.value.is_int64())  // starting with Clang/LLVM 11 process IDs are not necessarily 1
                     valid = false;
             }
             else if (StrEqual(nodeKey, kTid))
             {
-                if (!it.is_integer()) // starting with Clang/LLVM 11 thread IDs are not necessarily 0
+                if (!kv.value.is_int64()) // starting with Clang/LLVM 11 thread IDs are not necessarily 0
                     valid = false;
             }
             else if (StrEqual(nodeKey, kPh))
             {
-                if (!it.is_string() || !StrEqual(it.get_string(), "X"))
+                if (!kv.value.is_string() || !StrEqual(kv.value.get_string(), "X"))
                     valid = false;
             }
-            else if (StrEqual(nodeKey, kName) && it.is_string() && valid)
+            else if (StrEqual(nodeKey, kName) && kv.value.is_string() && valid)
             {
-                const char* name = it.get_string();
-                if (!strcmp(name, "ExecuteCompiler"))
+                std::string_view name = kv.value.get_string();
+                if (StrEqual(name, "ExecuteCompiler"))
                     event.type = BuildEventType::kCompiler;
-                else if (!strcmp(name, "Frontend"))
+                else if (StrEqual(name, "Frontend"))
                     event.type = BuildEventType::kFrontend;
-                else if (!strcmp(name, "Backend"))
+                else if (StrEqual(name, "Backend"))
                     event.type = BuildEventType::kBackend;
-                else if (!strcmp(name, "Source"))
+                else if (StrEqual(name, "Source"))
                     event.type = BuildEventType::kParseFile;
-                else if (!strcmp(name, "ParseTemplate"))
+                else if (StrEqual(name, "ParseTemplate"))
                     event.type = BuildEventType::kParseTemplate;
-                else if (!strcmp(name, "ParseClass"))
+                else if (StrEqual(name, "ParseClass"))
                     event.type = BuildEventType::kParseClass;
-                else if (!strcmp(name, "InstantiateClass"))
+                else if (StrEqual(name, "InstantiateClass"))
                     event.type = BuildEventType::kInstantiateClass;
-                else if (!strcmp(name, "InstantiateFunction"))
+                else if (StrEqual(name, "InstantiateFunction"))
                     event.type = BuildEventType::kInstantiateFunction;
-                else if (!strcmp(name, "PerformPendingInstantiations"))
+                else if (StrEqual(name, "PerformPendingInstantiations"))
                     ;
-                else if (!strcmp(name, "CodeGen Function"))
+                else if (StrEqual(name, "CodeGen Function"))
                     ;
-                else if (!strcmp(name, "OptModule"))
+                else if (StrEqual(name, "OptModule"))
                     event.type = BuildEventType::kOptModule;
-                else if (!strcmp(name, "OptFunction"))
+                else if (StrEqual(name, "OptFunction"))
                     event.type = BuildEventType::kOptFunction;
-                else if (!strcmp(name, "PerFunctionPasses") || !strcmp(name, "PerModulePasses") || !strcmp(name, "CodeGenPasses"))
+                else if (StrEqual(name, "PerFunctionPasses") || StrEqual(name, "PerModulePasses") || StrEqual(name, "CodeGenPasses"))
                     ;
-                else if (!strcmp(name, "DebugType") || !strcmp(name, "DebugFunction") || !strcmp(name, "DebugGlobalVariable") || !strcmp(name, "DebugConstGlobalVariable"))
+                else if (StrEqual(name, "DebugType") || StrEqual(name, "DebugFunction") || StrEqual(name, "DebugGlobalVariable") || StrEqual(name, "DebugConstGlobalVariable"))
                     ;
-                else if (!strcmp(name, "RunPass"))
+                else if (StrEqual(name, "RunPass"))
                     ;
-                else if (!strcmp(name, "RunLoopPass"))
+                else if (StrEqual(name, "RunLoopPass"))
                     ;
-                else if (!strncmp(name, "Total ", 6)) // ignore "Total XYZ" events
+                else if (StartsWith(name, "Total ", 6)) // ignore "Total XYZ" events
                     ;
                 else
                 {
-                    printf("%sWARN: unknown trace event '%s' in '%s', skipping.%s\n", col::kYellow, name, curFileName.c_str(), col::kReset);
+                    printf("%sWARN: unknown trace event '%s' in '%s', skipping.%s\n", col::kYellow, std::string(name).c_str(), curFileName.c_str(), col::kReset);
                 }
             }
             else if (StrEqual(nodeKey, kTs))
             {
-                if (it.is_integer())
-                    event.ts = it.get_integer();
+                if (kv.value.is_int64())
+                    event.ts = kv.value.get_int64();
                 else
                     valid = false;
             }
             else if (StrEqual(nodeKey, kDur))
             {
-                if (it.is_integer())
-                    event.dur = it.get_integer();
+                if (kv.value.is_int64())
+                    event.dur = kv.value.get_int64();
                 else
                     valid = false;
             }
             else if (StrEqual(nodeKey, kArgs))
             {
-                if (it.is_object() && it.down())
+                if (kv.value.is_object())
                 {
-                    it.next();
-                    if (it.is_string())
-                        detailPtr = it.get_string();
-                    it.up();
+                    simdjson::dom::object kvo(kv.value);
+                    simdjson::dom::key_value_pair args = *kvo.begin();
+                    if (args.value.is_string())
+                        detailPtr = args.value.get_string();
                 }
             }
-        } while (it.next());
-        it.up();
+        };
         
         if (event.type== BuildEventType::kUnknown || !valid)
             return;
 
         // if the "compiler" event has no detail name, use the current json file name
-        if ((detailPtr == nullptr || detailPtr[0]==0) && event.type == BuildEventType::kCompiler)
-            detailPtr = curFileName.c_str();
-        if (detailPtr != nullptr && detailPtr[0]!=0)
+        if (detailPtr.empty() && event.type == BuildEventType::kCompiler)
+            detailPtr = curFileName;
+        if (!detailPtr.empty())
         {
             // do various cleanups/nice-ifications of the detail name:
             // make paths shorter (i.e. relative to project) where possible
@@ -422,15 +420,16 @@ void DeleteBuildEventsParser(BuildEventsParser* parser)
 bool ParseBuildEvents(BuildEventsParser* parser, const std::string& fileName)
 {
     using namespace simdjson;
-    auto [doc, error] = document::parse(get_corpus(fileName));
+    dom::parser p;
+    dom::element doc;
+    auto error = p.load(fileName).get(doc);
     if (error)
     {
-        printf("%sWARN: JSON parse error %s.%s\n", col::kYellow, error_message(error).c_str(), col::kReset);
+        printf("%sWARN: JSON parse error %s.%s\n", col::kYellow, error_message(error), col::kReset);
         return false;
     }
     
-    document::parser::Iterator it(doc);
-    return parser->ParseRoot(it, fileName);
+    return parser->ParseRoot(doc, fileName);
     //DebugPrintEvents(outEvents, outNames);
 }
 
