@@ -1,7 +1,7 @@
 # Clang Build Analyzer [![Build Status](https://github.com/aras-p/ClangBuildAnalyzer/workflows/build_and_test/badge.svg)](https://github.com/aras-p/ClangBuildAnalyzer/actions)
 
 Clang C/C++ build analysis tool when using Clang 9+ `-ftime-trace`. The `-ftime-trace` compiler flag
-(see [Aras' blog post](https://aras-p.info/blog/2019/01/16/time-trace-timeline-flame-chart-profiler-for-Clang/) or
+(see [blog post](https://aras-p.info/blog/2019/01/16/time-trace-timeline-flame-chart-profiler-for-Clang/) or
 [Clang 9 release notes](https://releases.llvm.org/9.0.0/tools/clang/docs/ReleaseNotes.html#new-compiler-flags)) can be useful
 to figure out what takes time during compilation of *one* source file. This tool helps to aggregate time trace
 reports from multiple compilations, and output "what took the most time" summary:
@@ -27,6 +27,9 @@ reports from multiple compilations, and output "what took the most time" summary
 1. **Run the build analysis**: `ClangBuildAnalyzer --analyze <capture_file>`<br/>
    This will read the `capture_file` produced by `--stop` step, calculate the slowest things and print them. If a
    `ClangBuildAnalyzer.ini` file exists in the current folder, it will be read to control how many of various things to print.
+
+Aternatively, instead of doing `--start` and `--stop` steps, you can do `ClangBuildAnalyzer --all <artifacts_folder> <capture_file>` after your build; that will
+include all the compatible `*.json` files for analysis, no matter when they were produced.
 
 
 ### Analysis Output
