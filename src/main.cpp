@@ -61,7 +61,7 @@ static void PrintUsage()
     printf("%sUSAGE%s: one of\n", col::kBold, col::kReset);
     printf("  ClangBuildAnalyzer %s--start <artifactsdir>%s\n", col::kBold, col::kReset);
     printf("  ClangBuildAnalyzer %s--stop <artifactsdir> <filename>%s\n", col::kBold, col::kReset);
-    printf("  ClangBuildAnalyzer %s--all <artifactsdir>%s\n", col::kBold, col::kReset);
+    printf("  ClangBuildAnalyzer %s--all <artifactsdir> <filename>%s\n", col::kBold, col::kReset);
     printf("  ClangBuildAnalyzer %s--analyze <filename>%s\n", col::kBold, col::kReset);
 }
 
