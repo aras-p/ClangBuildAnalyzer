@@ -244,7 +244,7 @@ static int RunAll(int argc, const char* argv[])
     }
 
     std::string outFile = argv[3];
-    printf("%sProcessing all files  and saving to '%s'...%s\n", col::kYellow, outFile.c_str(), col::kReset);
+    printf("%sProcessing all files and saving to '%s'...%s\n", col::kYellow, outFile.c_str(), col::kReset);
 
     std::string artifactsDir = argv[2];
 
