@@ -10,6 +10,7 @@
 #include <cmath>
 #include <algorithm>
 #include <iterator>
+#include <stdexcept>
 #include <utility>
 #include <type_traits>
 
