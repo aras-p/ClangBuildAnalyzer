@@ -61,6 +61,7 @@ static void PrintUsage()
     printf("%sUSAGE%s: one of\n", col::kBold, col::kReset);
     printf("  ClangBuildAnalyzer %s--start <artifactsdir>%s\n", col::kBold, col::kReset);
     printf("  ClangBuildAnalyzer %s--stop <artifactsdir> <filename>%s\n", col::kBold, col::kReset);
+    printf("  ClangBuildAnalyzer %s--all <artifactsdir> <filename>%s\n", col::kBold, col::kReset);
     printf("  ClangBuildAnalyzer %s--analyze <filename>%s\n", col::kBold, col::kReset);
 }
 
@@ -115,7 +116,7 @@ struct JsonFileFinder
     time_t startTime;
     time_t endTime;
     std::vector<std::string> files;
-    
+
     void OnFile(cf_file_t* f)
     {
         // extension has to be json
@@ -136,7 +137,7 @@ struct JsonFileFinder
 
         if (fileModTime < startTime || fileModTime > endTime)
             return;
-        
+
         std::string path = f->path;
         std::replace(path.begin(), path.end(), '\\', '/'); // replace path to forward slashes
         files.emplace_back(path);
@@ -149,38 +150,10 @@ struct JsonFileFinder
     }
 };
 
-static int RunStop(int argc, const char* argv[])
-{
-    if (argc < 4)
-    {
-        printf("%sERROR: --stop requires <artifactsdir> <filename> to be passed.%s\n", col::kRed, col::kReset);
-        return 1;
-    }
-
+static int ProcessJsonFiles(const std::string& artifactsDir, const std::string& outFile, time_t startTime, time_t stopTime) {
     uint64_t tStart = stm_now();
 
-    std::string outFile = argv[3];
-    printf("%sStopping build tracing and saving to '%s'...%s\n", col::kYellow, outFile.c_str(), col::kReset);
-
-    std::string artifactsDir = argv[2];
-    std::string fname = artifactsDir+"/ClangBuildAnalyzerSession.txt";
-    FILE* fsession = fopen(fname.c_str(), "rt");
-    if (!fsession)
-    {
-        printf("%sERROR: failed to open session file at '%s'.%s\n", col::kRed, fname.c_str(), col::kReset);
-        return 1;
-    }
-
-    time_t startTime = 0;
-    time_t stopTime = time(NULL);
-#if _MSC_VER
-    fscanf(fsession, "%llu", &startTime);
-#else
-    fscanf(fsession, "%lu", &startTime);
-#endif
-    fclose(fsession);
-
-    // find .json files with modification times in our interval
+   // find .json files with modification times in our interval
     JsonFileFinder jsonFiles;
     jsonFiles.startTime = startTime;
     jsonFiles.endTime = stopTime;
@@ -220,16 +193,63 @@ static int RunStop(int argc, const char* argv[])
     // create the data file
     if (!SaveBuildEvents(parser, outFile))
         return 1;
-    
+
     DeleteBuildEventsParser(parser);
     jsonFiles.files.clear();
-    
+
     double tDuration = stm_sec(stm_since(tStart));
     printf("%s  done in %.1fs. Run 'ClangBuildAnalyzer --analyze %s' to analyze it.%s\n", col::kYellow, tDuration, outFile.c_str(), col::kReset);
 
     return 0;
 }
 
+static int RunStop(int argc, const char* argv[])
+{
+    if (argc < 4)
+    {
+        printf("%sERROR: --stop requires <artifactsdir> <filename> to be passed.%s\n", col::kRed, col::kReset);
+        return 1;
+    }
+
+    std::string outFile = argv[3];
+    printf("%sStopping build tracing and saving to '%s'...%s\n", col::kYellow, outFile.c_str(), col::kReset);
+
+    std::string artifactsDir = argv[2];
+    std::string fname = artifactsDir+"/ClangBuildAnalyzerSession.txt";
+    FILE* fsession = fopen(fname.c_str(), "rt");
+    if (!fsession)
+    {
+        printf("%sERROR: failed to open session file at '%s'.%s\n", col::kRed, fname.c_str(), col::kReset);
+        return 1;
+    }
+
+    time_t startTime = 0;
+    time_t stopTime = time(NULL);
+#if _MSC_VER
+    fscanf(fsession, "%llu", &startTime);
+#else
+    fscanf(fsession, "%lu", &startTime);
+#endif
+    fclose(fsession);
+
+    return ProcessJsonFiles(artifactsDir, outFile, startTime, stopTime);
+}
+
+static int RunAll(int argc, const char* argv[])
+{
+    if (argc < 4)
+    {
+        printf("%sERROR: --all requires <artifactsdir> <filename> to be passed.%s\n", col::kRed, col::kReset);
+        return 1;
+    }
+
+    std::string outFile = argv[3];
+    printf("%sProcessing all files and saving to '%s'...%s\n", col::kYellow, outFile.c_str(), col::kReset);
+
+    std::string artifactsDir = argv[2];
+
+    return ProcessJsonFiles(artifactsDir, outFile, 0, std::numeric_limits<time_t>::max());
+}
 
 static int RunAnalyze(int argc, const char* argv[], FILE* out)
 {
@@ -356,6 +376,8 @@ static int ProcessCommands(int argc, const char* argv[])
         return RunStart(argc, argv);
     if (strcmp(argv[1], "--stop") == 0)
         return RunStop(argc, argv);
+    if (strcmp(argv[1], "--all") == 0)
+        return RunAll(argc, argv);
     if (strcmp(argv[1], "--analyze") == 0)
         return RunAnalyze(argc, argv, stdout);
     if (strcmp(argv[1], "--test") == 0)
