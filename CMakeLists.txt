@@ -22,4 +22,9 @@ set(SRC
 )
 add_executable(ClangBuildAnalyzer "${SRC}")
 target_compile_features(ClangBuildAnalyzer PRIVATE cxx_std_17)
-target_link_libraries(ClangBuildAnalyzer -lrt -lpthread)
+
+target_link_libraries(ClangBuildAnalyzer -lpthread)
+
+if (NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+    target_link_libraries(ClangBuildAnalyzer -lrt)
+endif()
