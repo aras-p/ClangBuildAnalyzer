@@ -402,8 +402,9 @@ struct BuildEventsParser
                         detailString = candidate;
                 }
             }
+
             // demangle possibly mangled names
-            if (event.type == BuildEventType::kOptFunction || event.type == BuildEventType::kInstantiateClass || event.type == BuildEventType::kInstantiateFunction)
+            if (event.type == BuildEventType::kOptFunction)
                 detailString = llvm::demangle(detailString);
 
             event.detailIndex = NameToIndex(detailString.c_str(), nameToIndexLocal);
