@@ -13,31 +13,38 @@ jobs:
     strategy:
       fail-fast: false
     steps:
-    - uses: actions/checkout@v1
-    - name: Windows VS2019
+    - uses: actions/checkout@v2
+    - uses: Trass3r/setup-cpp@master
+    - name: build
+      shell: cmd
       run: |
-        call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat" && msbuild.exe projects/vs2019/ClangBuildAnalyzer.sln /p:Configuration=Debug /p:CL_MPCount=2
-        call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat" && msbuild.exe projects/vs2019/ClangBuildAnalyzer.sln /p:Configuration=Release /p:CL_MPCount=2
+        call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+        msbuild.exe projects/vs2019/ClangBuildAnalyzer.sln /p:Configuration=Debug /p:UseMultiToolTask=true
+        msbuild.exe projects/vs2019/ClangBuildAnalyzer.sln /p:Configuration=Release /p:UseMultiToolTask=true
+    - name: test
+      run: |
         build\ClangBuildAnalyzer.exe --test tests
       shell: cmd
-    - uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v2
       with:
         name: ClangBuildAnalyzer-win.exe
         path: build/ClangBuildAnalyzer.exe
 
   mac:
-    runs-on: macOS-latest
+    runs-on: macos-latest
     timeout-minutes: 5
     strategy:
       fail-fast: false
     steps:
-    - uses: actions/checkout@v1
-    - name: macOS Xcode 11.1
+    - uses: actions/checkout@v2
+    - name: build
       run: |
         xcodebuild -project projects/xcode/ClangBuildAnalyzer.xcodeproj -configuration Debug build
         xcodebuild -project projects/xcode/ClangBuildAnalyzer.xcodeproj -configuration Release build
+    - name: test
+      run: |
         projects/xcode/build/Release/ClangBuildAnalyzer --test tests
-    - uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v2
       with:
         name: ClangBuildAnalyzer-mac
         path: projects/xcode/build/Release/ClangBuildAnalyzer
@@ -48,21 +55,21 @@ jobs:
     strategy:
       fail-fast: false
     steps:
-    - uses: actions/checkout@v1
-    - name: Ubuntu16 Gcc7
-      env:
-        CC: gcc-7
-        CXX: g++-7
+    - uses: actions/checkout@v2
+    - uses: Trass3r/setup-cpp@master
+    - name: build
       run: |
         mkdir buildCmake
         cd buildCmake
         cmake -DCMAKE_BUILD_TYPE=Release ..
         make -j 2
         cd ..
-        buildCmake/ClangBuildAnalyzer --test tests
         make -f projects/make/Makefile -j 2
+    - name: test
+      run: |
+        buildCmake/ClangBuildAnalyzer --test tests
         build/ClangBuildAnalyzer --test tests
-    - uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v2
       with:
         name: ClangBuildAnalyzer-linux
         path: build/ClangBuildAnalyzer
