@@ -456,6 +456,7 @@ struct BufferedWriter
     }
     void Write(const void* ptr, size_t sz)
     {
+        if (sz == 0) return;
         if (sz >= kBufferSize)
         {
             if( size > 0 )
