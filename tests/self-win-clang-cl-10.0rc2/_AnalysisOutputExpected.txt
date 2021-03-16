@@ -38,7 +38,7 @@ Compilation (6 times):
     10 ms: std::basic_string<char, std::char_traits<char>, std::allocator<char>... (3 times, avg 3 ms)
      9 ms: std::_Integral_to_string<char, int> (2 times, avg 4 ms)
      9 ms: std::basic_string<char, std::char_traits<char>, std::allocator<char> > (3 times, avg 3 ms)
-     9 ms: std::_Sort_unchecked<EventIndex *, (lambda at src/BuildEvents.cpp:29... (1 times, avg 9 ms)
+     9 ms: std::_Sort_unchecked<EventIndex *, (lambda at src\BuildEvents.cpp:29... (1 times, avg 9 ms)
      9 ms: std::basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator... (5 times, avg 1 ms)
      9 ms: std::basic_string<char32_t, std::char_traits<char32_t>, std::allocat... (3 times, avg 3 ms)
      9 ms: std::basic_string<wchar_t, std::char_traits<wchar_t>, std::allocator... (3 times, avg 3 ms)
