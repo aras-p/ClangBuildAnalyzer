@@ -73,7 +73,7 @@
 
 #define CUTE_FILES_MAX_PATH 1024
 #define CUTE_FILES_MAX_FILENAME 256
-#define CUTE_FILES_MAX_EXT 32
+#define CUTE_FILES_MAX_EXT 64
 
 struct cf_file_t;
 struct cf_dir_t;
