@@ -22,4 +22,9 @@ set(SRC
 )
 add_executable(ClangBuildAnalyzer "${SRC}")
 target_compile_features(ClangBuildAnalyzer PRIVATE cxx_std_17)
-target_link_libraries(ClangBuildAnalyzer -lrt -lpthread)
+
+if (MINGW)
+    target_link_libraries(ClangBuildAnalyzer -lpthread)
+else()
+    target_link_libraries(ClangBuildAnalyzer -lrt -lpthread)
+endif()
