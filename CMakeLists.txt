@@ -22,4 +22,11 @@ set(SRC
 )
 add_executable(ClangBuildAnalyzer "${SRC}")
 target_compile_features(ClangBuildAnalyzer PRIVATE cxx_std_17)
-target_link_libraries(ClangBuildAnalyzer -lrt -lpthread)
+
+find_library(LIBRT rt)
+if(LIBRT)
+    target_link_libraries(ClangBuildAnalyzer ${LIBRT})
+endif()
+
+find_package(Threads REQUIRED)
+target_link_libraries(ClangBuildAnalyzer Threads::Threads)
