@@ -3,7 +3,7 @@
 		Licensing information can be found at the end of the file.
 	------------------------------------------------------------------------------
 
-	tinyfiles.h - v1.0
+	cute_files.h - v1.0
 
 	To create implementation (the function definitions)
 		#define CUTE_FILES_IMPLEMENTATION
@@ -241,7 +241,12 @@ void cf_traverse(const char* path, cf_callback_t* cb, void* udata)
 	while (dir.has_next)
 	{
 		cf_file_t file;
-		cf_read_file(&dir, &file);
+		int res = cf_read_file(&dir, &file);
+
+		if (res == 0) {
+			cf_dir_next(&dir);
+			continue;
+		}
 
 		if (file.is_dir && file.name[0] != '.')
 		{
@@ -390,7 +395,7 @@ int cf_match_ext(cf_file_t* file, const char* ext)
 		if (stat(file->path, &file->info))
 			return 0;
 
-		file->size = (int)file->info.st_size;
+		file->size = file->info.st_size;
 		cf_get_ext(file);
 
 		file->is_dir = S_ISDIR(file->info.st_mode);
