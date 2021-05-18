@@ -43,13 +43,13 @@ jobs:
         path: projects/xcode/build/Release/ClangBuildAnalyzer
 
   linux:
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-18.04
     timeout-minutes: 5
     strategy:
       fail-fast: false
     steps:
     - uses: actions/checkout@v1
-    - name: Ubuntu16 Gcc7
+    - name: Ubuntu18 Gcc7
       env:
         CC: gcc-7
         CXX: g++-7
