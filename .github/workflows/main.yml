@@ -37,6 +37,11 @@ jobs:
         xcodebuild -project projects/xcode/ClangBuildAnalyzer.xcodeproj -configuration Debug build
         xcodebuild -project projects/xcode/ClangBuildAnalyzer.xcodeproj -configuration Release build
         projects/xcode/build/Release/ClangBuildAnalyzer --test tests
+        mkdir buildCmake
+        cd buildCmake
+        cmake -DCMAKE_BUILD_TYPE=Release ..
+        make -j 2
+        cd ..
     - uses: actions/upload-artifact@v1
       with:
         name: ClangBuildAnalyzer-mac
