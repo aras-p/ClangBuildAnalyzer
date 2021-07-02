@@ -103,7 +103,7 @@ Granularity and amount of most expensive things (files, functions, templates, in
 ### Limitations
 
 * Does not capture anything related to linking or LTO right now.
-* May or might no scale to _huge_ builds (I haven't tried on something ginormous like a Chrome
+* May or may not scale to _huge_ builds (I haven't tried on something ginormous like a Chrome
   build). However I have tried it on Unity editor build and it was not terrible.
 
 
