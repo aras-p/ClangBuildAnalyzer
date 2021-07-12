@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.5.1)
 project(ClangBuildAnalyzer)
 
+include(GNUInstallDirs)
+
 set(SRC
 # C sources
     "src/external/inih/ini.c"
@@ -30,3 +32,7 @@ endif()
 
 find_package(Threads REQUIRED)
 target_link_libraries(ClangBuildAnalyzer Threads::Threads)
+
+install(TARGETS ClangBuildAnalyzer
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        )
