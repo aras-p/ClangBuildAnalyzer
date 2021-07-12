@@ -448,6 +448,7 @@ struct BufferedWriter
         XXH64_hash_t hash = XXH64_digest(hasher);
         fwrite(&hash, sizeof(hash), 1, file);
         fclose(file);
+        XXH64_freeState(hasher);
     }
     
     template<typename T> void Write(const T& t)
@@ -456,6 +457,7 @@ struct BufferedWriter
     }
     void Write(const void* ptr, size_t sz)
     {
+        if (sz == 0) return;
         if (sz >= kBufferSize)
         {
             if( size > 0 )
