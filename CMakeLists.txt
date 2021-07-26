@@ -30,3 +30,7 @@ endif()
 
 find_package(Threads REQUIRED)
 target_link_libraries(ClangBuildAnalyzer Threads::Threads)
+
+install(TARGETS ClangBuildAnalyzer
+    RUNTIME DESTINATION "bin"
+)
