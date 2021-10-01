@@ -52,7 +52,7 @@ static void DebugPrintEvents(const BuildEvents& events, const BuildNames& names)
     for (size_t i = 0; i < events.size(); ++i)
     {
         const BuildEvent& event = events[EventIndex(int(i))];
-        printf("%4zi: t=%i t1=%7lld t2=%7lld par=%4i ch=%4zi det=%s\n", i, (int) event.type, event.ts, event.ts+event.dur, event.parent.idx, event.children.size(), std::string(names[event.detailIndex].substr(0,130)).c_str());
+        printf("%4zi: t=%i t1=%7" PRId64 " t2=%7" PRId64 " par=%4i ch=%4zi det=%s\n", i, (int) event.type, event.ts, event.ts+event.dur, event.parent.idx, event.children.size(), std::string(names[event.detailIndex].substr(0,130)).c_str());
     }
 }
 
