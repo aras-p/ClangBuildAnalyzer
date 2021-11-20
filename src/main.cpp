@@ -97,7 +97,7 @@ static int RunStart(int argc, const char* argv[])
     return 0;
 }
 
-#ifdef _MSC_VER
+#ifdef WIN32
 static time_t FiletimeToTime(const FILETIME& ft)
 {
     ULARGE_INTEGER ull;
@@ -129,7 +129,7 @@ struct JsonFileFinder
         if (!cf_get_file_time(f->path, &mtime))
             return;
         time_t fileModTime;
-#ifdef _MSC_VER
+#ifdef WIN32
         fileModTime = FiletimeToTime(mtime.time);
 #else
         fileModTime = mtime.time;
