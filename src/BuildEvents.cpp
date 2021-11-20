@@ -52,7 +52,8 @@ static void DebugPrintEvents(const BuildEvents& events, const BuildNames& names)
     for (size_t i = 0; i < events.size(); ++i)
     {
         const BuildEvent& event = events[EventIndex(int(i))];
-        printf("%4zi: t=%i t1=%7ld t2=%7ld par=%4i ch=%4zi det=%s\n", i, (int) event.type, event.ts, event.ts+event.dur, event.parent.idx, event.children.size(), std::string(names[event.detailIndex].substr(0,130)).c_str());
+        const std::string_view namesSubstr = names[event.detailIndex].substr(0, 130);
+        printf("%4zi: t=%i t1=%7ld t2=%7ld par=%4i ch=%4zi det=%.*s\n", i, (int) event.type, event.ts, event.ts+event.dur, event.parent.idx, event.children.size(), namesSubstr.size(), namesSubstr.data());
     }
 }
 
@@ -97,7 +98,7 @@ static void FindParentChildrenIndices(BuildEvents& events)
                 evRoot->children.push_back(EventIndex(i));
                 break;
             }
-            
+
             root = evRoot->parent.idx;
             if (root != -1)
                 evRoot = &events[sortedIndices[root]];
@@ -118,7 +119,7 @@ static void FindParentChildrenIndices(BuildEvents& events)
         if (e.parent.idx != -1)
             e.parent = sortedIndices[e.parent.idx];
     }
-    
+
 #ifndef NDEBUG
     for (int i = 0, n = (int)events.size(); i != n; ++i)
     {
@@ -134,7 +135,7 @@ struct BuildEventsParser
         // make sure zero index is empty
         NameToIndex("", resultNameToIndex);
         resultNames.push_back(std::string_view(resultNameToIndex.begin()->first.str, 0));
-        
+
         resultEvents.reserve(2048);
         resultNames.reserve(2048);
     }
@@ -144,19 +145,19 @@ struct BuildEventsParser
     NameToIndexMap resultNameToIndex;
     std::mutex resultMutex;
     std::mutex arenaMutex;
-    
+
     void AddEvents(BuildEvents& add, const NameToIndexMap& nameToIndex)
     {
         // we got job-local build events and name-to-index mapping;
         // add them to the global result with any necessary remapping.
         // gotta take a mutex since we're modifying shared state here.
         std::scoped_lock lock(resultMutex);
-        
+
         // move events to end of result events list
         int offset = (int)resultEvents.size();
         std::move(add.begin(), add.end(), std::back_inserter(resultEvents));
         add.clear();
-        
+
         // create remapping from name indices, adding them to global remapping
         // list if necessary.
         ska::bytell_hash_map<DetailIndex, DetailIndex> detailRemap;
@@ -175,7 +176,7 @@ struct BuildEventsParser
                 detailRemap[kvp.second] = existing->second;
             }
         }
-        
+
         // adjust the added event indices
         for (size_t i = offset, n = resultEvents.size(); i != n; ++i)
         {
@@ -191,7 +192,7 @@ struct BuildEventsParser
                 assert(ev.detailIndex.idx >= 0 && ev.detailIndex.idx < resultNameToIndex.size());
             }
         }
-        
+
         assert(resultNameToIndex.size() == resultNames.size());
     }
 
@@ -279,7 +280,7 @@ struct BuildEventsParser
             resultEvents.clear();
             return;
         }
-        
+
         BuildEvent event;
         bool valid = true;
         std::string_view detailPtr;
@@ -340,7 +341,7 @@ struct BuildEventsParser
                     ;
                 else
                 {
-                    printf("%sWARN: unknown trace event '%s' in '%s', skipping.%s\n", col::kYellow, std::string(name).c_str(), curFileName.c_str(), col::kReset);
+                    printf("%sWARN: unknown trace event '%.*s' in '%s', skipping.%s\n", col::kYellow, name.size(), name.data(), curFileName.c_str(), col::kReset);
                 }
             }
             else if (StrEqual(nodeKey, kTs))
@@ -368,7 +369,7 @@ struct BuildEventsParser
                 }
             }
         };
-        
+
         if (event.type== BuildEventType::kUnknown || !valid)
             return;
 
@@ -428,7 +429,7 @@ bool ParseBuildEvents(BuildEventsParser* parser, const std::string& fileName)
         printf("%sWARN: JSON parse error %s.%s\n", col::kYellow, error_message(error), col::kReset);
         return false;
     }
-    
+
     return parser->ParseRoot(doc, fileName);
     //DebugPrintEvents(outEvents, outNames);
 }
@@ -450,7 +451,7 @@ struct BufferedWriter
         fclose(file);
         XXH64_freeState(hasher);
     }
-    
+
     template<typename T> void Write(const T& t)
     {
         Write(&t, sizeof(t));
@@ -475,14 +476,14 @@ struct BufferedWriter
         size += sz;
     }
 
-    
+
     void Flush()
     {
         fwrite(buffer, size, 1, file);
         XXH64_update(hasher, buffer, size);
         size = 0;
     }
-    
+
     enum { kBufferSize = 65536 };
     uint8_t buffer[kBufferSize];
     size_t size;
@@ -507,7 +508,7 @@ struct BufferedReader
     {
         delete[] buffer;
     }
-    
+
     template<typename T> void Read(T& t)
     {
         Read(&t, sizeof(t));
@@ -522,7 +523,7 @@ struct BufferedReader
         memcpy(ptr, &buffer[pos], sz);
         pos += sz;
     }
-    
+
     uint8_t* buffer;
     size_t pos;
     size_t bufferSize;
@@ -538,7 +539,7 @@ bool SaveBuildEvents(BuildEventsParser* parser, const std::string& fileName)
         printf("%sERROR: failed to save to file '%s'%s\n", col::kRed, fileName.c_str(), col::kReset);
         return false;
     }
-    
+
     BufferedWriter w(f);
 
     w.Write(kFileMagic);
@@ -577,7 +578,7 @@ bool LoadBuildEvents(const std::string& fileName, BuildEvents& outEvents, BuildN
         printf("%sERROR: failed to open file '%s'%s\n", col::kRed, fileName.c_str(), col::kReset);
         return false;
     }
-    
+
     BufferedReader r(f);
     if (r.bufferSize < 12) // 4 bytes magic header, 8 bytes hash at end
     {
