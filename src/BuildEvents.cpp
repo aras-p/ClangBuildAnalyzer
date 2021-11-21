@@ -437,8 +437,8 @@ bool ParseBuildEvents(BuildEventsParser* parser, const std::string& fileName)
 struct BufferedWriter
 {
     BufferedWriter(FILE* f)
-    : file(f)
-    , size(0)
+    : size(0)
+    , file(f)
     {
         hasher = XXH64_createState();
         XXH64_reset(hasher, 0);
