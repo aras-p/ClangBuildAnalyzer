@@ -100,15 +100,24 @@ bool utils::IsHeader(const std::string_view& path)
     return false;
 }
 
+static void makeSubstr(std::string& str, std::size_t pos = 0, std::size_t len = std::string::npos)
+{
+    str.erase(0, pos);
+
+    if(str.size() - len <= str.size())
+    {
+        str.erase(len, str.size() - len);
+    }
+}
 
 std::string utils::GetNicePath(const std::string_view& path)
 {
     std::string res(path);
     ForwardSlashify(res);
     if (BeginsWith(res, s_CurrentDir))
-        res = res.substr(s_CurrentDir.size(), res.size() - s_CurrentDir.size());
+        makeSubstr(res, s_CurrentDir.size(), res.size() - s_CurrentDir.size());
     if (BeginsWith(res, s_Root))
-        res = res.substr(s_Root.size(), res.size() - s_Root.size());
+        makeSubstr(res, s_Root.size(), res.size() - s_Root.size());
     return res;
 }
 

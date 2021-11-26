@@ -9,3 +9,4 @@ _TraceOutput.json
 _TraceOutput.bin
 
 .DS_Store
+.vscode/settings.json
