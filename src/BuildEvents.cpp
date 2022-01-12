@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Unlicense
 #include "BuildEvents.h"
 
+#define NOMINMAX
 #include "Arena.h"
 #include "Colors.h"
 #include "Utils.h"

@@ -1,6 +1,7 @@
 // Clang Build Analyzer https://github.com/aras-p/ClangBuildAnalyzer
 // SPDX-License-Identifier: Unlicense
 #pragma once
+#define _CRT_SECURE_NO_WARNINGS
 #include <stdint.h>
 #include <string>
 #include <string_view>

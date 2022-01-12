@@ -1,5 +1,9 @@
 // Clang Build Analyzer https://github.com/aras-p/ClangBuildAnalyzer
 // SPDX-License-Identifier: Unlicense
+
+#define _CRT_SECURE_NO_WARNINGS
+#define NOMINMAX
+
 #include "Analysis.h"
 #include "Arena.h"
 #include "BuildEvents.h"
