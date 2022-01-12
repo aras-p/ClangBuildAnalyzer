@@ -54,7 +54,7 @@ static void DebugPrintEvents(const BuildEvents& events, const BuildNames& names)
     {
         const BuildEvent& event = events[EventIndex(int(i))];
         const std::string_view namesSubstr = names[event.detailIndex].substr(0, 130);
-        printf("%4zi: t=%i t1=%7ld t2=%7ld par=%4i ch=%4zi det=%.*s\n", i, (int) event.type, event.ts, event.ts+event.dur, event.parent.idx, event.children.size(), namesSubstr.size(), namesSubstr.data());
+        printf("%4zi: t=%i t1=%7lld t2=%7lld par=%4i ch=%4zi det=%.*s\n", i, (int) event.type, event.ts, event.ts+event.dur, event.parent.idx, event.children.size(), (int)namesSubstr.size(), namesSubstr.data());
     }
 }
 
