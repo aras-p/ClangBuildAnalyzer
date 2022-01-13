@@ -1,6 +1,7 @@
 // Clang Build Analyzer https://github.com/aras-p/ClangBuildAnalyzer
 // SPDX-License-Identifier: Unlicense
 #include "Colors.h"
+#define NOMINMAX
 #ifdef _MSC_VER
 #define WIN32_LEAN_AND_MEAN
 struct IUnknown; // workaround for old Win SDK header failures when using /permissive-

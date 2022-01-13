@@ -12,7 +12,7 @@
 // easily reused in other programs such as libcxxabi.
 //
 //===----------------------------------------------------------------------===//
-
+#define _CRT_SECURE_NO_WARNINGS
 #include "../include/MicrosoftDemangle.h"
 #include "../include/Demangle.h"
 #include "../include/MicrosoftDemangleNodes.h"

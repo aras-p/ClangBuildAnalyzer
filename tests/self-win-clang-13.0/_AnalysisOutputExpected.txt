@@ -1,0 +1,193 @@
+**** Time summary:
+Compilation (8 times):
+  Parsing (frontend):            3.6 s
+  Codegen & opts (backend):      4.8 s
+
+**** Files that took longest to parse (compiler frontend):
+  1514 ms: tests/self-win-clang-13.0/BuildEvents.json
+   818 ms: tests/self-win-clang-13.0/main.json
+   803 ms: tests/self-win-clang-13.0/Analysis.json
+   231 ms: tests/self-win-clang-13.0/Arena.json
+   131 ms: tests/self-win-clang-13.0/Analysis.json
+    69 ms: tests/self-win-clang-13.0/BuildEvents.json
+    29 ms: tests/self-win-clang-13.0/main.json
+
+**** Files that took longest to codegen (compiler backend):
+  2945 ms: tests/self-win-clang-13.0/Analysis.json
+  1198 ms: tests/self-win-clang-13.0/BuildEvents.json
+   589 ms: tests/self-win-clang-13.0/main.json
+    56 ms: tests/self-win-clang-13.0/Arena.json
+
+**** Templates that took longest to instantiate:
+    38 ms: std::partial_sort_copy<ska::detailv8::sherwood_v8_table<std::pair<st... (1 times, avg 38 ms)
+    27 ms: std::basic_ostream<char>::operator<< (4 times, avg 6 ms)
+    25 ms: std::basic_string<char>::basic_string (15 times, avg 1 ms)
+    25 ms: Analysis::EmitCollapsedInfo(const ska::bytell_hash_map<std::string_v... (1 times, avg 25 ms)
+    23 ms: ska::bytell_hash_map<std::basic_string_view<char>, Analysis::Instant... (2 times, avg 11 ms)
+    22 ms: std::use_facet<std::num_put<char>> (1 times, avg 22 ms)
+    22 ms: std::num_put<char>::_Getcat (1 times, avg 22 ms)
+    21 ms: std::num_put<char>::num_put (1 times, avg 21 ms)
+    21 ms: std::num_put<char>::do_put (4 times, avg 5 ms)
+    20 ms: ska::detailv8::sherwood_v8_table<std::pair<std::pair<DetailIndex, De... (1 times, avg 20 ms)
+    19 ms: ska::detailv8::sherwood_v8_table<std::pair<std::basic_string_view<ch... (1 times, avg 19 ms)
+    19 ms: ska::detailv8::sherwood_v8_table<std::pair<std::pair<DetailIndex, De... (1 times, avg 19 ms)
+    18 ms: std::partial_sort<std::_Vector_iterator<std::_Vector_val<std::_Simpl... (1 times, avg 18 ms)
+    17 ms: ska::bytell_hash_map<DetailIndex, std::basic_string_view<char>>::ope... (1 times, avg 17 ms)
+    17 ms: ska::detailv8::sherwood_v8_table<std::pair<DetailIndex, std::basic_s... (1 times, avg 17 ms)
+    15 ms: ska::bytell_hash_map<DetailIndex, DetailIndex>::operator[] (1 times, avg 15 ms)
+    15 ms: ska::detailv8::sherwood_v8_table<std::pair<std::basic_string_view<ch... (1 times, avg 15 ms)
+    15 ms: ska::detailv8::sherwood_v8_table<std::pair<std::basic_string_view<ch... (1 times, avg 15 ms)
+    15 ms: ska::detailv8::sherwood_v8_table<std::pair<std::basic_string_view<ch... (1 times, avg 15 ms)
+    14 ms: ska::detailv8::sherwood_v8_table<std::pair<HashedString, DetailIndex... (1 times, avg 14 ms)
+    14 ms: ska::detailv8::sherwood_v8_table<std::pair<std::pair<DetailIndex, De... (1 times, avg 14 ms)
+    14 ms: ska::detailv8::sherwood_v8_table<std::pair<DetailIndex, DetailIndex>... (1 times, avg 14 ms)
+    14 ms: ska::detailv8::sherwood_v8_table<std::pair<HashedString, DetailIndex... (1 times, avg 14 ms)
+    14 ms: std::basic_string<wchar_t>::basic_string (9 times, avg 1 ms)
+    14 ms: Analysis::EndAnalysis()::(anonymous class)::operator()<std::pair<Det... (1 times, avg 14 ms)
+    14 ms: ska::detailv8::sherwood_v8_table<std::pair<DetailIndex, std::basic_s... (1 times, avg 14 ms)
+    13 ms: ska::detailv8::sherwood_v8_table<std::pair<std::basic_string_view<ch... (1 times, avg 13 ms)
+    13 ms: std::tie<const long long, const int, const DetailIndex> (1 times, avg 13 ms)
+    12 ms: std::basic_string<char>::assign (6 times, avg 2 ms)
+    12 ms: ska::detailv8::sherwood_v8_table<std::pair<EventIndex, Analysis::Ins... (1 times, avg 12 ms)
+
+**** Template sets that took longest to instantiate:
+   123 ms: ska::detailv8::sherwood_v8_table<$>::emplace<$> (11 times, avg 11 ms)
+    91 ms: ska::detailv8::sherwood_v8_table<$>::emplace_direct_hit<$> (11 times, avg 8 ms)
+    55 ms: std::basic_string<$>::basic_string (30 times, avg 1 ms)
+    53 ms: ska::detailv8::sherwood_v8_table<$>::rehash (7 times, avg 7 ms)
+    52 ms: std::sort<$> (7 times, avg 7 ms)
+    48 ms: ska::detailv8::sherwood_v8_table<$>::reserve (3 times, avg 16 ms)
+    45 ms: std::disjunction<$> (47 times, avg 0 ms)
+    44 ms: std::_Sort_unchecked<$> (7 times, avg 6 ms)
+    39 ms: std::_Disjunction<$> (45 times, avg 0 ms)
+    38 ms: std::partial_sort_copy<$> (1 times, avg 38 ms)
+    38 ms: std::vector<$>::resize (7 times, avg 5 ms)
+    37 ms: std::vector<$>::_Resize<$> (7 times, avg 5 ms)
+    36 ms: std::tie<$> (3 times, avg 12 ms)
+    35 ms: std::vector<$>::_Umove_if_noexcept (13 times, avg 2 ms)
+    32 ms: std::basic_string<$> (12 times, avg 2 ms)
+    32 ms: std::basic_string<$>::assign (18 times, avg 1 ms)
+    30 ms: std::vector<$>::_Umove_if_noexcept1 (13 times, avg 2 ms)
+    28 ms: std::_Uninitialized_move<$> (13 times, avg 2 ms)
+    27 ms: std::basic_ostream<char>::operator<< (4 times, avg 6 ms)
+    26 ms: std::vector<$> (19 times, avg 1 ms)
+    26 ms: std::_Integral_to_string<$> (12 times, avg 2 ms)
+    26 ms: simdjson::internal::simdjson_result_base<$> (12 times, avg 2 ms)
+    25 ms: std::use_facet<$> (2 times, avg 12 ms)
+    25 ms: Analysis::EmitCollapsedInfo(const ska::bytell_hash_map<std::string_v... (1 times, avg 25 ms)
+    23 ms: ska::bytell_hash_map<std::basic_string_view<char>, Analysis::Instant... (2 times, avg 11 ms)
+    23 ms: ska::bytell_hash_map<$>::bytell_hash_map (6 times, avg 3 ms)
+    23 ms: std::vector<$>::_Emplace_reallocate<$> (10 times, avg 2 ms)
+    23 ms: std::tuple<$> (3 times, avg 7 ms)
+    23 ms: ska::detailv8::sherwood_v8_table<$>::sherwood_v8_table (6 times, avg 3 ms)
+    22 ms: std::num_put<$>::_Getcat (1 times, avg 22 ms)
+
+**** Functions that took longest to compile:
+    76 ms: void __cdecl std::_Sort_unchecked<struct Analysis::IncludeChain *, c... (src/Analysis.cpp)
+    56 ms: public: void __cdecl Analysis::EndAnalysis(void) (src/Analysis.cpp)
+    49 ms: main (src/main.cpp)
+    34 ms: public: void __cdecl BuildEventsParser::ParseEvent(class simdjson::d... (src/BuildEvents.cpp)
+    32 ms: void __cdecl std::_Sort_unchecked<int *, class `public: void __cdecl... (src/Analysis.cpp)
+    32 ms: void __cdecl std::_Sort_unchecked<struct EventIndex *, class `void _... (src/BuildEvents.cpp)
+    28 ms: public: void __cdecl Analysis::EmitCollapsedInfo(class ska::bytell_h... (src/Analysis.cpp)
+    27 ms: void __cdecl std::_Sort_unchecked<int *, class `public: void __cdecl... (src/Analysis.cpp)
+    26 ms: void __cdecl std::_Sort_unchecked<int *, class `public: void __cdecl... (src/Analysis.cpp)
+    22 ms: void __cdecl std::_Sort_unchecked<struct std::pair<class std::basic_... (src/Analysis.cpp)
+    22 ms: public: void __cdecl ska::detailv8::sherwood_v8_table<struct std::pa... (src/BuildEvents.cpp)
+    21 ms: public: void __cdecl ska::detailv8::sherwood_v8_table<struct std::pa... (src/Analysis.cpp)
+    21 ms: public: void __cdecl ska::detailv8::sherwood_v8_table<struct std::pa... (src/Analysis.cpp)
+    19 ms: public: void __cdecl Analysis::ReadConfig(void) (src/Analysis.cpp)
+    17 ms: public: void __cdecl BuildEventsParser::AddEvents(struct IndexedVect... (src/BuildEvents.cpp)
+    17 ms: public: struct DetailIndex * __cdecl std::vector<struct DetailIndex,... (src/Analysis.cpp)
+    17 ms: public: struct DetailIndex * __cdecl std::vector<struct DetailIndex,... (src/Analysis.cpp)
+    17 ms: public: struct EventIndex * __cdecl std::vector<struct EventIndex, c... (src/BuildEvents.cpp)
+    16 ms: public: void __cdecl Analysis::ProcessEvent(struct EventIndex) (src/Analysis.cpp)
+    14 ms: public: bool __cdecl BuildEventsParser::ParseTraceEvents(class simdj... (src/BuildEvents.cpp)
+    14 ms: private: struct std::pair<struct ska::detailv8::sherwood_v8_table<st... (src/BuildEvents.cpp)
+    14 ms: private: struct std::pair<struct ska::detailv8::sherwood_v8_table<st... (src/Analysis.cpp)
+    14 ms: private: struct std::pair<struct ska::detailv8::sherwood_v8_table<st... (src/Analysis.cpp)
+    13 ms: private: struct std::pair<struct ska::detailv8::sherwood_v8_table<st... (src/Analysis.cpp)
+    13 ms: struct std::pair<class std::basic_string<char, struct std::char_trai... (src/main.cpp)
+    13 ms: public: void __cdecl JsonFileFinder::OnFile(struct cf_file_t *) (src/main.cpp)
+    13 ms: private: struct std::pair<struct ska::detailv8::sherwood_v8_table<st... (src/Analysis.cpp)
+    12 ms: public: __cdecl Analysis::~Analysis(void) (src/Analysis.cpp)
+    11 ms: private: struct std::pair<struct ska::detailv8::sherwood_v8_table<st... (src/Analysis.cpp)
+    11 ms: private: struct std::pair<struct ska::detailv8::sherwood_v8_table<st... (src/Analysis.cpp)
+
+**** Function sets that took longest to compile / optimize:
+    97 ms: public: void __cdecl ska::detailv8::sherwood_v8_table<$>::rehash(uns... (7 times, avg 13 ms)
+    87 ms: private: struct std::pair<$> __cdecl ska::detailv8::sherwood_v8_tabl... (7 times, avg 12 ms)
+    87 ms: void __cdecl std::_Sort_unchecked<$>(int *, int *, __int64, class `p... (3 times, avg 29 ms)
+    76 ms: void __cdecl std::_Sort_unchecked<$>(struct Analysis::IncludeChain *... (1 times, avg 76 ms)
+    40 ms: private: struct std::pair<$> __cdecl ska::detailv8::sherwood_v8_tabl... (7 times, avg 5 ms)
+    34 ms: public: void __cdecl BuildEventsParser::ParseEvent(class simdjson::d... (1 times, avg 34 ms)
+    32 ms: void __cdecl std::_Sort_unchecked<$>(struct EventIndex *, struct Eve... (1 times, avg 32 ms)
+    29 ms: private: void __cdecl std::vector<$>::_Resize_reallocate<$>(unsigned... (6 times, avg 4 ms)
+    28 ms: public: void __cdecl Analysis::EmitCollapsedInfo(class ska::bytell_h... (1 times, avg 28 ms)
+    24 ms: private: struct std::pair<$> __cdecl ska::detailv8::sherwood_v8_tabl... (2 times, avg 12 ms)
+    22 ms: private: struct std::pair<$> __cdecl ska::detailv8::sherwood_v8_tabl... (2 times, avg 11 ms)
+    22 ms: void __cdecl std::_Sort_unchecked<$>(struct std::pair<$> *, struct s... (1 times, avg 22 ms)
+    20 ms: private: void __cdecl std::vector<$>::_Tidy(void) (11 times, avg 1 ms)
+    17 ms: public: void __cdecl BuildEventsParser::AddEvents(struct IndexedVect... (1 times, avg 17 ms)
+    17 ms: public: struct DetailIndex * __cdecl std::vector<$>::_Emplace_reallo... (1 times, avg 17 ms)
+    17 ms: public: struct DetailIndex * __cdecl std::vector<$>::_Emplace_reallo... (1 times, avg 17 ms)
+    17 ms: public: struct EventIndex * __cdecl std::vector<$>::_Emplace_realloc... (1 times, avg 17 ms)
+    16 ms: public: struct std::pair<$> __cdecl ska::detailv8::sherwood_v8_table... (4 times, avg 4 ms)
+    16 ms: public: void __cdecl ska::detailv8::sherwood_v8_table<$>::clear(void) (5 times, avg 3 ms)
+    14 ms: public: bool __cdecl BuildEventsParser::ParseTraceEvents(class simdj... (1 times, avg 14 ms)
+    13 ms: struct std::pair<$> __cdecl std::_Partition_by_median_guess_unchecke... (1 times, avg 13 ms)
+    13 ms: private: void __cdecl ska::detailv8::sherwood_v8_table<$>::deallocat... (7 times, avg 1 ms)
+    11 ms: private: struct std::pair<$> __cdecl ska::detailv8::sherwood_v8_tabl... (1 times, avg 11 ms)
+    11 ms: private: struct std::pair<$> __cdecl ska::detailv8::sherwood_v8_tabl... (1 times, avg 11 ms)
+    11 ms: public: struct BuildEvent * __cdecl std::vector<$>::_Emplace_realloc... (1 times, avg 11 ms)
+    10 ms: public: struct Analysis::IncludeChain * __cdecl std::vector<$>::_Emp... (1 times, avg 10 ms)
+    10 ms: void __cdecl std::_Pop_heap_hole_by_index<$>(struct Analysis::Includ... (1 times, avg 10 ms)
+    10 ms: bool __cdecl LoadBuildEvents(class std::basic_string<$> const &, str... (1 times, avg 10 ms)
+    10 ms: void __cdecl std::_Pop_heap_hole_by_index<$>(struct std::pair<$> *, ... (1 times, avg 10 ms)
+    10 ms: public: __cdecl ska::detailv8::sherwood_v8_table<$>::~sherwood_v8_ta... (7 times, avg 1 ms)
+
+*** Expensive headers:
+775 ms: src/BuildEvents.h (included 3 times, avg 258 ms), included via:
+  Analysis.json Analysis.h  (263 ms)
+  BuildEvents.json  (257 ms)
+  main.json Analysis.h  (253 ms)
+
+583 ms: src/external/cute_files.h (included 2 times, avg 291 ms), included via:
+  BuildEvents.json  (577 ms)
+  main.json  (6 ms)
+
+518 ms: src/Analysis.h (included 2 times, avg 259 ms), included via:
+  Analysis.json  (264 ms)
+  main.json  (254 ms)
+
+276 ms: src/external/sokol_time.h (included 1 times, avg 276 ms), included via:
+  main.json  (276 ms)
+
+257 ms: src/external/simdjson/simdjson.h (included 1 times, avg 257 ms), included via:
+  BuildEvents.json  (257 ms)
+
+226 ms: src/external/flat_hash_map/bytell_hash_map.hpp (included 2 times, avg 113 ms), included via:
+  Analysis.json  (114 ms)
+  BuildEvents.json  (112 ms)
+
+159 ms: src/external/enkiTS/TaskScheduler.h (included 1 times, avg 159 ms), included via:
+  main.json  (159 ms)
+
+123 ms: C:/Program Files (x86)/Windows Kits/10/Include/10.0.19041.0/ucrt/stdio.h (included 4 times, avg 30 ms), included via:
+  Analysis.h BuildEvents.h string xstring iosfwd cstdio  (31 ms)
+  algorithm xmemory limits cwchar cstdio  (30 ms)
+  Analysis.h BuildEvents.h string xstring iosfwd cstdio  (30 ms)
+  BuildEvents.h string xstring iosfwd cstdio  (30 ms)
+
+64 ms: C:/Program Files (x86)/Windows Kits/10/Include/10.0.19041.0/ucrt/wchar.h (included 4 times, avg 16 ms), included via:
+  algorithm xmemory limits cwchar  (18 ms)
+  Analysis.h BuildEvents.h string xstring iosfwd cwchar  (16 ms)
+  Analysis.h BuildEvents.h string xstring iosfwd cwchar  (14 ms)
+  BuildEvents.h string xstring iosfwd cwchar  (14 ms)
+
+48 ms: C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/VC/Tools/MSVC/14.29.30037/include/xpolymorphic_allocator.h (included 4 times, avg 12 ms), included via:
+  Analysis.h BuildEvents.h string xstring  (12 ms)
+  vector  (12 ms)
+  BuildEvents.h string xstring  (12 ms)
+  Analysis.h BuildEvents.h string xstring  (12 ms)
+

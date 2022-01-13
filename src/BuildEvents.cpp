@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Unlicense
 #include "BuildEvents.h"
 
+#define NOMINMAX
 #include "Arena.h"
 #include "Colors.h"
 #include "Utils.h"
@@ -53,7 +54,7 @@ static void DebugPrintEvents(const BuildEvents& events, const BuildNames& names)
     {
         const BuildEvent& event = events[EventIndex(int(i))];
         const std::string_view namesSubstr = names[event.detailIndex].substr(0, 130);
-        printf("%4zi: t=%i t1=%7ld t2=%7ld par=%4i ch=%4zi det=%.*s\n", i, (int) event.type, event.ts, event.ts+event.dur, event.parent.idx, event.children.size(), namesSubstr.size(), namesSubstr.data());
+        printf("%4zi: t=%i t1=%7lld t2=%7lld par=%4i ch=%4zi det=%.*s\n", i, (int) event.type, event.ts, event.ts+event.dur, event.parent.idx, event.children.size(), (int)namesSubstr.size(), namesSubstr.data());
     }
 }
 
@@ -321,28 +322,10 @@ struct BuildEventsParser
                     event.type = BuildEventType::kInstantiateClass;
                 else if (StrEqual(name, "InstantiateFunction"))
                     event.type = BuildEventType::kInstantiateFunction;
-                else if (StrEqual(name, "PerformPendingInstantiations"))
-                    ;
-                else if (StrEqual(name, "CodeGen Function"))
-                    ;
                 else if (StrEqual(name, "OptModule"))
                     event.type = BuildEventType::kOptModule;
                 else if (StrEqual(name, "OptFunction"))
                     event.type = BuildEventType::kOptFunction;
-                else if (StrEqual(name, "PerFunctionPasses") || StrEqual(name, "PerModulePasses") || StrEqual(name, "CodeGenPasses"))
-                    ;
-                else if (StrEqual(name, "DebugType") || StrEqual(name, "DebugFunction") || StrEqual(name, "DebugGlobalVariable") || StrEqual(name, "DebugConstGlobalVariable"))
-                    ;
-                else if (StrEqual(name, "RunPass"))
-                    ;
-                else if (StrEqual(name, "RunLoopPass"))
-                    ;
-                else if (StartsWith(name, "Total ", 6)) // ignore "Total XYZ" events
-                    ;
-                else
-                {
-                    printf("%sWARN: unknown trace event '%.*s' in '%s', skipping.%s\n", col::kYellow, name.size(), name.data(), curFileName.c_str(), col::kReset);
-                }
             }
             else if (StrEqual(nodeKey, kTs))
             {
