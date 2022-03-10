@@ -15,6 +15,7 @@
     <ClCompile Include="..\..\src\Arena.cpp" />
     <ClCompile Include="..\..\src\BuildEvents.cpp" />
     <ClCompile Include="..\..\src\Colors.cpp" />
+    <ClCompile Include="..\..\src\external\cwalk\cwalk.c" />
     <ClCompile Include="..\..\src\external\enkiTS\TaskScheduler.cpp" />
     <ClCompile Include="..\..\src\external\inih\cpp\INIReader.cpp" />
     <ClCompile Include="..\..\src\external\inih\ini.c" />
@@ -41,6 +42,7 @@
     <ClInclude Include="..\..\src\BuildEvents.h" />
     <ClInclude Include="..\..\src\Colors.h" />
     <ClInclude Include="..\..\src\external\cute_files.h" />
+    <ClInclude Include="..\..\src\external\cwalk\cwalk.h" />
     <ClInclude Include="..\..\src\external\enkiTS\LockLessMultiReadPipe.h" />
     <ClInclude Include="..\..\src\external\enkiTS\TaskScheduler.h" />
     <ClInclude Include="..\..\src\external\inih\cpp\INIReader.h" />

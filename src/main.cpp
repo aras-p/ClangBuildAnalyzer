@@ -395,7 +395,6 @@ static int ProcessCommands(int argc, const char* argv[])
 int main(int argc, const char* argv[])
 {
     col::Initialize();
-    utils::Initialize();
     stm_setup();
 
     if (argc < 2)
