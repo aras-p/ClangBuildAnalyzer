@@ -3,6 +3,7 @@
 #include "Utils.h"
 
 #include "external/cwalk/cwalk.h"
+#include <string.h>
 
 inline char ToLower(char c) { return (c >= 'A' && c <= 'Z') ? (c + 'a' - 'A') : c; }
 inline char ToUpper(char c) { return (c >= 'a' && c <= 'z') ? (c - ('a' - 'A')) : c; }
