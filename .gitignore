@@ -10,3 +10,4 @@ _TraceOutput.bin
 
 .DS_Store
 .vscode/settings.json
+buildCmake/

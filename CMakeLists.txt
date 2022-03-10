@@ -5,6 +5,7 @@ include(GNUInstallDirs)
 
 set(SRC
 # C sources
+    "src/external/cwalk/cwalk.c"
     "src/external/inih/ini.c"
     "src/external/xxHash/xxhash.c"
 # C++ sources

@@ -1,58 +1,11 @@
 // Clang Build Analyzer https://github.com/aras-p/ClangBuildAnalyzer
 // SPDX-License-Identifier: Unlicense
 #include "Utils.h"
-#define NOMINMAX
-#ifdef _MSC_VER
-#define WIN32_LEAN_AND_MEAN
-struct IUnknown; // workaround for old Win SDK header failures when using /permissive-
-#include <windows.h>
-#else
-#include <unistd.h>
-#endif
 
-#include <filesystem>
-namespace fs = std::filesystem;
-
-static std::string s_CurrentDir;
-static std::string s_Root = "./";
+#include "external/cwalk/cwalk.h"
 
 inline char ToLower(char c) { return (c >= 'A' && c <= 'Z') ? (c + 'a' - 'A') : c; }
 inline char ToUpper(char c) { return (c >= 'a' && c <= 'z') ? (c - ('a' - 'A')) : c; }
-
-#ifdef _MSC_VER
-std::string WideToUtf(const std::wstring& s)
-{
-    char path[1000] = { 0 };
-    ::WideCharToMultiByte(CP_UTF8, 0, s.data(), (int)s.size(), path, sizeof(path), NULL, NULL);
-    return path;
-}
-#endif
-
-
-void utils::Initialize()
-{
-    #ifdef _MSC_VER
-    WCHAR buffer[1000] = { 0 };
-    GetCurrentDirectoryW(1000, buffer);
-    s_CurrentDir = WideToUtf(buffer);
-    #else
-    char buffer[1000];
-    s_CurrentDir = getcwd(buffer, 1000);
-    #endif
-    ForwardSlashify(s_CurrentDir);
-    if (!s_CurrentDir.empty())
-    {
-        if (*s_CurrentDir.rbegin() != '/')
-            s_CurrentDir += '/';
-    }
-}
-
-void utils::ForwardSlashify(std::string& path)
-{
-    for (size_t i = 0, n = path.size(); i != n; ++i)
-        if (path[i] == '\\')
-            path[i] = '/';
-}
 
 void utils::Lowercase(std::string& path)
 {
@@ -104,21 +57,23 @@ bool utils::IsHeader(const std::string_view& path)
     return false;
 }
 
-static void makeSubstr(std::string& str, std::size_t pos = 0, std::size_t len = std::string::npos)
-{
-    str.erase(0, pos);
-
-    if(str.size() - len <= str.size())
-    {
-        str.erase(len, str.size() - len);
-    }
-}
-
 std::string utils::GetNicePath(const std::string_view& path)
 {
-    auto res = fs::path(path).lexically_normal().string();
-    ForwardSlashify(res);
-    return res;
+    char input[FILENAME_MAX];
+    size_t len = std::min<size_t>(path.size(), FILENAME_MAX-1);
+    memcpy(input, path.data(), len);
+    input[len] = 0;
+    char result[FILENAME_MAX];
+    cwk_path_normalize(input, result, sizeof(result));
+    // convert to forward slashes
+    char *p = result;
+    while (*p)
+    {
+      if (*p == '\\')
+          *p = '/';
+      ++p;
+    }
+    return result;
 }
 
 std::string_view utils::GetFilename(const std::string_view& path)

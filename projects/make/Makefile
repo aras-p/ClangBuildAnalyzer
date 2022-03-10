@@ -3,6 +3,7 @@ CFLAGS:=$(INCLUDES) -O2 -DNDEBUG=1 $(CFLAGS)
 CXXFLAGS:=$(INCLUDES) -O2 -DNDEBUG=1 -std=c++17 $(CXXFLAGS)
 
 C_SRCS= \
+src/external/cwalk/cwalk.c \
 src/external/inih/ini.c \
 src/external/xxHash/xxhash.c
 

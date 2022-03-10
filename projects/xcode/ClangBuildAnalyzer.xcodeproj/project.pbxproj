@@ -22,6 +22,7 @@
 		2B6FBE18230BB90300095E82 /* Demangle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B6FBE14230BB90300095E82 /* Demangle.cpp */; };
 		2B6FBE19230BB90300095E82 /* MicrosoftDemangle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B6FBE15230BB90300095E82 /* MicrosoftDemangle.cpp */; settings = {COMPILER_FLAGS = "-Wno-shorten-64-to-32"; }; };
 		2B6FBE1A230BB90300095E82 /* MicrosoftDemangleNodes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2B6FBE16230BB90300095E82 /* MicrosoftDemangleNodes.cpp */; };
+		2BDC447D27D9D5DC00C1D2EB /* cwalk.c in Sources */ = {isa = PBXBuildFile; fileRef = 2BDC447C27D9D5DC00C1D2EB /* cwalk.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -76,6 +77,8 @@
 		2B6FBE14230BB90300095E82 /* Demangle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Demangle.cpp; path = lib/Demangle.cpp; sourceTree = "<group>"; };
 		2B6FBE15230BB90300095E82 /* MicrosoftDemangle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MicrosoftDemangle.cpp; path = lib/MicrosoftDemangle.cpp; sourceTree = "<group>"; };
 		2B6FBE16230BB90300095E82 /* MicrosoftDemangleNodes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MicrosoftDemangleNodes.cpp; path = lib/MicrosoftDemangleNodes.cpp; sourceTree = "<group>"; };
+		2BDC447B27D9D5DC00C1D2EB /* cwalk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cwalk.h; sourceTree = "<group>"; };
+		2BDC447C27D9D5DC00C1D2EB /* cwalk.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = cwalk.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -128,6 +131,7 @@
 		2B09931A23080EF500344A93 /* external */ = {
 			isa = PBXGroup;
 			children = (
+				2BDC447A27D9D48500C1D2EB /* cwalk */,
 				2B3092E2240C2F22002A24F4 /* simdjson */,
 				2B3092DD240BBE7F002A24F4 /* xxHash */,
 				2B3092D5240BB4A6002A24F4 /* enkiTS */,
@@ -207,6 +211,15 @@
 			path = "llvm-Demangle";
 			sourceTree = "<group>";
 		};
+		2BDC447A27D9D48500C1D2EB /* cwalk */ = {
+			isa = PBXGroup;
+			children = (
+				2BDC447C27D9D5DC00C1D2EB /* cwalk.c */,
+				2BDC447B27D9D5DC00C1D2EB /* cwalk.h */,
+			);
+			path = cwalk;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -273,6 +286,7 @@
 				2B09932223080F2800344A93 /* INIReader.cpp in Sources */,
 				2B6FBE06230B0D8100095E82 /* Analysis.cpp in Sources */,
 				2B3092D9240BB4E8002A24F4 /* TaskScheduler.cpp in Sources */,
+				2BDC447D27D9D5DC00C1D2EB /* cwalk.c in Sources */,
 				2B3092E5240C2F38002A24F4 /* simdjson.cpp in Sources */,
 				2B6FBE1A230BB90300095E82 /* MicrosoftDemangleNodes.cpp in Sources */,
 				2B3092E1240BBEAB002A24F4 /* xxhash.c in Sources */,
@@ -335,7 +349,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -389,7 +403,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
