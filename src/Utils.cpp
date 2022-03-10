@@ -10,6 +10,9 @@ struct IUnknown; // workaround for old Win SDK header failures when using /permi
 #include <unistd.h>
 #endif
 
+#include <filesystem>
+namespace fs = std::filesystem;
+
 static std::string s_CurrentDir;
 static std::string s_Root = "./";
 
@@ -113,12 +116,8 @@ static void makeSubstr(std::string& str, std::size_t pos = 0, std::size_t len = 
 
 std::string utils::GetNicePath(const std::string_view& path)
 {
-    std::string res(path);
+    auto res = fs::path(path).lexically_normal().string();
     ForwardSlashify(res);
-    if (BeginsWith(res, s_CurrentDir))
-        makeSubstr(res, s_CurrentDir.size(), res.size() - s_CurrentDir.size());
-    if (BeginsWith(res, s_Root))
-        makeSubstr(res, s_Root.size(), res.size() - s_Root.size());
     return res;
 }
 

@@ -361,9 +361,16 @@ struct BuildEventsParser
             detailPtr = curFileName;
         if (!detailPtr.empty())
         {
-            // do various cleanups/nice-ifications of the detail name:
-            // make paths shorter (i.e. relative to project) where possible
-            std::string detailString = utils::GetNicePath(detailPtr);
+            std::string detailString;
+            if (event.type == BuildEventType::kParseFile || event.type == BuildEventType::kOptModule)
+            {
+                // do various cleanups/nice-ifications of the detail name:
+                // make paths shorter (i.e. relative to project) where possible
+                detailString = utils::GetNicePath(detailPtr);
+            }
+            else
+                detailString = detailPtr;
+
             // don't report the clang trace .json file, instead get the object file at the same location if it's there
             if (utils::EndsWith(detailString, ".json"))
             {
@@ -379,8 +386,9 @@ struct BuildEventsParser
                         detailString = candidate;
                 }
             }
+
             // demangle possibly mangled names
-            if (event.type == BuildEventType::kOptFunction || event.type == BuildEventType::kInstantiateClass || event.type == BuildEventType::kInstantiateFunction)
+            if (event.type == BuildEventType::kOptFunction)
                 detailString = llvm::demangle(detailString);
 
             event.detailIndex = NameToIndex(detailString.c_str(), nameToIndexLocal);
