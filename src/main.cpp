@@ -20,6 +20,8 @@
 struct IUnknown; // workaround for old Win SDK header failures when using /permissive-
 #endif
 
+static const char* kVersion = "1.4.0";
+
 #include "external/enkiTS/TaskScheduler.h"
 #define SOKOL_IMPL
 #include "external/sokol_time.h"
@@ -62,11 +64,12 @@ static bool CompareIgnoreNewlines(const std::string& a, const std::string& b)
 
 static void PrintUsage()
 {
-    printf("%sUSAGE%s: one of\n", col::kBold, col::kReset);
-    printf("  ClangBuildAnalyzer %s--start <artifactsdir>%s\n", col::kBold, col::kReset);
-    printf("  ClangBuildAnalyzer %s--stop <artifactsdir> <filename>%s\n", col::kBold, col::kReset);
-    printf("  ClangBuildAnalyzer %s--all <artifactsdir> <filename>%s\n", col::kBold, col::kReset);
-    printf("  ClangBuildAnalyzer %s--analyze <filename>%s\n", col::kBold, col::kReset);
+    printf("ClangBuildAnalyzer %s, %sUSAGE%s: one of\n", kVersion, col::kBold, col::kReset);
+    printf("  %s--start <artifactsdir>%s\n", col::kBold, col::kReset);
+    printf("  %s--stop <artifactsdir> <filename>%s\n", col::kBold, col::kReset);
+    printf("  %s--all <artifactsdir> <filename>%s\n", col::kBold, col::kReset);
+    printf("  %s--analyze <filename>%s\n", col::kBold, col::kReset);
+    printf("  %s--version%s\n", col::kBold, col::kReset);
 }
 
 static int RunStart(int argc, const char* argv[])
@@ -373,6 +376,11 @@ static int RunTests(int argc, const char* argv[])
     return failures != 0 ? 1 : 0;
 }
 
+static int RunVersion(int argc, const char* argv[])
+{
+    printf("ClangBuildAnalyzer %s%s%s\n", col::kBold, kVersion, col::kReset);
+    return 0;
+}
 
 static int ProcessCommands(int argc, const char* argv[])
 {
@@ -386,6 +394,8 @@ static int ProcessCommands(int argc, const char* argv[])
         return RunAnalyze(argc, argv, stdout);
     if (strcmp(argv[1], "--test") == 0)
         return RunTests(argc, argv);
+    if (strcmp(argv[1], "--version") == 0)
+        return RunVersion(argc, argv);
 
     printf("%sUnsupported command line arguments%s\n", col::kRed, col::kReset);
     PrintUsage();
