@@ -34,6 +34,9 @@
       <Filter>external\enkiTS</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\Arena.cpp" />
+    <ClCompile Include="..\..\src\external\cwalk\cwalk.c">
+      <Filter>external\cwalk</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\Analysis.h" />
@@ -89,6 +92,9 @@
       <Filter>external\enkiTS</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\Arena.h" />
+    <ClInclude Include="..\..\src\external\cwalk\cwalk.h">
+      <Filter>external\cwalk</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="external">
@@ -108,6 +114,9 @@
     </Filter>
     <Filter Include="external\enkiTS">
       <UniqueIdentifier>{16a4320a-ef87-49da-8035-b6b048c5ee45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="external\cwalk">
+      <UniqueIdentifier>{4c305dfa-8ebc-4f48-ac05-73978f66fb43}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
