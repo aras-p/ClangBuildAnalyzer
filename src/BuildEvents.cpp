@@ -2,7 +2,10 @@
 // SPDX-License-Identifier: Unlicense
 #include "BuildEvents.h"
 
+#ifndef NOMINMAX
 #define NOMINMAX
+#endif
+
 #include "Arena.h"
 #include "Colors.h"
 #include "Utils.h"
@@ -188,9 +191,11 @@ struct BuildEventsParser
                 ch.idx += offset;
             if (ev.detailIndex.idx != 0)
             {
-                assert(ev.detailIndex.idx >= 0 && ev.detailIndex.idx < nameToIndex.size());
+                assert(ev.detailIndex.idx >= 0);
+                assert(ev.detailIndex.idx < static_cast<int>(nameToIndex.size()));
                 ev.detailIndex = detailRemap[ev.detailIndex];
-                assert(ev.detailIndex.idx >= 0 && ev.detailIndex.idx < resultNameToIndex.size());
+                assert(ev.detailIndex.idx >= 0);
+                assert(ev.detailIndex.idx < static_cast<int>(resultNameToIndex.size()));
             }
         }
 
@@ -260,7 +265,7 @@ struct BuildEventsParser
 
     static bool StartsWith(std::string_view a, const char* b, int blen)
     {
-        return a.size() >= blen && a.compare(0, blen, b) == 0;
+        return static_cast<int>(a.size()) >= blen && a.compare(0, blen, b) == 0;
     }
 
     const char* kPid = "pid";
