@@ -65,9 +65,11 @@ struct Analysis
 
     FILE* out;
 
-    const std::string_view GetBuildName(DetailIndex index)
+    std::string_view GetBuildName(DetailIndex index)
     {
-        assert(index.idx >= 0 && index.idx < buildNames.size());
+        assert(index.idx >= 0);
+        assert(index.idx < static_cast<int>(buildNames.size()));
+
         return buildNames[index];
     }
 
@@ -267,7 +269,7 @@ static std::string_view CollapseName(const std::string_view& elt)
     }
     // append the footer
     retval.append(b_range, e_range);
-    
+
     size_t size = retval.size();
     char* ptr = (char*)ArenaAllocate(size+1);
     memcpy(ptr, retval.c_str(), size+1);
@@ -300,7 +302,7 @@ void Analysis::EmitCollapsedInfo(
     for (const auto &elt : sorted_collapsed)
     {
         std::string dname = elt.first;
-        if (dname.size() > config.maxName)
+        if (static_cast<int>(dname.size()) > config.maxName)
             dname = dname.substr(0, config.maxName - 2) + "...";
         int ms = int(elt.second.us / 1000);
         int avg = int(ms / elt.second.count);
@@ -365,8 +367,8 @@ void Analysis::EndAnalysis()
     {
         fprintf(out, "%s%s**** Time summary%s:\n", col::kBold, col::kMagenta, col::kReset);
         fprintf(out, "Compilation (%i times):\n", totalParseCount);
-        fprintf(out, "  Parsing (frontend):        %s%7.1f%s s\n", col::kBold, totalParseUs / 1000000.0, col::kReset);
-        fprintf(out, "  Codegen & opts (backend):  %s%7.1f%s s\n", col::kBold, totalCodegenUs / 1000000.0, col::kReset);
+        fprintf(out, "  Parsing (frontend):        %s%7.1f%s s\n", col::kBold, static_cast<double>(totalParseUs) / 1000000.0, col::kReset);
+        fprintf(out, "  Codegen & opts (backend):  %s%7.1f%s s\n", col::kBold, static_cast<double>(totalCodegenUs) / 1000000.0, col::kReset);
         fprintf(out, "\n");
     }
 
@@ -436,7 +438,7 @@ void Analysis::EndAnalysis()
         {
             const auto& e = instArray[i];
             std::string dname = std::string(GetBuildName(e.first));
-            if (dname.size() > config.maxName)
+            if (static_cast<int>(dname.size()) > config.maxName)
                 dname = dname.substr(0, config.maxName-2) + "...";
             int ms = int(e.second.us / 1000);
             int avg = int(ms / std::max(e.second.count,1));
@@ -471,7 +473,7 @@ void Analysis::EndAnalysis()
         {
             const auto& e = functionsArray[indices[i]];
             std::string dname = std::string(GetBuildName(e.first.first));
-            if (dname.size() > config.maxName)
+            if (static_cast<int>(dname.size()) > config.maxName)
                 dname = dname.substr(0, config.maxName-2) + "...";
             int ms = int(e.second / 1000);
             fprintf(out, "%s%6i%s ms: %s (%s)\n", col::kBold, ms, col::kReset, dname.c_str(), GetBuildName(e.first.second).data());
@@ -537,7 +539,7 @@ void Analysis::FindExpensiveHeaders()
             return a.second > b.second;
         return a.first < b.first;
     });
-    if (expensiveHeaders.size() > config.headerCount)
+    if (static_cast<int>(expensiveHeaders.size()) > config.headerCount)
         expensiveHeaders.resize(config.headerCount);
 }
 
