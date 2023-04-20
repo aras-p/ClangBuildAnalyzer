@@ -146,7 +146,7 @@ Compilation (8 times):
     10 ms: void __cdecl std::_Pop_heap_hole_by_index<$>(struct std::pair<$> *, ... (1 times, avg 10 ms)
     10 ms: public: __cdecl ska::detailv8::sherwood_v8_table<$>::~sherwood_v8_ta... (7 times, avg 1 ms)
 
-*** Expensive headers:
+**** Expensive headers:
 775 ms: src/BuildEvents.h (included 3 times, avg 258 ms), included via:
   Analysis.json Analysis.h  (263 ms)
   BuildEvents.json  (257 ms)
@@ -190,4 +190,3 @@ Compilation (8 times):
   vector  (12 ms)
   BuildEvents.h string xstring  (12 ms)
   Analysis.h BuildEvents.h string xstring  (12 ms)
-

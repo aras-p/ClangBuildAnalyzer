@@ -486,7 +486,7 @@ void Analysis::EndAnalysis()
 
     if (!expensiveHeaders.empty())
     {
-        fprintf(out, "%s%s*** Expensive headers%s:\n", col::kBold, col::kMagenta, col::kReset);
+        fprintf(out, "%s%s**** Expensive headers%s:\n", col::kBold, col::kMagenta, col::kReset);
         for (const auto& e : expensiveHeaders)
         {
             const auto& es = headerMap[e.first];
