@@ -15,6 +15,7 @@
 #include <time.h>
 #include <algorithm>
 #include <set>
+#include <cassert>
 
 #ifdef _MSC_VER
 struct IUnknown; // workaround for old Win SDK header failures when using /permissive-
@@ -44,22 +45,44 @@ static void ReadFileToString(const std::string& path, std::string& str)
 
 static bool CompareIgnoreNewlines(const std::string& a, const std::string& b)
 {
-    size_t alen = a.size();
-    size_t blen = b.size();
-    size_t ia = 0, ib = 0;
-    for (; ia < alen && ib < blen; ++ia, ++ib)
+    // Find the next non-newline character in `str`, starting from `idx`.
+    //
+    // `idx` will be modified. If such a character is found, `true` is returned, 
+    // and `idx` will be the index of the found non-newline character.
+    //
+    // Otherwise, `false` is returned.
+    const auto findNextNonNewLineChar = [](const std::string& str, std::size_t& idx)
     {
-        if (a[ia] == '\r')
-            ++ia;
-        if (b[ib] == '\r')
-            ++ib;
-        if (ia < alen && ib < blen)
-            if (a[ia] != b[ib])
-                return false;
-    }
-    if (ia != alen || ib != blen)
+        for (; idx < str.size(); ++idx)
+            if (str[idx] != '\n' && str[idx] != '\r')
+                return true;
+        
         return false;
-    return true;
+    };
+
+    std::size_t idxA = 0;
+    std::size_t idxB = 0;
+
+    while (true)
+    {
+        const bool foundA = findNextNonNewLineChar(a, idxA);
+        const bool foundB = findNextNonNewLineChar(b, idxB);
+        
+        if (!foundA && !foundB) // Reached the end of both files.
+            return true;
+
+        if (foundA != foundB) // Mismatch: reached end of only one file.
+            return false;
+
+        if (a[idxA] != b[idxB]) // Mismatch: characters do not match.
+            return false;
+
+        ++idxA;
+        ++idxB;
+    }
+
+    assert(false);
+    return false;
 }
 
 static void PrintUsage()
