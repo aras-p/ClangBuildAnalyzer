@@ -143,7 +143,7 @@ Compilation (6 times):
     12 ms: void __cdecl std::_Sort_unchecked<$>(struct sajson::internal::object... (1 times, avg 12 ms)
     12 ms: void __cdecl FindParentChildrenIndices(struct IndexedVector<$> &) (2 times, avg 6 ms)
 
-*** Expensive headers:
+**** Expensive headers:
 701 ms: C:/Program Files (x86)/Windows Kits/10/include/10.0.18362.0/um/windows.h (included 2 times, avg 350 ms), included via:
   Allocator.json  (352 ms)
   main.json sokol_time.h  (348 ms)
@@ -185,4 +185,3 @@ Compilation (6 times):
   BuildEvents.h string xstring iosfwd xstddef cstdlib  (12 ms)
   algorithm xmemory cstdlib  (12 ms)
   Analysis.h BuildEvents.h string xstring iosfwd xstddef cstdlib  (12 ms)
-
