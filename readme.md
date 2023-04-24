@@ -67,7 +67,7 @@ Compilation (1761 times):
   4011 ms: sqlite3VdbeExec (External/sqlite/sqlite3.c)
   2737 ms: ProgressiveRuntimeManager::Update() (artifacts/Editor_Src_GI_Progressive_0.cpp)
 
-*** Expensive headers:
+**** Expensive headers:
 136567 ms: /BuildEnvironment/MacOSX10.14.sdk/System/Library/Frameworks/Foundation.framework/Headers/Foundation.h (included 92 times, avg 1484 ms), included via:
   CocoaObjectImages.o AppKit.h  (2033 ms)
   OSXNativeWebViewWindowHelper.o OSXNativeWebViewWindowHelper.h AppKit.h  (2007 ms)

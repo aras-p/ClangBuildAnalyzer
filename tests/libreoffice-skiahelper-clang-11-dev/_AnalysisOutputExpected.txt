@@ -129,7 +129,7 @@ Compilation (2 times):
      0 ms: std::unique_ptr<$>::get_deleter() (1 times, avg 0 ms)
      0 ms: sal::detail::operator<<(sal::detail::StreamStart const&, char const*) (1 times, avg 0 ms)
 
-*** Expensive headers:
+**** Expensive headers:
 1287 ms: /libo2/include/vcl/svapp.hxx (included 1 times, avg 1287 ms), included via:
   SkiaHelper.json  (1287 ms)
 
@@ -159,4 +159,3 @@ Compilation (2 times):
 
 1 ms: /libo2/include/sal/log.hxx (included 1 times, avg 1 ms), included via:
   SkiaHelper.json  (1 ms)
-

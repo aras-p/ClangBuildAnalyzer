@@ -81,7 +81,7 @@ Compilation (2 times):
 **** Function sets that took longest to compile / optimize:
      0 ms: void __cdecl std::_Deallocate<$>(void *, unsigned __int64) (1 times, avg 0 ms)
 
-*** Expensive headers:
+**** Expensive headers:
 29 ms: C:/Program Files (x86)/Windows Kits/10/Include/10.0.17763.0/ucrt/stdio.h (included 1 times, avg 29 ms), included via:
   string xstring iosfwd cstdio  (29 ms)
 
@@ -111,4 +111,3 @@ Compilation (2 times):
 
 1 ms: C:/Program Files (x86)/Windows Kits/10/Include/10.0.17763.0/ucrt/ctype.h (included 1 times, avg 1 ms), included via:
   string cctype  (1 ms)
-

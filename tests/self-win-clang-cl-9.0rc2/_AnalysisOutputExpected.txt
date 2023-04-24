@@ -131,7 +131,7 @@ Compilation (3 times):
      0 ms: public: class std::basic_string<$> & __cdecl std::basic_string<$>::a... (1 times, avg 0 ms)
      0 ms: public: void __cdecl std::allocator<$>::deallocate(wchar_t *const, u... (1 times, avg 0 ms)
 
-*** Expensive headers:
+**** Expensive headers:
 1740 ms: C:/Program Files (x86)/Windows Kits/10/include/10.0.17763.0/um/windows.h (included 3 times, avg 580 ms), included via:
   Colors.json  (715 ms)
   Utils.json  (683 ms)
@@ -173,4 +173,3 @@ Compilation (3 times):
 3 ms: C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/VC/Tools/MSVC/14.22.27905/include/xatomic.h (included 2 times, avg 1 ms), included via:
   algorithm xmemory  (1 ms)
   Utils.h string xstring xmemory  (1 ms)
-
