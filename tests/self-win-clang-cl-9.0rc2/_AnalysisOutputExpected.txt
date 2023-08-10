@@ -140,36 +140,9 @@ Compilation (3 times):
 231 ms: src/Utils.h (included 1 times, avg 231 ms), included via:
   Utils.json  (231 ms)
 
-77 ms: C:/Program Files (x86)/Windows Kits/10/Include/10.0.17763.0/ucrt/stdio.h (included 2 times, avg 38 ms), included via:
-  algorithm xmemory limits cwchar cstdio  (39 ms)
-  Utils.h string xstring iosfwd cstdio  (37 ms)
+209 ms: C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/VC/Tools/MSVC/14.22.27905/include/algorithm (included 1 times, avg 209 ms), included via:
+  Allocator.json  (209 ms)
 
-46 ms: C:/Program Files (x86)/Windows Kits/10/Include/10.0.17763.0/ucrt/stdlib.h (included 3 times, avg 15 ms), included via:
-  Colors.json windows.h ole2.h objbase.h combaseapi.h  (17 ms)
-  algorithm xmemory cstdlib  (16 ms)
-  Utils.h string xstring iosfwd xstddef cstdlib  (12 ms)
+35 ms: C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/VC/Tools/MSVC/14.22.27905/include/stdexcept (included 1 times, avg 35 ms), included via:
+  Allocator.json  (35 ms)
 
-41 ms: C:/Program Files (x86)/Windows Kits/10/Include/10.0.17763.0/ucrt/wchar.h (included 2 times, avg 20 ms), included via:
-  algorithm xmemory limits cwchar  (23 ms)
-  Utils.h string xstring iosfwd cwchar  (17 ms)
-
-32 ms: C:/Program Files (x86)/Windows Kits/10/Include/10.0.17763.0/ucrt/string.h (included 3 times, avg 10 ms), included via:
-  Utils.h string xstring iosfwd cstring  (13 ms)
-  Colors.json windows.h windef.h minwindef.h winnt.h guiddef.h  (13 ms)
-  algorithm xmemory xutility cstring  (6 ms)
-
-21 ms: C:/Program Files (x86)/Windows Kits/10/Include/10.0.17763.0/ucrt/math.h (included 2 times, avg 10 ms), included via:
-  algorithm xmemory cstdlib  (10 ms)
-  Utils.h string xstring iosfwd xstddef cstdlib  (10 ms)
-
-21 ms: C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/VC/Tools/MSVC/14.22.27905/include/yvals.h (included 2 times, avg 10 ms), included via:
-  algorithm xmemory cstdint  (10 ms)
-  Utils.h string xstring iosfwd  (10 ms)
-
-4 ms: C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/VC/Tools/MSVC/14.22.27905/include/vcruntime_exception.h (included 2 times, avg 2 ms), included via:
-  algorithm xmemory new exception  (2 ms)
-  Utils.h string xstring xmemory new exception  (2 ms)
-
-3 ms: C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/VC/Tools/MSVC/14.22.27905/include/xatomic.h (included 2 times, avg 1 ms), included via:
-  algorithm xmemory  (1 ms)
-  Utils.h string xstring xmemory  (1 ms)

@@ -82,32 +82,12 @@ Compilation (2 times):
      0 ms: void __cdecl std::_Deallocate<$>(void *, unsigned __int64) (1 times, avg 0 ms)
 
 **** Expensive headers:
-29 ms: C:/Program Files (x86)/Windows Kits/10/Include/10.0.17763.0/ucrt/stdio.h (included 1 times, avg 29 ms), included via:
-  string xstring iosfwd cstdio  (29 ms)
+191 ms: C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/VC/Tools/MSVC/14.25.28610/include/string (included 1 times, avg 191 ms), included via:
+  test.json  (191 ms)
 
-14 ms: C:/Program Files (x86)/Windows Kits/10/Include/10.0.17763.0/ucrt/wchar.h (included 1 times, avg 14 ms), included via:
-  string xstring iosfwd cwchar  (14 ms)
+19 ms: C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/VC/Tools/MSVC/14.25.28610/include/map (included 1 times, avg 19 ms), included via:
+  test.json  (19 ms)
 
-10 ms: C:/Program Files (x86)/Windows Kits/10/Include/10.0.17763.0/ucrt/string.h (included 1 times, avg 10 ms), included via:
-  string xstring iosfwd cstring  (10 ms)
+7 ms: C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/VC/Tools/MSVC/14.25.28610/include/vector (included 1 times, avg 7 ms), included via:
+  test.json  (7 ms)
 
-9 ms: C:/Program Files (x86)/Windows Kits/10/Include/10.0.17763.0/ucrt/stdlib.h (included 1 times, avg 9 ms), included via:
-  string xstring iosfwd xstddef cstdlib  (9 ms)
-
-7 ms: C:/Program Files (x86)/Windows Kits/10/Include/10.0.17763.0/ucrt/math.h (included 1 times, avg 7 ms), included via:
-  string xstring iosfwd xstddef cstdlib  (7 ms)
-
-6 ms: C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/VC/Tools/MSVC/14.25.28610/include/yvals_core.h (included 1 times, avg 6 ms), included via:
-  string  (6 ms)
-
-4 ms: C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/VC/Tools/MSVC/14.25.28610/include/yvals.h (included 1 times, avg 4 ms), included via:
-  string xstring iosfwd  (4 ms)
-
-1 ms: C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/VC/Tools/MSVC/14.25.28610/include/vcruntime_exception.h (included 1 times, avg 1 ms), included via:
-  string xstring xmemory new exception  (1 ms)
-
-1 ms: C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/VC/Tools/MSVC/14.25.28610/include/xatomic.h (included 1 times, avg 1 ms), included via:
-  string xstring xmemory  (1 ms)
-
-1 ms: C:/Program Files (x86)/Windows Kits/10/Include/10.0.17763.0/ucrt/ctype.h (included 1 times, avg 1 ms), included via:
-  string cctype  (1 ms)

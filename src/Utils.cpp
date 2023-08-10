@@ -45,8 +45,9 @@ bool utils::EndsWith(const std::string_view& str, const std::string& suffix)
 }
 
 
-bool utils::IsHeader(const std::string_view& path)
+bool utils::IsHeader(std::string_view path)
 {
+    path = utils::GetFilename(path);
     size_t dot = path.rfind('.');
     if (dot == std::string::npos)
         return true; // no extension is likely a header, e.g. <vector>
