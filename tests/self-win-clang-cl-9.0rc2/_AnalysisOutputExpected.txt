@@ -136,13 +136,23 @@ Compilation (3 times):
   Colors.json  (715 ms)
   Utils.json  (683 ms)
   Allocator.json  (341 ms)
+  included mostly from:
+  1: Allocator.json
+  1: Colors.json
+  1: Utils.json
 
 231 ms: src/Utils.h (included 1 times, avg 231 ms), included via:
   Utils.json  (231 ms)
+  included mostly from:
+  1: Utils.json
 
 209 ms: C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/VC/Tools/MSVC/14.22.27905/include/algorithm (included 1 times, avg 209 ms), included via:
   Allocator.json  (209 ms)
+  included mostly from:
+  1: Allocator.json
 
 35 ms: C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/VC/Tools/MSVC/14.22.27905/include/stdexcept (included 1 times, avg 35 ms), included via:
   Allocator.json  (35 ms)
+  included mostly from:
+  1: Allocator.json
 

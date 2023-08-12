@@ -487,6 +487,8 @@ void Analysis::EndAnalysis()
     if (!expensiveHeaders.empty())
     {
         fprintf(out, "%s%s**** Expensive headers%s:\n", col::kBold, col::kMagenta, col::kReset);
+        ska::bytell_hash_map<DetailIndex, int> includedFromMap;
+        std::vector<std::pair<DetailIndex, int>> includedFromArray;
         for (const auto& e : expensiveHeaders)
         {
             const auto& es = headerMap[e.first];
@@ -495,6 +497,7 @@ void Analysis::EndAnalysis()
             fprintf(out, "%s%i%s ms: %s%s%s (included %i times, avg %i ms), included via:\n", col::kBold, ms, col::kReset, col::kBold, e.first.data(), col::kReset, es.count, avg);
             int pathCount = 0;
 
+            // print most costly include chains
             auto sortedIncludeChains = es.includePaths;
             std::sort(sortedIncludeChains.begin(), sortedIncludeChains.end(), [](const auto& a, const auto& b)
             {
@@ -502,7 +505,6 @@ void Analysis::EndAnalysis()
                     return a.us > b.us;
                 return a.files < b.files;
             });
-
             for (const auto& chain : sortedIncludeChains)
             {
                 fprintf(out, "  ");
@@ -519,6 +521,41 @@ void Analysis::EndAnalysis()
             {
                 fprintf(out, "  ...\n");
             }
+            
+            // print most often happening includers
+            includedFromMap.clear();
+            for (const auto& chain : sortedIncludeChains)
+            {
+                if (chain.files.empty())
+                    continue;
+                includedFromMap[chain.files.front()]++;
+            }
+            includedFromArray.resize(0);
+            includedFromArray.reserve(includedFromMap.size());
+            for (const auto& from : includedFromMap)
+            {
+                includedFromArray.push_back(from);
+            }
+            std::sort(includedFromArray.begin(), includedFromArray.end(), [](const auto& a, const auto& b)
+            {
+                if (a.second != b.second)
+                    return a.second > b.second;
+                return a.first < b.first;
+            });
+            pathCount = 0;
+            fprintf(out, "  included mostly from:\n");
+            for (const auto& from : includedFromArray)
+            {
+                fprintf(out, "  %i: %s\n", from.second, utils::GetFilename(GetBuildName(from.first)).data());
+                ++pathCount;
+                if (pathCount > config.headerChainCount)
+                    break;
+            }
+            if (pathCount > config.headerChainCount)
+            {
+                fprintf(out, "  ...\n");
+            }
+
             fprintf(out, "\n");
         }
     }
