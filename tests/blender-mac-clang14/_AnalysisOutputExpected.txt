@@ -1,0 +1,291 @@
+**** Time summary:
+Compilation (26 times):
+  Parsing (frontend):            6.7 s
+  Codegen & opts (backend):      0.9 s
+
+**** Files that took longest to parse (compiler frontend):
+   753 ms: tests/blender-mac-clang14/obj_export_file_writer.json
+   589 ms: tests/blender-mac-clang14/obj_import_file_reader.json
+   576 ms: tests/blender-mac-clang14/obj_export_mesh.json
+   541 ms: tests/blender-mac-clang14/obj_exporter.json
+   536 ms: tests/blender-mac-clang14/obj_import_mesh.json
+   493 ms: tests/blender-mac-clang14/obj_importer.json
+   471 ms: tests/blender-mac-clang14/obj_export_mtl.json
+   461 ms: tests/blender-mac-clang14/importer_mesh_utils.json
+   385 ms: tests/blender-mac-clang14/obj_import_mtl.json
+   341 ms: tests/blender-mac-clang14/obj_import_nurbs.json
+
+**** Files that took longest to codegen (compiler backend):
+   193 ms: tests/blender-mac-clang14/obj_export_file_writer.json
+   173 ms: tests/blender-mac-clang14/obj_import_mesh.json
+   153 ms: tests/blender-mac-clang14/obj_export_mesh.json
+   113 ms: tests/blender-mac-clang14/obj_import_file_reader.json
+    57 ms: tests/blender-mac-clang14/obj_importer.json
+    56 ms: tests/blender-mac-clang14/obj_exporter.json
+    55 ms: tests/blender-mac-clang14/obj_export_mtl.json
+    35 ms: tests/blender-mac-clang14/obj_import_string_utils.json
+    22 ms: tests/blender-mac-clang14/obj_import_mtl.json
+    19 ms: tests/blender-mac-clang14/importer_mesh_utils.json
+
+**** Templates that took longest to instantiate:
+    31 ms: blender::bke::AttributeAccessor::lookup_or_default<int> (2 times, avg 15 ms)
+    25 ms: std::basic_string<char16_t>::basic_string (13 times, avg 1 ms)
+    25 ms: std::__scalar_hash<std::_PairT, 2>::operator() (13 times, avg 1 ms)
+    25 ms: blender::bke::AttributeAccessor::lookup<int> (2 times, avg 12 ms)
+    24 ms: blender::bke::GAttributeReader::typed<int> (2 times, avg 12 ms)
+    24 ms: blender::GVArray::typed<int> (2 times, avg 12 ms)
+    24 ms: std::__murmur2_or_cityhash<unsigned long, 64>::operator() (13 times, avg 1 ms)
+    23 ms: std::basic_string<char16_t> (13 times, avg 1 ms)
+    23 ms: std::basic_string<char>::basic_string (14 times, avg 1 ms)
+    22 ms: blender::VArray<int>::VArray (4 times, avg 5 ms)
+    20 ms: blender::bke::AttributeAccessor::lookup_or_default<blender::ColorSce... (1 times, avg 20 ms)
+    20 ms: std::basic_string<char32_t> (13 times, avg 1 ms)
+    19 ms: std::basic_string<wchar_t>::basic_string (13 times, avg 1 ms)
+    18 ms: blender::bke::AttributeAccessor::lookup_or_default<bool> (1 times, avg 18 ms)
+    18 ms: blender::bke::AttributeAccessor::lookup<blender::VecBase<float, 2>> (1 times, avg 18 ms)
+    18 ms: blender::bke::GAttributeReader::typed<blender::VecBase<float, 2>> (1 times, avg 18 ms)
+    18 ms: blender::GVArray::typed<blender::VecBase<float, 2>> (1 times, avg 18 ms)
+    18 ms: std::basic_string<char> (13 times, avg 1 ms)
+    18 ms: std::basic_string<char32_t>::basic_string (13 times, avg 1 ms)
+    17 ms: std::__function::__func<(lambda at /Users/aras/code/blender/blender/... (3 times, avg 5 ms)
+    17 ms: blender::bke::MutableAttributeAccessor::lookup_or_add_for_write_span... (1 times, avg 17 ms)
+    17 ms: blender::VArray<int>::ForSpan (2 times, avg 8 ms)
+    17 ms: blender::VArrayCommon<int>::emplace<blender::VArrayImpl_For_Span_fin... (2 times, avg 8 ms)
+    16 ms: std::basic_string<wchar_t> (13 times, avg 1 ms)
+    16 ms: blender::bke::MutableAttributeAccessor::lookup_or_add_for_write<bool> (1 times, avg 16 ms)
+    16 ms: blender::Any<blender::detail::VArrayAnyExtraInfo<int>, 24, 8>::empla... (2 times, avg 8 ms)
+    16 ms: blender::bke::GAttributeWriter::typed<bool> (1 times, avg 16 ms)
+    16 ms: blender::GVMutableArray::typed<bool> (1 times, avg 16 ms)
+    15 ms: blender::Any<blender::detail::VArrayAnyExtraInfo<int>, 24, 8>::Any<b... (2 times, avg 7 ms)
+    15 ms: std::function<const char *(int)>::function<(lambda at /Users/aras/co... (1 times, avg 15 ms)
+
+**** Template sets that took longest to instantiate:
+   115 ms: blender::VArrayCommon<$>::emplace<$> (21 times, avg 5 ms)
+    87 ms: std::basic_string<$>::basic_string (53 times, avg 1 ms)
+    81 ms: blender::Any<$>::Any<$> (23 times, avg 3 ms)
+    80 ms: blender::Any<$>::emplace<$> (18 times, avg 4 ms)
+    80 ms: blender::Any<$>::emplace_on_empty<$> (23 times, avg 3 ms)
+    79 ms: std::basic_string<$> (52 times, avg 1 ms)
+    73 ms: blender::bke::AttributeAccessor::lookup<$> (5 times, avg 14 ms)
+    72 ms: blender::bke::GAttributeReader::typed<$> (5 times, avg 14 ms)
+    72 ms: blender::GVArray::typed<$> (5 times, avg 14 ms)
+    71 ms: blender::bke::AttributeAccessor::lookup_or_default<$> (4 times, avg 17 ms)
+    61 ms: std::unique_ptr<$> (72 times, avg 0 ms)
+    61 ms: blender::VArray<$>::VArray (10 times, avg 6 ms)
+    48 ms: blender::Any<$>::get_info<$> (9 times, avg 5 ms)
+    45 ms: blender::VArray<$>::ForSpan (5 times, avg 9 ms)
+    43 ms: blender::bke::MutableAttributeAccessor::lookup_or_add_for_write<$> (3 times, avg 14 ms)
+    43 ms: blender::bke::GAttributeWriter::typed<$> (3 times, avg 14 ms)
+    42 ms: blender::GVMutableArray::typed<$> (3 times, avg 14 ms)
+    40 ms: std::basic_string<$>::__init (52 times, avg 0 ms)
+    36 ms: blender::VMutableArray<$>::For<$> (6 times, avg 6 ms)
+    36 ms: blender::io::obj::FormatHandler::write_impl<$> (24 times, avg 1 ms)
+    30 ms: blender::index_mask::IndexMask::foreach_index<$> (42 times, avg 0 ms)
+    29 ms: blender::bke::MutableAttributeAccessor::lookup_or_add_for_write_only... (2 times, avg 14 ms)
+    27 ms: blender::index_mask::IndexMask::foreach_index_optimized<$> (32 times, avg 0 ms)
+    27 ms: std::optional<$> (21 times, avg 1 ms)
+    27 ms: fmt::format_to<$> (20 times, avg 1 ms)
+    26 ms: std::vector<$> (21 times, avg 1 ms)
+    26 ms: blender::VMutableArray<$>::ForSpan (3 times, avg 8 ms)
+    25 ms: std::__scalar_hash<std::_PairT, 2>::operator() (13 times, avg 1 ms)
+    24 ms: std::__murmur2_or_cityhash<unsigned long, 64>::operator() (13 times, avg 1 ms)
+    23 ms: std::make_shared<$> (11 times, avg 2 ms)
+
+**** Functions that took longest to compile:
+     6 ms: srgb_to_linearrgb_v3_v3(float*, float const*) (/Users/aras/code/blender/blender/source/blender/io/wavefront_obj/importer/obj_import_file_reader.cc)
+     5 ms: linearrgb_to_srgb_v3_v3(float*, float const*) (/Users/aras/code/blender/blender/source/blender/io/wavefront_obj/exporter/obj_export_file_writer.cc)
+     4 ms: fast_float::from_chars_result_t<char> fast_float::from_chars_advance... (/Users/aras/code/blender/blender/source/blender/io/wavefront_obj/importer/obj_import_string_utils.cc)
+     3 ms: bool fast_float::small_mul<(unsigned short)62>(fast_float::stackvec<... (/Users/aras/code/blender/blender/source/blender/io/wavefront_obj/importer/obj_import_string_utils.cc)
+     3 ms: void fast_float::parse_mantissa<char>(fast_float::bigint&, fast_floa... (/Users/aras/code/blender/blender/source/blender/io/wavefront_obj/importer/obj_import_string_utils.cc)
+     3 ms: mul_v3_v3fl(float*, float const*, float) (/Users/aras/code/blender/blender/source/blender/io/wavefront_obj/importer/obj_import_file_reader.cc)
+     2 ms: blender::io::obj::store_bsdf_properties(bNode const*, Material const... (/Users/aras/code/blender/blender/source/blender/io/wavefront_obj/exporter/obj_export_mtl.cc)
+     2 ms: blender::io::obj::OBJParser::parse(blender::Vector<std::__1::unique_... (/Users/aras/code/blender/blender/source/blender/io/wavefront_obj/importer/obj_import_file_reader.cc)
+     1 ms: blender::io::obj::set_bsdf_socket_values(bNode*, Material*, blender:... (/Users/aras/code/blender/blender/source/blender/io/wavefront_obj/importer/obj_import_mtl.cc)
+     1 ms: void blender::index_mask::optimized_foreach_index_with_pos<long long... (/Users/aras/code/blender/blender/source/blender/io/wavefront_obj/exporter/obj_export_mesh.cc)
+     1 ms: blender::io::obj::CurveFromGeometry::create_curve(Main*, OBJImportPa... (/Users/aras/code/blender/blender/source/blender/io/wavefront_obj/importer/obj_import_nurbs.cc)
+     1 ms: blender::io::obj::MeshFromGeometry::create_mesh(Main*, blender::Map<... (/Users/aras/code/blender/blender/source/blender/io/wavefront_obj/importer/obj_import_mesh.cc)
+     1 ms: blender::io::obj::MTLParser::parse_and_store(blender::Map<std::__1::... (/Users/aras/code/blender/blender/source/blender/io/wavefront_obj/importer/obj_import_file_reader.cc)
+     1 ms: blender::io::obj::fixup_invalid_polygon(blender::Span<blender::VecBa... (/Users/aras/code/blender/blender/source/blender/io/wavefront_obj/importer/importer_mesh_utils.cc)
+     1 ms: blender::io::obj::MeshFromGeometry::create_faces_loops(Mesh*, bool) (/Users/aras/code/blender/blender/source/blender/io/wavefront_obj/importer/obj_import_mesh.cc)
+     1 ms: tbb::internal::atomic_impl<tbb::interface6::internal::ets_base<(tbb:... (/Users/aras/code/blender/blender/source/blender/io/wavefront_obj/exporter/obj_export_file_writer.cc)
+     1 ms: blender::Vector<bNodeSocket const*, 4ll, blender::GuardedAllocator>:... (/Users/aras/code/blender/blender/source/blender/io/wavefront_obj/exporter/obj_export_mtl.cc)
+     1 ms: blender::io::obj::MTLWriter::MTLWriter(char const*) (/Users/aras/code/blender/blender/source/blender/io/wavefront_obj/exporter/obj_export_file_writer.cc)
+     1 ms: blender::io::obj::MeshFromGeometry::fixup_invalid_faces() (/Users/aras/code/blender/blender/source/blender/io/wavefront_obj/importer/obj_import_mesh.cc)
+     1 ms: blender::SimpleMapSlot<std::__1::basic_string<char, std::__1::char_t... (/Users/aras/code/blender/blender/source/blender/io/wavefront_obj/importer/obj_import_mesh.cc)
+     1 ms: blender::io::obj::OBJWriter::write_poly_elements(blender::io::obj::F... (/Users/aras/code/blender/blender/source/blender/io/wavefront_obj/exporter/obj_export_file_writer.cc)
+     1 ms: void tbb::interface9::internal::dynamic_grainsize_mode<tbb::interfac... (/Users/aras/code/blender/blender/source/blender/io/wavefront_obj/importer/obj_importer.cc)
+     1 ms: void std::__1::__sort<blender::io::obj::OBJMesh::calc_poly_order()::... (/Users/aras/code/blender/blender/source/blender/io/wavefront_obj/exporter/obj_export_mesh.cc)
+     1 ms: void blender::Map<std::__1::basic_string<char, std::__1::char_traits... (/Users/aras/code/blender/blender/source/blender/io/wavefront_obj/importer/obj_import_file_reader.cc)
+     1 ms: void std::__1::__sort<blender::io::obj::geometry_to_blender_objects(... (/Users/aras/code/blender/blender/source/blender/io/wavefront_obj/importer/obj_importer.cc)
+     0 ms: void std::__1::__sort<blender::io::obj::MTLWriter::write_materials(c... (/Users/aras/code/blender/blender/source/blender/io/wavefront_obj/exporter/obj_export_file_writer.cc)
+     0 ms: std::__1::ostreambuf_iterator<char, std::__1::char_traits<char> > st... (/Users/aras/code/blender/blender/source/blender/io/wavefront_obj/importer/obj_import_mtl.cc)
+     0 ms: blender::io::obj::OBJMesh::OBJMesh(Depsgraph*, OBJExportParams const... (/Users/aras/code/blender/blender/source/blender/io/wavefront_obj/exporter/obj_export_mesh.cc)
+     0 ms: std::__1::shared_ptr<blender::VArrayImpl<blender::ColorSceneLinear4f... (/Users/aras/code/blender/blender/source/blender/io/wavefront_obj/exporter/obj_export_file_writer.cc)
+     0 ms: blender::Array<blender::SimpleMapSlot<std::__1::basic_string<char, s... (/Users/aras/code/blender/blender/source/blender/io/wavefront_obj/importer/obj_import_mesh.cc)
+
+**** Function sets that took longest to compile / optimize:
+     4 ms: fast_float::from_chars_result_t<$> fast_float::from_chars_advanced<$... (1 times, avg 4 ms)
+     3 ms: bool fast_float::small_mul<$>(fast_float::stackvec<$>&, unsigned lon... (1 times, avg 3 ms)
+     3 ms: void fast_float::parse_mantissa<$>(fast_float::bigint&, fast_float::... (1 times, avg 3 ms)
+     2 ms: blender::io::obj::OBJParser::parse(blender::Vector<$>&, blender::io:... (1 times, avg 2 ms)
+     1 ms: void blender::index_mask::optimized_foreach_index_with_pos<$>(blende... (1 times, avg 1 ms)
+     1 ms: blender::io::obj::MeshFromGeometry::create_mesh(Main*, blender::Map<... (1 times, avg 1 ms)
+     1 ms: blender::io::obj::MTLParser::parse_and_store(blender::Map<$>&) (1 times, avg 1 ms)
+     1 ms: blender::io::obj::fixup_invalid_polygon(blender::Span<$>, blender::S... (1 times, avg 1 ms)
+     1 ms: tbb::internal::atomic_impl<$>::store_with_release(tbb::interface6::i... (1 times, avg 1 ms)
+     1 ms: blender::Vector<$>::realloc_to_at_least(long long) (2 times, avg 0 ms)
+     1 ms: blender::Vector<$>::Vector<$>(blender::Vector<$>&&) (1 times, avg 1 ms)
+     1 ms: blender::SimpleMapSlot<$>* std::__1::uninitialized_copy_n<$>(std::__... (1 times, avg 1 ms)
+     1 ms: blender::io::obj::OBJWriter::write_poly_elements(blender::io::obj::F... (1 times, avg 1 ms)
+     1 ms: void tbb::interface9::internal::dynamic_grainsize_mode<$>::work_bala... (1 times, avg 1 ms)
+     1 ms: void std::__1::__sort<$>(int*, int*, blender::io::obj::OBJMesh::calc... (1 times, avg 1 ms)
+     1 ms: void blender::Map<$>::add_new__impl<$>(std::__1::basic_string<$> con... (1 times, avg 1 ms)
+     1 ms: void std::__1::__sort<$>(std::__1::unique_ptr<$>*, std::__1::unique_... (1 times, avg 1 ms)
+     0 ms: void std::__1::__sort<$>(blender::io::obj::MTLMaterial*, blender::io... (1 times, avg 0 ms)
+     0 ms: std::__1::ostreambuf_iterator<$> std::__1::__pad_and_output<$>(std::... (1 times, avg 0 ms)
+     0 ms: std::__1::shared_ptr<$>::shared_ptr(std::__1::shared_ptr<$> const&) (1 times, avg 0 ms)
+     0 ms: blender::Array<$>::reinitialize(long long) (1 times, avg 0 ms)
+     0 ms: fast_float::adjusted_mantissa fast_float::negative_digit_comp<$>(fas... (1 times, avg 0 ms)
+     0 ms: std::__1::basic_ostream<$>& std::__1::__put_character_sequence<$>(st... (1 times, avg 0 ms)
+     0 ms: blender::io::obj::copy_property_from_node(eNodeSocketDatatype, bNode... (1 times, avg 0 ms)
+     0 ms: tbb::interface9::internal::quick_sort_range<$>::split_range(tbb::int... (1 times, avg 0 ms)
+     0 ms: tbb::aligned_space<$>::begin() const (1 times, avg 0 ms)
+     0 ms: fmt::v10::format_arg_store<$> fmt::v10::make_format_args<$>(float&, ... (1 times, avg 0 ms)
+     0 ms: blender::Vector<$>::is_inline() const (1 times, avg 0 ms)
+     0 ms: blender::VMutableArrayImpl<$>::VMutableArrayImpl(long long) (1 times, avg 0 ms)
+     0 ms: blender::io::obj::write_mesh_objects(blender::Vector<$>, blender::io... (1 times, avg 0 ms)
+
+**** Expensive headers:
+1318 ms: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk/usr/include/c++/v1/algorithm (included 12 times, avg 109 ms), included via:
+  obj_export_file_writer.json  (169 ms)
+  importer_mesh_utils.json BKE_mesh.hh BLI_index_mask.hh array  (146 ms)
+  obj_import_mtl.json BKE_node.hh BLI_math_vector_types.hh array  (142 ms)
+  obj_export_mtl.json BKE_node.hh BLI_math_vector_types.hh array  (142 ms)
+  obj_import_string_utils.json obj_import_string_utils.hh BLI_string_ref.hh sstream istream ostream bitset __bit_reference  (142 ms)
+  obj_importer.json string  (133 ms)
+  ...
+  included mostly from:
+  6: array
+  3: string
+  1: __bit_reference
+  1: BLI_allocator.hh
+  1: obj_export_file_writer.json
+
+1030 ms: /Users/aras/code/blender/blender/source/blender/blenlib/BLI_math_vector_types.hh (included 11 times, avg 93 ms), included via:
+  obj_import_mtl.json BKE_node.hh  (248 ms)
+  obj_export_mtl.json BKE_node.hh  (226 ms)
+  obj_import_nurbs.json importer_mesh_utils.hh  (206 ms)
+  obj_export_nurbs.json  (200 ms)
+  obj_import_mesh.json DNA_mesh_types.h  (128 ms)
+  obj_exporter.json obj_export_mesh.hh  (6 ms)
+  ...
+  included mostly from:
+  3: DNA_mesh_types.h
+  2: BKE_node.hh
+  1: BKE_deform.h
+  1: obj_export_mesh.hh
+  1: obj_export_mtl.hh
+  1: importer_mesh_utils.hh
+  ...
+
+682 ms: /Users/aras/code/blender/blender/source/blender/blenkernel/BKE_attribute.hh (included 3 times, avg 227 ms), included via:
+  obj_export_mesh.json  (400 ms)
+  obj_export_file_writer.json  (242 ms)
+  obj_import_mesh.json  (39 ms)
+  included mostly from:
+  1: obj_export_file_writer.json
+  1: obj_export_mesh.json
+  1: obj_import_mesh.json
+
+677 ms: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk/usr/include/c++/v1/string (included 13 times, avg 52 ms), included via:
+  obj_importer.json  (213 ms)
+  IO_wavefront_obj.json BLI_timeit.hh iostream ios __locale  (149 ms)
+  obj_exporter.json BLI_task.hh parallel_for.h partitioner.h task_arena.h tbb_exception.h  (55 ms)
+  obj_import_mtl.json BKE_node.hh BLI_math_vector_types.hh iostream ios __locale  (31 ms)
+  obj_import_mesh.json DNA_mesh_types.h BLI_math_vector_types.hh iostream ios __locale  (29 ms)
+  importer_mesh_utils.json BKE_mesh.hh BLI_index_mask.hh BLI_bit_span.hh BLI_bit_ref.hh BLI_index_range.hh iostream ios __locale  (28 ms)
+  ...
+  included mostly from:
+  8: __locale
+  2: BLI_hash.hh
+  1: bitset
+  1: tbb_exception.h
+  1: obj_importer.json
+
+610 ms: /Users/aras/code/blender/blender/source/blender/blenkernel/BKE_node.hh (included 2 times, avg 305 ms), included via:
+  obj_import_mtl.json  (314 ms)
+  obj_export_mtl.json  (296 ms)
+  included mostly from:
+  1: obj_export_mtl.json
+  1: obj_import_mtl.json
+
+522 ms: /Users/aras/code/blender/blender/source/blender/blenlib/BLI_map.hh (included 10 times, avg 52 ms), included via:
+  obj_import_file_reader.json  (324 ms)
+  obj_importer.json  (116 ms)
+  obj_export_file_writer.json BKE_attribute.hh BLI_generic_span.hh BLI_cpp_type.hh  (17 ms)
+  obj_export_mesh.json BKE_attribute.hh BLI_generic_span.hh BLI_cpp_type.hh  (14 ms)
+  obj_import_nurbs.json obj_import_nurbs.hh obj_import_objects.hh  (11 ms)
+  obj_export_mtl.json BKE_node.hh BKE_node.h  (11 ms)
+  ...
+  included mostly from:
+  4: BLI_cpp_type.hh
+  2: BKE_node.h
+  1: obj_export_file_writer.hh
+  1: obj_import_objects.hh
+  1: obj_import_file_reader.json
+  1: obj_importer.json
+  ...
+
+432 ms: /Users/aras/code/blender/blender/source/blender/blenkernel/BKE_mesh.hh (included 4 times, avg 108 ms), included via:
+  importer_mesh_utils.json  (397 ms)
+  obj_export_file_writer.json  (14 ms)
+  obj_export_mesh.json  (11 ms)
+  obj_import_mesh.json  (9 ms)
+  included mostly from:
+  1: importer_mesh_utils.json
+  1: obj_export_file_writer.json
+  1: obj_export_mesh.json
+  1: obj_import_mesh.json
+
+407 ms: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk/usr/include/c++/v1/memory (included 26 times, avg 15 ms), included via:
+  obj_exporter.json  (108 ms)
+  importer_mesh_utils.json BKE_mesh.hh BLI_index_mask.hh array algorithm functional function.h  (29 ms)
+  obj_export_mesh.json BKE_attribute.hh optional functional function.h  (28 ms)
+  obj_export_file_writer.json algorithm functional function.h  (27 ms)
+  obj_import_nurbs.json importer_mesh_utils.hh BLI_math_vector_types.hh array algorithm functional function.h  (26 ms)
+  obj_importer.json string algorithm functional function.h  (25 ms)
+  ...
+  included mostly from:
+  12: function.h
+  8: __locale
+  2: mutex
+  1: inplace_merge.h
+  1: BLI_memory_utils.hh
+  1: DNA_asset_types.h
+  ...
+
+365 ms: /Users/aras/code/blender/blender/source/blender/makesdna/DNA_mesh_types.h (included 6 times, avg 60 ms), included via:
+  obj_import_mesh.json  (340 ms)
+  importer_mesh_utils.json BKE_mesh.hh BKE_mesh.h  (13 ms)
+  obj_export_file_writer.json BKE_mesh.hh BKE_mesh.h  (4 ms)
+  obj_export_mtl.json obj_export_mesh.hh  (3 ms)
+  obj_exporter.json obj_export_mesh.hh  (2 ms)
+  obj_export_mesh.json BKE_mesh.hh BKE_mesh.h  (1 ms)
+  ...
+  included mostly from:
+  3: BKE_mesh.h
+  2: obj_export_mesh.hh
+  1: obj_import_mesh.json
+
+303 ms: /Users/aras/code/blender/blender/source/blender/blenlib/BLI_task.hh (included 6 times, avg 50 ms), included via:
+  obj_exporter.json  (160 ms)
+  obj_import_mesh.json DNA_mesh_types.h BLI_offset_indices.hh BLI_index_mask.hh  (33 ms)
+  obj_export_file_writer.json BKE_attribute.hh BLI_generic_span.hh BLI_cpp_type.hh BLI_index_mask.hh  (32 ms)
+  obj_export_mtl.json obj_export_mesh.hh BLI_virtual_array.hh BLI_index_mask.hh  (26 ms)
+  importer_mesh_utils.json BKE_mesh.hh BLI_index_mask.hh  (25 ms)
+  obj_export_mesh.json BKE_attribute.hh BLI_generic_span.hh BLI_cpp_type.hh BLI_index_mask.hh  (25 ms)
+  ...
+  included mostly from:
+  5: BLI_index_mask.hh
+  1: obj_exporter.json
+
