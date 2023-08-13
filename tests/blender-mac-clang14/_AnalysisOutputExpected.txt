@@ -118,8 +118,8 @@ Compilation (26 times):
      1 ms: void blender::Map<std::__1::basic_string<char, std::__1::char_traits... (/Users/aras/code/blender/blender/source/blender/io/wavefront_obj/importer/obj_import_file_reader.cc)
      1 ms: void std::__1::__sort<blender::io::obj::geometry_to_blender_objects(... (/Users/aras/code/blender/blender/source/blender/io/wavefront_obj/importer/obj_importer.cc)
      0 ms: void std::__1::__sort<blender::io::obj::MTLWriter::write_materials(c... (/Users/aras/code/blender/blender/source/blender/io/wavefront_obj/exporter/obj_export_file_writer.cc)
-     0 ms: std::__1::ostreambuf_iterator<char, std::__1::char_traits<char> > st... (/Users/aras/code/blender/blender/source/blender/io/wavefront_obj/importer/obj_import_mtl.cc)
      0 ms: blender::io::obj::OBJMesh::OBJMesh(Depsgraph*, OBJExportParams const... (/Users/aras/code/blender/blender/source/blender/io/wavefront_obj/exporter/obj_export_mesh.cc)
+     0 ms: std::__1::ostreambuf_iterator<char, std::__1::char_traits<char> > st... (/Users/aras/code/blender/blender/source/blender/io/wavefront_obj/importer/obj_import_mtl.cc)
      0 ms: std::__1::shared_ptr<blender::VArrayImpl<blender::ColorSceneLinear4f... (/Users/aras/code/blender/blender/source/blender/io/wavefront_obj/exporter/obj_export_file_writer.cc)
      0 ms: blender::Array<blender::SimpleMapSlot<std::__1::basic_string<char, s... (/Users/aras/code/blender/blender/source/blender/io/wavefront_obj/importer/obj_import_mesh.cc)
 
@@ -157,135 +157,68 @@ Compilation (26 times):
 
 **** Expensive headers:
 1318 ms: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk/usr/include/c++/v1/algorithm (included 12 times, avg 109 ms), included via:
-  obj_export_file_writer.json  (169 ms)
-  importer_mesh_utils.json BKE_mesh.hh BLI_index_mask.hh array  (146 ms)
-  obj_import_mtl.json BKE_node.hh BLI_math_vector_types.hh array  (142 ms)
-  obj_export_mtl.json BKE_node.hh BLI_math_vector_types.hh array  (142 ms)
-  obj_import_string_utils.json obj_import_string_utils.hh BLI_string_ref.hh sstream istream ostream bitset __bit_reference  (142 ms)
-  obj_importer.json string  (133 ms)
+  2x: BKE_node.hh BLI_math_vector_types.hh array 
+  1x: <direct include>
+  1x: BKE_mesh.hh BLI_index_mask.hh array 
+  1x: obj_import_string_utils.hh BLI_string_ref.hh sstream istream ostream bitset __bit_reference 
+  1x: string 
+  1x: importer_mesh_utils.hh BLI_math_vector_types.hh array 
   ...
-  included mostly from:
-  6: array
-  3: string
-  1: __bit_reference
-  1: BLI_allocator.hh
-  1: obj_export_file_writer.json
 
 1030 ms: /Users/aras/code/blender/blender/source/blender/blenlib/BLI_math_vector_types.hh (included 11 times, avg 93 ms), included via:
-  obj_import_mtl.json BKE_node.hh  (248 ms)
-  obj_export_mtl.json BKE_node.hh  (226 ms)
-  obj_import_nurbs.json importer_mesh_utils.hh  (206 ms)
-  obj_export_nurbs.json  (200 ms)
-  obj_import_mesh.json DNA_mesh_types.h  (128 ms)
-  obj_exporter.json obj_export_mesh.hh  (6 ms)
-  ...
-  included mostly from:
-  3: DNA_mesh_types.h
-  2: BKE_node.hh
-  1: BKE_deform.h
-  1: obj_export_mesh.hh
-  1: obj_export_mtl.hh
-  1: importer_mesh_utils.hh
+  2x: BKE_node.hh 
+  2x: <direct include>
+  2x: BKE_mesh.hh BKE_mesh.h DNA_mesh_types.h 
+  1x: importer_mesh_utils.hh 
+  1x: DNA_mesh_types.h 
+  1x: obj_export_mesh.hh 
   ...
 
 682 ms: /Users/aras/code/blender/blender/source/blender/blenkernel/BKE_attribute.hh (included 3 times, avg 227 ms), included via:
-  obj_export_mesh.json  (400 ms)
-  obj_export_file_writer.json  (242 ms)
-  obj_import_mesh.json  (39 ms)
-  included mostly from:
-  1: obj_export_file_writer.json
-  1: obj_export_mesh.json
-  1: obj_import_mesh.json
+  3x: <direct include>
 
 677 ms: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk/usr/include/c++/v1/string (included 13 times, avg 52 ms), included via:
-  obj_importer.json  (213 ms)
-  IO_wavefront_obj.json BLI_timeit.hh iostream ios __locale  (149 ms)
-  obj_exporter.json BLI_task.hh parallel_for.h partitioner.h task_arena.h tbb_exception.h  (55 ms)
-  obj_import_mtl.json BKE_node.hh BLI_math_vector_types.hh iostream ios __locale  (31 ms)
-  obj_import_mesh.json DNA_mesh_types.h BLI_math_vector_types.hh iostream ios __locale  (29 ms)
-  importer_mesh_utils.json BKE_mesh.hh BLI_index_mask.hh BLI_bit_span.hh BLI_bit_ref.hh BLI_index_range.hh iostream ios __locale  (28 ms)
+  2x: BKE_node.hh BLI_math_vector_types.hh iostream ios __locale 
+  2x: BKE_attribute.hh BLI_generic_span.hh BLI_cpp_type.hh BLI_hash.hh 
+  1x: <direct include>
+  1x: BLI_timeit.hh iostream ios __locale 
+  1x: BLI_task.hh parallel_for.h partitioner.h task_arena.h tbb_exception.h 
+  1x: DNA_mesh_types.h BLI_math_vector_types.hh iostream ios __locale 
   ...
-  included mostly from:
-  8: __locale
-  2: BLI_hash.hh
-  1: bitset
-  1: tbb_exception.h
-  1: obj_importer.json
 
 610 ms: /Users/aras/code/blender/blender/source/blender/blenkernel/BKE_node.hh (included 2 times, avg 305 ms), included via:
-  obj_import_mtl.json  (314 ms)
-  obj_export_mtl.json  (296 ms)
-  included mostly from:
-  1: obj_export_mtl.json
-  1: obj_import_mtl.json
+  2x: <direct include>
 
 522 ms: /Users/aras/code/blender/blender/source/blender/blenlib/BLI_map.hh (included 10 times, avg 52 ms), included via:
-  obj_import_file_reader.json  (324 ms)
-  obj_importer.json  (116 ms)
-  obj_export_file_writer.json BKE_attribute.hh BLI_generic_span.hh BLI_cpp_type.hh  (17 ms)
-  obj_export_mesh.json BKE_attribute.hh BLI_generic_span.hh BLI_cpp_type.hh  (14 ms)
-  obj_import_nurbs.json obj_import_nurbs.hh obj_import_objects.hh  (11 ms)
-  obj_export_mtl.json BKE_node.hh BKE_node.h  (11 ms)
-  ...
-  included mostly from:
-  4: BLI_cpp_type.hh
-  2: BKE_node.h
-  1: obj_export_file_writer.hh
-  1: obj_import_objects.hh
-  1: obj_import_file_reader.json
-  1: obj_importer.json
+  3x: BKE_attribute.hh BLI_generic_span.hh BLI_cpp_type.hh 
+  2x: <direct include>
+  2x: BKE_node.hh BKE_node.h 
+  1x: obj_import_nurbs.hh obj_import_objects.hh 
+  1x: obj_export_file_writer.hh 
+  1x: BKE_mesh.hh BKE_mesh.h BKE_customdata.h BLI_cpp_type.hh 
   ...
 
 432 ms: /Users/aras/code/blender/blender/source/blender/blenkernel/BKE_mesh.hh (included 4 times, avg 108 ms), included via:
-  importer_mesh_utils.json  (397 ms)
-  obj_export_file_writer.json  (14 ms)
-  obj_export_mesh.json  (11 ms)
-  obj_import_mesh.json  (9 ms)
-  included mostly from:
-  1: importer_mesh_utils.json
-  1: obj_export_file_writer.json
-  1: obj_export_mesh.json
-  1: obj_import_mesh.json
+  4x: <direct include>
 
 407 ms: /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk/usr/include/c++/v1/memory (included 26 times, avg 15 ms), included via:
-  obj_exporter.json  (108 ms)
-  importer_mesh_utils.json BKE_mesh.hh BLI_index_mask.hh array algorithm functional function.h  (29 ms)
-  obj_export_mesh.json BKE_attribute.hh optional functional function.h  (28 ms)
-  obj_export_file_writer.json algorithm functional function.h  (27 ms)
-  obj_import_nurbs.json importer_mesh_utils.hh BLI_math_vector_types.hh array algorithm functional function.h  (26 ms)
-  obj_importer.json string algorithm functional function.h  (25 ms)
-  ...
-  included mostly from:
-  12: function.h
-  8: __locale
-  2: mutex
-  1: inplace_merge.h
-  1: BLI_memory_utils.hh
-  1: DNA_asset_types.h
+  2x: BKE_node.hh BLI_math_vector_types.hh array algorithm functional function.h 
+  2x: BKE_node.hh BLI_math_vector_types.hh iostream ios __locale 
+  1x: <direct include>
+  1x: BKE_mesh.hh BLI_index_mask.hh array algorithm functional function.h 
+  1x: BKE_attribute.hh optional functional function.h 
+  1x: algorithm functional function.h 
   ...
 
 365 ms: /Users/aras/code/blender/blender/source/blender/makesdna/DNA_mesh_types.h (included 6 times, avg 60 ms), included via:
-  obj_import_mesh.json  (340 ms)
-  importer_mesh_utils.json BKE_mesh.hh BKE_mesh.h  (13 ms)
-  obj_export_file_writer.json BKE_mesh.hh BKE_mesh.h  (4 ms)
-  obj_export_mtl.json obj_export_mesh.hh  (3 ms)
-  obj_exporter.json obj_export_mesh.hh  (2 ms)
-  obj_export_mesh.json BKE_mesh.hh BKE_mesh.h  (1 ms)
-  ...
-  included mostly from:
-  3: BKE_mesh.h
-  2: obj_export_mesh.hh
-  1: obj_import_mesh.json
+  3x: BKE_mesh.hh BKE_mesh.h 
+  2x: obj_export_mesh.hh 
+  1x: <direct include>
 
 303 ms: /Users/aras/code/blender/blender/source/blender/blenlib/BLI_task.hh (included 6 times, avg 50 ms), included via:
-  obj_exporter.json  (160 ms)
-  obj_import_mesh.json DNA_mesh_types.h BLI_offset_indices.hh BLI_index_mask.hh  (33 ms)
-  obj_export_file_writer.json BKE_attribute.hh BLI_generic_span.hh BLI_cpp_type.hh BLI_index_mask.hh  (32 ms)
-  obj_export_mtl.json obj_export_mesh.hh BLI_virtual_array.hh BLI_index_mask.hh  (26 ms)
-  importer_mesh_utils.json BKE_mesh.hh BLI_index_mask.hh  (25 ms)
-  obj_export_mesh.json BKE_attribute.hh BLI_generic_span.hh BLI_cpp_type.hh BLI_index_mask.hh  (25 ms)
-  ...
-  included mostly from:
-  5: BLI_index_mask.hh
-  1: obj_exporter.json
+  2x: BKE_attribute.hh BLI_generic_span.hh BLI_cpp_type.hh BLI_index_mask.hh 
+  1x: <direct include>
+  1x: DNA_mesh_types.h BLI_offset_indices.hh BLI_index_mask.hh 
+  1x: obj_export_mesh.hh BLI_virtual_array.hh BLI_index_mask.hh 
+  1x: BKE_mesh.hh BLI_index_mask.hh 
 

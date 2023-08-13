@@ -39,53 +39,62 @@ The analysis output will look something like this:
 ```
 Analyzing build trace from 'artifacts/FullCapture.bin'...
 **** Time summary:
-Compilation (1761 times):
-  Parsing (frontend):         5167.4 s
-  Codegen & opts (backend):   7576.5 s
+Compilation (7664 times):
+  Parsing (frontend):         2118.9 s
+  Codegen & opts (backend):   1204.1 s
 
 **** Files that took longest to parse (compiler frontend):
- 19524 ms: artifacts/Modules_TLS_0.o
- 18046 ms: artifacts/Editor_Src_4.o
- 17026 ms: artifacts/Modules_Audio_Public_1.o
- 16581 ms: artifacts/Runtime_Camera_4.o
+  5084 ms: cycles_scene.build/RelWithDebInfo/volume.o
+  4471 ms: extern_ceres.build/RelWithDebInfo/covariance_impl.o
+  4225 ms: bf_intern_libmv.build/RelWithDebInfo/resect.o
+  4121 ms: bf_blenkernel.build/RelWithDebInfo/volume_to_mesh.o
  
 **** Files that took longest to codegen (compiler backend):
-145761 ms: artifacts/Modules_TLS_0.o
-123048 ms: artifacts/Runtime_Core_Containers_1.o
- 56975 ms: artifacts/Runtime_Testing_3.o
- 52031 ms: artifacts/Tools_ShaderCompiler_1.o
+ 47123 ms: bf_blenkernel.build/RelWithDebInfo/volume.o
+ 39617 ms: bf_blenkernel.build/RelWithDebInfo/volume_to_mesh.o
+ 37488 ms: bf_modifiers.build/RelWithDebInfo/MOD_volume_displace.o
+ 30676 ms: bf_gpu.build/RelWithDebInfo/gpu_shader_create_info.o
 
 **** Templates that took longest to instantiate:
- 19006 ms: std::__1::basic_string<char, std::__1::char_traits<char>, std::__1::... (2665 times, avg 7 ms)
- 12821 ms: std::__1::map<core::basic_string<char, core::StringStorageDefault<ch... (250 times, avg 51 ms)
-  9142 ms: std::__1::map<core::basic_string<char, core::StringStorageDefault<ch... (432 times, avg 21 ms)
-  8515 ms: std::__1::map<int, std::__1::pair<List<ListNode<Behaviour> > *, List... (392 times, avg 21 ms) 
+ 11172 ms: fmt::detail::vformat_to<char> (142 times, avg 78 ms)
+  6662 ms: std::__scalar_hash<std::_PairT, 2>::operator() (3549 times, avg 1 ms)
+  6281 ms: std::__murmur2_or_cityhash<unsigned long, 64>::operator() (3549 times, avg 1 ms)
+  5757 ms: std::basic_string<char>::basic_string (3597 times, avg 1 ms)
+  5541 ms: blender::CPPType::to_static_type_tag<float, blender::VecBase<float, ... (70 times, avg 79 ms)
+
+**** Template sets that took longest to instantiate:
+ 32421 ms: std::unique_ptr<$> (30461 times, avg 1 ms)
+ 30098 ms: Eigen::MatrixBase<$> (8639 times, avg 3 ms)
+ 27524 ms: Eigen::internal::call_assignment_no_alias<$> (2397 times, avg 11 ms)
 
 **** Functions that took longest to compile:
-  8710 ms: yyparse(glslang::TParseContext*) (External/ShaderCompilers/glslang/glslang/MachineIndependent/glslang_tab.cpp)
-  4580 ms: LZ4HC_compress_generic_dictCtx (External/Compression/lz4/lz4hc_quarantined.c)
-  4011 ms: sqlite3VdbeExec (External/sqlite/sqlite3.c)
-  2737 ms: ProgressiveRuntimeManager::Update() (artifacts/Editor_Src_GI_Progressive_0.cpp)
+ 28359 ms: gpu_shader_create_info_init (source/blender/gpu/intern/gpu_shader_create_info.cc)
+  4090 ms: ccl::GetConstantValues(ccl::KernelData const*) (intern/cycles/device/metal/kernel.mm)
+  3996 ms: gpu_shader_dependency_init (source/blender/gpu/intern/gpu_shader_dependency.cc)
 
+**** Function sets that took longest to compile / optimize:
+ 10606 ms: bool openvdb::v10_0::tree::NodeList<$>::initNodeChildren<$>(openvdb:... (470 times, avg 22 ms)
+  9640 ms: void tbb::interface9::internal::dynamic_grainsize_mode<$>::work_bala... (919 times, avg 10 ms)
+  9459 ms: void tbb::interface9::internal::dynamic_grainsize_mode<$>::work_bala... (715 times, avg 13 ms)
+  7279 ms: blender::Vector<$>::realloc_to_at_least(long long) (1840 times, avg 3 ms)
+ 
 **** Expensive headers:
-136567 ms: /BuildEnvironment/MacOSX10.14.sdk/System/Library/Frameworks/Foundation.framework/Headers/Foundation.h (included 92 times, avg 1484 ms), included via:
-  CocoaObjectImages.o AppKit.h  (2033 ms)
-  OSXNativeWebViewWindowHelper.o OSXNativeWebViewWindowHelper.h AppKit.h  (2007 ms)
-  RenderSurfaceMetal.o RenderSurfaceMetal.h MetalSupport.h Metal.h MTLTypes.h  (2003 ms)
-  OSXWebViewWindowPrivate.o AppKit.h  (1959 ms)
+261580 ms: /Developer/SDKs/MacOSX13.1.sdk/usr/include/c++/v1/algorithm (included 3389 times, avg 77 ms), included via:
+  341x: BKE_context.h BLI_string_ref.hh string 
+  180x: DNA_mesh_types.h BLI_math_vector_types.hh array 
+  125x: DNA_space_types.h DNA_node_types.h DNA_node_tree_interface_types.h BLI_function_ref.hh BLI_memory_utils.hh 
   ...
 
-112344 ms: Runtime/BaseClasses/BaseObject.h (included 729 times, avg 154 ms), included via:
-  PairTests.cpp TestFixtures.h  (337 ms)
-  Stacktrace.cpp MonoManager.h GameManager.h EditorExtension.h  (312 ms)
-  PlayerPrefs.o PlayerSettings.h GameManager.h EditorExtension.h  (301 ms)
-  Animation.cpp MaterialDescription.h  (299 ms)
+188777 ms: /Developer/SDKs/MacOSX13.1.sdk/usr/include/c++/v1/string (included 3447 times, avg 54 ms), included via:
+  353x: BKE_context.h BLI_string_ref.hh 
+  184x: DNA_mesh_types.h BLI_offset_indices.hh BLI_index_mask.hh BLI_linear_allocator.hh BLI_string_ref.hh 
+  131x: DNA_node_types.h DNA_node_tree_interface_types.h BLI_span.hh 
   ...
 
-103856 ms: Runtime/Threads/ReadWriteLock.h (included 478 times, avg 217 ms), included via:
-  DownloadHandlerAssetBundle.cpp AssetBundleManager.h  (486 ms)
-  LocalizationDatabase.cpp LocalizationDatabase.h LocalizationAsset.h StringTable.h  (439 ms)
-  Runtime_BaseClasses_1.o MonoUtility.h ScriptingProfiler.h  (418 ms)
+174792 ms: source/blender/makesdna/DNA_node_types.h (included 1653 times, avg 105 ms), included via:
+  316x: ED_screen.hh DNA_space_types.h 
+  181x: DNA_space_types.h 
+  173x: <direct include>
   ...
 ```
 
@@ -104,7 +113,7 @@ Granularity and amount of most expensive things (files, functions, templates, in
 
 * Does not capture anything related to linking or LTO right now.
 * May or may not scale to _huge_ builds (I haven't tried on something ginormous like a Chrome
-  build). However I have tried it on Unity editor build and it was not terrible.
+  build). However I have tried it on Unity editor and Blender builds and it worked fine.
 
 
 ### License

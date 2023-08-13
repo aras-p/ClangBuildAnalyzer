@@ -145,41 +145,25 @@ Compilation (4 times):
 
 **** Expensive headers:
 794 ms: hlslang/OSDependent/Mac/osinclude.h (included 1 times, avg 794 ms), included via:
-  hlslLinker.json  (794 ms)
-  included mostly from:
-  1: hlslLinker.json
+  1x: <direct include>
 
 559 ms: hlslang/GLSLCodeGen/glslFunction.h (included 3 times, avg 186 ms), included via:
-  glslFunction.json  (458 ms)
-  hlslLinker.json hlslLinker.h  (73 ms)
-  glslOutput.json glslOutput.h  (27 ms)
-  included mostly from:
-  1: glslOutput.h
-  1: hlslLinker.h
-  1: glslFunction.json
+  1x: <direct include>
+  1x: hlslLinker.h 
+  1x: glslOutput.h 
 
 464 ms: hlslang/GLSLCodeGen/glslOutput.h (included 1 times, avg 464 ms), included via:
-  glslOutput.json  (464 ms)
-  included mostly from:
-  1: glslOutput.json
+  1x: <direct include>
 
 459 ms: hlslang/GLSLCodeGen/hlslLinker.h (included 1 times, avg 459 ms), included via:
-  hlslLinker.json  (459 ms)
-  included mostly from:
-  1: hlslLinker.json
+  1x: <direct include>
 
 453 ms: hlslang/GLSLCodeGen/glslStruct.h (included 4 times, avg 113 ms), included via:
-  glslCommon.json  (446 ms)
-  glslFunction.json glslFunction.h  (2 ms)
-  glslOutput.json glslOutput.h  (2 ms)
-  hlslLinker.json hlslLinker.h glslFunction.h  (2 ms)
-  included mostly from:
-  2: glslFunction.h
-  1: glslOutput.h
-  1: glslCommon.json
+  1x: <direct include>
+  1x: glslFunction.h 
+  1x: glslOutput.h 
+  1x: hlslLinker.h glslFunction.h 
 
 3 ms: hlslang/GLSLCodeGen/hlslCrossCompiler.h (included 1 times, avg 3 ms), included via:
-  hlslLinker.json  (3 ms)
-  included mostly from:
-  1: hlslLinker.json
+  1x: <direct include>
 

@@ -83,17 +83,11 @@ Compilation (2 times):
 
 **** Expensive headers:
 191 ms: C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/VC/Tools/MSVC/14.25.28610/include/string (included 1 times, avg 191 ms), included via:
-  test.json  (191 ms)
-  included mostly from:
-  1: test.json
+  1x: <direct include>
 
 19 ms: C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/VC/Tools/MSVC/14.25.28610/include/map (included 1 times, avg 19 ms), included via:
-  test.json  (19 ms)
-  included mostly from:
-  1: test.json
+  1x: <direct include>
 
 7 ms: C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/VC/Tools/MSVC/14.25.28610/include/vector (included 1 times, avg 7 ms), included via:
-  test.json  (7 ms)
-  included mostly from:
-  1: test.json
+  1x: <direct include>
 

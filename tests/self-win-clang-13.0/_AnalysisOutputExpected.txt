@@ -148,72 +148,37 @@ Compilation (8 times):
 
 **** Expensive headers:
 775 ms: src/BuildEvents.h (included 3 times, avg 258 ms), included via:
-  Analysis.json Analysis.h  (263 ms)
-  BuildEvents.json  (257 ms)
-  main.json Analysis.h  (253 ms)
-  included mostly from:
-  2: Analysis.h
-  1: BuildEvents.json
+  2x: Analysis.h 
+  1x: <direct include>
 
 583 ms: src/external/cute_files.h (included 2 times, avg 291 ms), included via:
-  BuildEvents.json  (577 ms)
-  main.json  (6 ms)
-  included mostly from:
-  1: BuildEvents.json
-  1: main.json
+  2x: <direct include>
 
 518 ms: src/Analysis.h (included 2 times, avg 259 ms), included via:
-  Analysis.json  (264 ms)
-  main.json  (254 ms)
-  included mostly from:
-  1: Analysis.json
-  1: main.json
+  2x: <direct include>
 
 276 ms: src/external/sokol_time.h (included 1 times, avg 276 ms), included via:
-  main.json  (276 ms)
-  included mostly from:
-  1: main.json
+  1x: <direct include>
 
 257 ms: src/external/simdjson/simdjson.h (included 1 times, avg 257 ms), included via:
-  BuildEvents.json  (257 ms)
-  included mostly from:
-  1: BuildEvents.json
+  1x: <direct include>
 
 232 ms: C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/VC/Tools/MSVC/14.29.30037/include/algorithm (included 4 times, avg 58 ms), included via:
-  Arena.json  (188 ms)
-  main.json  (14 ms)
-  BuildEvents.json bytell_hash_map.hpp  (14 ms)
-  Analysis.json bytell_hash_map.hpp  (14 ms)
-  included mostly from:
-  2: bytell_hash_map.hpp
-  1: Arena.json
-  1: main.json
+  2x: <direct include>
+  2x: bytell_hash_map.hpp 
 
 226 ms: src/external/flat_hash_map/bytell_hash_map.hpp (included 2 times, avg 113 ms), included via:
-  Analysis.json  (114 ms)
-  BuildEvents.json  (112 ms)
-  included mostly from:
-  1: Analysis.json
-  1: BuildEvents.json
+  2x: <direct include>
 
 159 ms: src/external/enkiTS/TaskScheduler.h (included 1 times, avg 159 ms), included via:
-  main.json  (159 ms)
-  included mostly from:
-  1: main.json
+  1x: <direct include>
 
 71 ms: C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/VC/Tools/MSVC/14.29.30037/include/mutex (included 2 times, avg 35 ms), included via:
-  BuildEvents.json  (51 ms)
-  main.json TaskScheduler.h condition_variable  (19 ms)
-  included mostly from:
-  1: condition_variable
-  1: BuildEvents.json
+  1x: <direct include>
+  1x: TaskScheduler.h condition_variable 
 
 52 ms: C:/Program Files (x86)/Microsoft Visual Studio/2019/Professional/VC/Tools/MSVC/14.29.30037/include/vector (included 4 times, avg 13 ms), included via:
-  Arena.json  (22 ms)
-  Analysis.json Analysis.h BuildEvents.h  (10 ms)
-  main.json Analysis.h BuildEvents.h  (10 ms)
-  BuildEvents.json BuildEvents.h  (10 ms)
-  included mostly from:
-  3: BuildEvents.h
-  1: Arena.json
+  2x: Analysis.h BuildEvents.h 
+  1x: <direct include>
+  1x: BuildEvents.h 
 

@@ -16,6 +16,7 @@ struct IUnknown; // workaround for old Win SDK header failures when using /permi
 #include <assert.h>
 #include <string>
 #include <string.h>
+#include <map>
 #include <vector>
 
 struct Config
@@ -96,6 +97,7 @@ struct Analysis
     {
         std::vector<DetailIndex> files;
         int64_t us = 0;
+        int count = 0;
     };
     struct IncludeEntry
     {
@@ -197,24 +199,20 @@ void Analysis::ProcessEvent(EventIndex eventIndex)
             chain.us = event.dur;
             EventIndex parseIndex = event.parent;
             bool hasHeaderBefore = false;
-            bool hasNonHeaderBefore = false;
             while(parseIndex.idx >= 0)
             {
                 const BuildEvent& ev2 = events[parseIndex];
                 if (ev2.type != BuildEventType::kParseFile)
                     break;
                 std::string_view ev2path = GetBuildName(ev2.detailIndex);
-                chain.files.push_back(ev2.detailIndex);
                 bool isHeader = utils::IsHeader(ev2path);
+                if (!isHeader)
+                    break;
+                chain.files.push_back(ev2.detailIndex);
                 hasHeaderBefore |= isHeader;
-                hasNonHeaderBefore |= !isHeader;
                 parseIndex = ev2.parent;
             }
 
-            // only add top-level source path if there was no non-header file down below
-            // the include chain (the top-level might be lump/unity file)
-            if (!hasNonHeaderBefore)
-                chain.files.push_back(FindPath(eventIndex));
             e.root |= !hasHeaderBefore;
             e.includePaths.push_back(chain);
         }
@@ -487,8 +485,6 @@ void Analysis::EndAnalysis()
     if (!expensiveHeaders.empty())
     {
         fprintf(out, "%s%s**** Expensive headers%s:\n", col::kBold, col::kMagenta, col::kReset);
-        ska::bytell_hash_map<DetailIndex, int> includedFromMap;
-        std::vector<std::pair<DetailIndex, int>> includedFromArray;
         for (const auto& e : expensiveHeaders)
         {
             const auto& es = headerMap[e.first];
@@ -498,55 +494,42 @@ void Analysis::EndAnalysis()
             int pathCount = 0;
 
             // print most costly include chains
-            auto sortedIncludeChains = es.includePaths;
+            // merge identical include chains, recording their (count, totalTimeUs)
+            std::map<std::vector<DetailIndex>, std::pair<int,int64_t>> mergedIncludeChains;
+            for (const auto& chain : es.includePaths)
+            {
+                auto& dst = mergedIncludeChains[chain.files];
+                dst.first++;
+                dst.second += chain.us;
+            }
+            std::vector<IncludeChain> sortedIncludeChains;
+            sortedIncludeChains.reserve(mergedIncludeChains.size());
+            for (const auto& chain : mergedIncludeChains)
+            {
+                IncludeChain dst;
+                dst.files = chain.first;
+                dst.count = chain.second.first;
+                dst.us = chain.second.second;
+                sortedIncludeChains.emplace_back(dst);
+            }
             std::sort(sortedIncludeChains.begin(), sortedIncludeChains.end(), [](const auto& a, const auto& b)
             {
+                if (a.count != b.count)
+                    return a.count > b.count;
                 if (a.us != b.us)
                     return a.us > b.us;
                 return a.files < b.files;
             });
             for (const auto& chain : sortedIncludeChains)
             {
-                fprintf(out, "  ");
+                fprintf(out, "  %ix: ", chain.count);
                 for (auto it = chain.files.rbegin(), itEnd = chain.files.rend(); it != itEnd; ++it)
                 {
                     fprintf(out, "%s ", utils::GetFilename(GetBuildName(*it)).data());
                 }
-                fprintf(out, " (%i ms)\n", int(chain.us/1000));
-                ++pathCount;
-                if (pathCount > config.headerChainCount)
-                    break;
-            }
-            if (pathCount > config.headerChainCount)
-            {
-                fprintf(out, "  ...\n");
-            }
-            
-            // print most often happening includers
-            includedFromMap.clear();
-            for (const auto& chain : sortedIncludeChains)
-            {
                 if (chain.files.empty())
-                    continue;
-                includedFromMap[chain.files.front()]++;
-            }
-            includedFromArray.resize(0);
-            includedFromArray.reserve(includedFromMap.size());
-            for (const auto& from : includedFromMap)
-            {
-                includedFromArray.push_back(from);
-            }
-            std::sort(includedFromArray.begin(), includedFromArray.end(), [&](const auto& a, const auto& b)
-            {
-                if (a.second != b.second)
-                    return a.second > b.second;
-                return GetBuildName(a.first) < GetBuildName(b.first);
-            });
-            pathCount = 0;
-            fprintf(out, "  included mostly from:\n");
-            for (const auto& from : includedFromArray)
-            {
-                fprintf(out, "  %i: %s\n", from.second, utils::GetFilename(GetBuildName(from.first)).data());
+                    fprintf(out, "<direct include>");
+                fprintf(out, "\n");
                 ++pathCount;
                 if (pathCount > config.headerChainCount)
                     break;

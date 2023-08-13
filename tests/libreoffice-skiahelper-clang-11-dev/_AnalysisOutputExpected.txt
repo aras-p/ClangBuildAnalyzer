@@ -131,52 +131,32 @@ Compilation (2 times):
 
 **** Expensive headers:
 1287 ms: /libo2/include/vcl/svapp.hxx (included 1 times, avg 1287 ms), included via:
-  SkiaHelper.json  (1287 ms)
-  included mostly from:
-  1: SkiaHelper.json
+  1x: <direct include>
 
 927 ms: /libo2/vcl/inc/skia/utils.hxx (included 1 times, avg 927 ms), included via:
-  SkiaHelper.json  (927 ms)
-  included mostly from:
-  1: SkiaHelper.json
+  1x: <direct include>
 
 246 ms: /libo2/workdir/CustomTarget/officecfg/registry/officecfg/Office/Common.hxx (included 1 times, avg 246 ms), included via:
-  SkiaHelper.json  (246 ms)
-  included mostly from:
-  1: SkiaHelper.json
+  1x: <direct include>
 
 47 ms: /libo2/include/desktop/crashreport.hxx (included 1 times, avg 47 ms), included via:
-  SkiaHelper.json  (47 ms)
-  included mostly from:
-  1: SkiaHelper.json
+  1x: <direct include>
 
 29 ms: /usr/include/c++/9/fstream (included 1 times, avg 29 ms), included via:
-  SkiaHelper.json  (29 ms)
-  included mostly from:
-  1: SkiaHelper.json
+  1x: <direct include>
 
 10 ms: /libo2/vcl/inc/skia/zone.hxx (included 1 times, avg 10 ms), included via:
-  SkiaHelper.json  (10 ms)
-  included mostly from:
-  1: SkiaHelper.json
+  1x: <direct include>
 
 8 ms: /libo2/vcl/inc/watchdog.hxx (included 1 times, avg 8 ms), included via:
-  SkiaHelper.json  (8 ms)
-  included mostly from:
-  1: SkiaHelper.json
+  1x: <direct include>
 
 4 ms: /libo2/include/vcl/skia/SkiaHelper.hxx (included 1 times, avg 4 ms), included via:
-  SkiaHelper.json  (4 ms)
-  included mostly from:
-  1: SkiaHelper.json
+  1x: <direct include>
 
 3 ms: /libo2/workdir/UnpackedTarball/skia/include/core/SkSurface.h (included 1 times, avg 3 ms), included via:
-  SkiaHelper.json  (3 ms)
-  included mostly from:
-  1: SkiaHelper.json
+  1x: <direct include>
 
 1 ms: /libo2/include/sal/log.hxx (included 1 times, avg 1 ms), included via:
-  SkiaHelper.json  (1 ms)
-  included mostly from:
-  1: SkiaHelper.json
+  1x: <direct include>
 
