@@ -159,15 +159,15 @@ Compilation (8 times):
   BuildEvents.json  (577 ms)
   main.json  (6 ms)
   included mostly from:
-  1: main.json
   1: BuildEvents.json
+  1: main.json
 
 518 ms: src/Analysis.h (included 2 times, avg 259 ms), included via:
   Analysis.json  (264 ms)
   main.json  (254 ms)
   included mostly from:
-  1: main.json
   1: Analysis.json
+  1: main.json
 
 276 ms: src/external/sokol_time.h (included 1 times, avg 276 ms), included via:
   main.json  (276 ms)
@@ -193,8 +193,8 @@ Compilation (8 times):
   Analysis.json  (114 ms)
   BuildEvents.json  (112 ms)
   included mostly from:
-  1: BuildEvents.json
   1: Analysis.json
+  1: BuildEvents.json
 
 159 ms: src/external/enkiTS/TaskScheduler.h (included 1 times, avg 159 ms), included via:
   main.json  (159 ms)

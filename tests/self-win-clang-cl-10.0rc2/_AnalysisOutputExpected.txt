@@ -148,8 +148,8 @@ Compilation (6 times):
   Allocator.json  (352 ms)
   main.json sokol_time.h  (348 ms)
   included mostly from:
-  1: Allocator.json
   1: sokol_time.h
+  1: Allocator.json
 
 587 ms: src/BuildEvents.h (included 2 times, avg 293 ms), included via:
   BuildEvents.json  (305 ms)
@@ -173,9 +173,9 @@ Compilation (6 times):
   BuildEvents.json sajson.h  (12 ms)
   main.json  (10 ms)
   included mostly from:
+  1: sajson.h
   1: Allocator.json
   1: main.json
-  1: sajson.h
 
 210 ms: C:/Program Files (x86)/Microsoft Visual Studio/2019/Preview/VC/Tools/MSVC/14.25.28610/include/iterator (included 1 times, avg 210 ms), included via:
   BuildEvents.json  (210 ms)
@@ -196,8 +196,8 @@ Compilation (6 times):
   Allocator.json  (38 ms)
   BuildEvents.json iterator istream ostream ios xlocnum streambuf xiosbase system_error  (2 ms)
   included mostly from:
-  1: Allocator.json
   1: system_error
+  1: Allocator.json
 
 26 ms: C:/Program Files (x86)/Microsoft Visual Studio/2019/Preview/VC/Tools/MSVC/14.25.28610/include/map (included 1 times, avg 26 ms), included via:
   main.json  (26 ms)

@@ -383,7 +383,7 @@ void Analysis::EndAnalysis()
             const auto& b = parseFiles[indexB];
             if (a.us != b.us)
                 return a.us > b.us;
-            return a.file < b.file;
+            return GetBuildName(a.file) < GetBuildName(b.file);
             });
         fprintf(out, "%s%s**** Files that took longest to parse (compiler frontend)%s:\n", col::kBold, col::kMagenta, col::kReset);
         for (size_t i = 0, n = std::min<size_t>(config.fileParseCount, indices.size()); i != n; ++i)
@@ -404,7 +404,7 @@ void Analysis::EndAnalysis()
             const auto& b = codegenFiles[indexB];
             if (a.us != b.us)
                 return a.us > b.us;
-            return a.file < b.file;
+            return GetBuildName(a.file) < GetBuildName(b.file);
             });
         fprintf(out, "%s%s**** Files that took longest to codegen (compiler backend)%s:\n", col::kBold, col::kMagenta, col::kReset);
         for (size_t i = 0, n = std::min<size_t>(config.fileCodegenCount, indices.size()); i != n; ++i)
@@ -536,11 +536,11 @@ void Analysis::EndAnalysis()
             {
                 includedFromArray.push_back(from);
             }
-            std::sort(includedFromArray.begin(), includedFromArray.end(), [](const auto& a, const auto& b)
+            std::sort(includedFromArray.begin(), includedFromArray.end(), [&](const auto& a, const auto& b)
             {
                 if (a.second != b.second)
                     return a.second > b.second;
-                return a.first < b.first;
+                return GetBuildName(a.first) < GetBuildName(b.first);
             });
             pathCount = 0;
             fprintf(out, "  included mostly from:\n");
