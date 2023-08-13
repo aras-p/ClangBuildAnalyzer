@@ -464,7 +464,7 @@ void Analysis::EndAnalysis()
             const auto& b = functionsArray[indexB];
             if (a.second != b.second)
                 return a.second > b.second;
-            return a.first < b.first;
+            return GetBuildName(a.first.first) < GetBuildName(b.first.first);
             });
         fprintf(out, "%s%s**** Functions that took longest to compile%s:\n", col::kBold, col::kMagenta, col::kReset);
         for (size_t i = 0, n = std::min<size_t>(config.functionCount, indices.size()); i != n; ++i)
