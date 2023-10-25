@@ -422,7 +422,7 @@ bool ParseBuildEvents(BuildEventsParser* parser, const std::string& fileName)
     auto error = p.load(fileName).get(doc);
     if (error)
     {
-        printf("%sWARN: JSON parse error %s.%s\n", col::kYellow, error_message(error), col::kReset);
+        printf("%sWARN: JSON parse error in %s: %s.%s\n", col::kYellow, fileName.c_str(), error_message(error), col::kReset);
         return false;
     }
 
