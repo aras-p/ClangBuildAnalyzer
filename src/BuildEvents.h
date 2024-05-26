@@ -11,7 +11,7 @@
 
 #ifdef _MSC_VER
 #define ftello64 _ftelli64
-#elif defined(__APPLE__)
+#elif defined(__APPLE__) || defined(__FreeBSD__)
 #define ftello64 ftello
 #endif
 
