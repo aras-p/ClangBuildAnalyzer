@@ -15,6 +15,7 @@
 #include "external/simdjson/simdjson.h"
 #include "external/xxHash/xxhash.h"
 #include <assert.h>
+#include <cinttypes>
 #include <iterator>
 #include <mutex>
 
@@ -57,7 +58,7 @@ static void DebugPrintEvents(const BuildEvents& events, const BuildNames& names)
     {
         const BuildEvent& event = events[EventIndex(int(i))];
         const std::string_view namesSubstr = names[event.detailIndex].substr(0, 130);
-        printf("%4zi: t=%i t1=%7lld t2=%7lld par=%4i ch=%4zi det=%.*s\n", i, (int) event.type, event.ts, event.ts+event.dur, event.parent.idx, event.children.size(), (int)namesSubstr.size(), namesSubstr.data());
+        printf("%4zi: t=%i t1=%7" PRId64 " t2=%7" PRId64 " par=%4i ch=%4zi det=%.*s\n", i, (int) event.type, event.ts, event.ts+event.dur, event.parent.idx, event.children.size(), (int)namesSubstr.size(), namesSubstr.data());
     }
 }
 
