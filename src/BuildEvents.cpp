@@ -526,7 +526,7 @@ struct BufferedReader
     size_t bufferSize;
 };
 
-const uint32_t kFileMagic = 'CBA0';
+const uint32_t kFileMagic = 0x43424130; // 'CBA0'
 
 bool SaveBuildEvents(BuildEventsParser* parser, const std::string& fileName)
 {
