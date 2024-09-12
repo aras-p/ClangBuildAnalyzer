@@ -20,7 +20,7 @@ jobs:
         call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat" && msbuild.exe projects/vs2019/ClangBuildAnalyzer.sln /p:Configuration=Release /p:CL_MPCount=2
         build\ClangBuildAnalyzer.exe --test tests
       shell: cmd
-    - uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v4
       with:
         name: ClangBuildAnalyzer-win.exe
         path: build/ClangBuildAnalyzer.exe
@@ -42,7 +42,7 @@ jobs:
         cmake -DCMAKE_BUILD_TYPE=Release ..
         make -j 2
         cd ..
-    - uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v4
       with:
         name: ClangBuildAnalyzer-mac
         path: projects/xcode/build/Release/ClangBuildAnalyzer
@@ -67,7 +67,7 @@ jobs:
         buildCmake/ClangBuildAnalyzer --test tests
         make -f projects/make/Makefile -j 2
         build/ClangBuildAnalyzer --test tests
-    - uses: actions/upload-artifact@v1
+    - uses: actions/upload-artifact@v4
       with:
         name: ClangBuildAnalyzer-linux
         path: build/ClangBuildAnalyzer
