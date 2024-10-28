@@ -123,7 +123,7 @@ includes several external library source files (all under `src/external`), each 
 
 * `cute_files.h` from [RandyGaul/cute_headers](https://github.com/RandyGaul/cute_headers): zlib or public domain,
 * `cwalk` from [likle/cwalk](https://github.com/likle/cwalk): MIT,
-* `enkiTS`, from [dougbinks/enkiTS](https://github.com/dougbinks/enkiTS): zlib,
+* `enkiTS`, from [dougbinks/enkiTS](https://github.com/dougbinks/enkiTS): zlib, version 058150d2 (2024 Apr),
 * `flat_hash_map`, from [skarupke/flat_hash_map](https://github.com/skarupke/flat_hash_map): Boost 1.0,
 * `inih`, from [benhoyt/inih](https://github.com/benhoyt/inih): BSD 3 clause,
 * `llvm-Demangle`, part of [LLVM](https://llvm.org/): Apache-2.0 with LLVM-exception,
