@@ -76,9 +76,6 @@
     <ClInclude Include="..\..\src\external\llvm-Demangle\include\Utility.h">
       <Filter>external\llvm-Demangle</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\external\xxHash\xxh3.h">
-      <Filter>external\xxHash</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\external\xxHash\xxhash.h">
       <Filter>external\xxHash</Filter>
     </ClInclude>

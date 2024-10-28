@@ -127,6 +127,6 @@ includes several external library source files (all under `src/external`), each 
 * `flat_hash_map`, from [skarupke/flat_hash_map](https://github.com/skarupke/flat_hash_map): Boost 1.0,
 * `inih`, from [benhoyt/inih](https://github.com/benhoyt/inih): BSD 3 clause,
 * `llvm-Demangle`, part of [LLVM](https://llvm.org/): Apache-2.0 with LLVM-exception,
-* `simdjson` from [lemire/simdjson](https://github.com/lemire/simdjson): Apache-2.0, version 3.2.2 (2023 Aug),
+* `simdjson` from [lemire/simdjson](https://github.com/lemire/simdjson): Apache-2.0, version 3.10.1 (2024 Aug),
 * `sokol_time.h` from [floooh/sokol](https://github.com/floooh/sokol): zlib/libpng,
-* `xxHash` from [Cyan4973/xxHash](https://github.com/Cyan4973/xxHash): BSD 2 clause.
+* `xxHash` from [Cyan4973/xxHash](https://github.com/Cyan4973/xxHash): BSD 2 clause, version 0.8.2 (2023 Jul).

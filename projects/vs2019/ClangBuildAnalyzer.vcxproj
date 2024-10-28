@@ -56,7 +56,6 @@
     <ClInclude Include="..\..\src\external\llvm-Demangle\include\Utility.h" />
     <ClInclude Include="..\..\src\external\simdjson\simdjson.h" />
     <ClInclude Include="..\..\src\external\sokol_time.h" />
-    <ClInclude Include="..\..\src\external\xxHash\xxh3.h" />
     <ClInclude Include="..\..\src\external\xxHash\xxhash.h" />
     <ClInclude Include="..\..\src\Utils.h" />
   </ItemGroup>
