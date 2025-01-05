@@ -1,13 +1,11 @@
 **** Time summary:
-Compilation (4 times):
+Compilation (2 times):
   Parsing (frontend):            1.8 s
   Codegen & opts (backend):      1.1 s
 
 **** Files that took longest to parse (compiler frontend):
-  1153 ms: tests/self-win-clang-16.0/BuildEvents.json
-   545 ms: tests/self-win-clang-16.0/main.json
-    41 ms: tests/self-win-clang-16.0/BuildEvents.json
-    15 ms: tests/self-win-clang-16.0/main.json
+  1194 ms: tests/self-win-clang-16.0/BuildEvents.json
+   561 ms: tests/self-win-clang-16.0/main.json
 
 **** Files that took longest to codegen (compiler backend):
    679 ms: tests/self-win-clang-16.0/BuildEvents.json

@@ -19,6 +19,7 @@
 enum class BuildEventType
 {
     kUnknown,
+    kIgnore,
     kCompiler,
     kFrontend,
     kBackend,
@@ -80,6 +81,7 @@ struct BuildEvent
     int64_t dur = 0;
     DetailIndex detailIndex;
     EventIndex parent{ -1 };
+    char phase = 0;
     std::vector<EventIndex> children;
 };
 

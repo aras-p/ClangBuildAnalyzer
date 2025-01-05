@@ -1,16 +1,13 @@
 **** Time summary:
-Compilation (8 times):
+Compilation (4 times):
   Parsing (frontend):            3.6 s
   Codegen & opts (backend):      4.8 s
 
 **** Files that took longest to parse (compiler frontend):
-  1514 ms: tests/self-win-clang-13.0/BuildEvents.json
-   818 ms: tests/self-win-clang-13.0/main.json
-   803 ms: tests/self-win-clang-13.0/Analysis.json
-   231 ms: tests/self-win-clang-13.0/Arena.json
-   131 ms: tests/self-win-clang-13.0/Analysis.json
-    69 ms: tests/self-win-clang-13.0/BuildEvents.json
-    29 ms: tests/self-win-clang-13.0/main.json
+  1583 ms: tests/self-win-clang-13.0/BuildEvents.json
+   934 ms: tests/self-win-clang-13.0/Analysis.json
+   847 ms: tests/self-win-clang-13.0/main.json
+   237 ms: tests/self-win-clang-13.0/Arena.json
 
 **** Files that took longest to codegen (compiler backend):
   2945 ms: tests/self-win-clang-13.0/Analysis.json

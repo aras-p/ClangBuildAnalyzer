@@ -1,19 +1,19 @@
 **** Time summary:
-Compilation (26 times):
+Compilation (13 times):
   Parsing (frontend):            6.7 s
   Codegen & opts (backend):      0.9 s
 
 **** Files that took longest to parse (compiler frontend):
-   753 ms: tests/blender-mac-clang14/obj_export_file_writer.json
-   589 ms: tests/blender-mac-clang14/obj_import_file_reader.json
-   576 ms: tests/blender-mac-clang14/obj_export_mesh.json
-   541 ms: tests/blender-mac-clang14/obj_exporter.json
-   536 ms: tests/blender-mac-clang14/obj_import_mesh.json
-   493 ms: tests/blender-mac-clang14/obj_importer.json
-   471 ms: tests/blender-mac-clang14/obj_export_mtl.json
-   461 ms: tests/blender-mac-clang14/importer_mesh_utils.json
-   385 ms: tests/blender-mac-clang14/obj_import_mtl.json
-   341 ms: tests/blender-mac-clang14/obj_import_nurbs.json
+   910 ms: tests/blender-mac-clang14/obj_export_file_writer.json
+   670 ms: tests/blender-mac-clang14/obj_export_mesh.json
+   657 ms: tests/blender-mac-clang14/obj_import_file_reader.json
+   646 ms: tests/blender-mac-clang14/obj_import_mesh.json
+   586 ms: tests/blender-mac-clang14/obj_exporter.json
+   539 ms: tests/blender-mac-clang14/obj_importer.json
+   502 ms: tests/blender-mac-clang14/obj_export_mtl.json
+   475 ms: tests/blender-mac-clang14/importer_mesh_utils.json
+   401 ms: tests/blender-mac-clang14/obj_import_mtl.json
+   352 ms: tests/blender-mac-clang14/obj_import_nurbs.json
 
 **** Files that took longest to codegen (compiler backend):
    193 ms: tests/blender-mac-clang14/obj_export_file_writer.json

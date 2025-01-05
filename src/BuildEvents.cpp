@@ -133,6 +133,33 @@ static void FindParentChildrenIndices(BuildEvents& events)
 #endif
 }
 
+static void SanitizeEvents(BuildEvents& events)
+{
+    // starting with clang 11 or so, sometimes there are
+    // multiple Frontend events for same source (under same parent),
+    // merge them.
+    EventIndex frontEndIndex{ -1 };
+    EventIndex frontEndParent{ -1 };
+    for (int i = 0, n = int(events.size()); i < n; ++i)
+    {
+        BuildEvent& ev = events[EventIndex(i)];
+        if (ev.type == BuildEventType::kFrontend)
+        {
+            if (frontEndIndex.idx == -1)
+            {
+                frontEndIndex.idx = i;
+                frontEndParent = ev.parent;
+            }
+            else if (ev.parent == frontEndParent)
+            {
+                events[frontEndIndex].dur += ev.dur;
+                ev.type = BuildEventType::kIgnore;
+            }
+        }
+    }
+}
+
+
 struct BuildEventsParser
 {
     BuildEventsParser()
@@ -255,6 +282,9 @@ struct BuildEventsParser
             printf("%sWARN: the last trace event should be root; was not in '%s'.%s\n", col::kRed, curFileName.c_str(), col::kReset);
             return false;
         }
+
+        SanitizeEvents(fileEvents);
+
         AddEvents(fileEvents, nameToIndexLocal);
         return true;
     }
@@ -291,7 +321,7 @@ struct BuildEventsParser
         BuildEvent event;
         bool valid = true;
         std::string_view detailPtr;
-        for (simdjson::dom::key_value_pair kv : node)
+        for (const simdjson::dom::key_value_pair& kv : node)
         {
             std::string_view nodeKey = kv.key;
             if (StrEqual(nodeKey, kPid))
@@ -306,8 +336,16 @@ struct BuildEventsParser
             }
             else if (StrEqual(nodeKey, kPh))
             {
-                if (!kv.value.is_string() || !StrEqual(kv.value.get_string(), "X"))
+                if (!kv.value.is_string())
                     valid = false;
+                else
+                {
+                    std::string_view val = kv.value.get_string();
+                    if (!StrEqual(val, "X") && !StrEqual(val, "b") && !StrEqual(val, "e"))
+                        valid = false;
+                    else
+                        event.phase = val[0];
+                }
             }
             else if (StrEqual(nodeKey, kName) && kv.value.is_string() && valid)
             {
@@ -357,7 +395,7 @@ struct BuildEventsParser
                         detailPtr = args.value.get_string();
                 }
             }
-        };
+        }
 
         if (event.type== BuildEventType::kUnknown || !valid)
             return;
@@ -398,6 +436,29 @@ struct BuildEventsParser
                 detailString = llvm::demangle(detailString);
 
             event.detailIndex = NameToIndex(detailString.c_str(), nameToIndexLocal);
+        }
+
+        // starting with clang 19, some Source events are pairs of "b" immediately followed
+        // by "e" events. Handle merging of those if needed; do not support other cases of
+        // "b"/"e"
+        if (!fileEvents.empty())
+        {
+            BuildEvent& prev = fileEvents.back();
+            if (prev.phase == 'b')
+            {
+                if (event.phase == 'e')
+                {
+                    // merge this into previous 'b', calculating duration
+                    prev.phase = 'X';
+                    prev.dur = event.ts - prev.ts;
+                    return;
+                }
+                else
+                {
+                    // remove previous 'b' event since current is not 'e'
+                    fileEvents.pop_back();
+                }
+            }
         }
 
         fileEvents.emplace_back(event);
