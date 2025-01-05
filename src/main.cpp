@@ -21,7 +21,7 @@
 struct IUnknown; // workaround for old Win SDK header failures when using /permissive-
 #endif
 
-static const char* kVersion = "1.5.0";
+static const char* kVersion = "1.6.0";
 
 #include "external/enkiTS/TaskScheduler.h"
 #define SOKOL_IMPL
