@@ -1,14 +1,12 @@
 **** Time summary:
-Compilation (6 times):
+Compilation (3 times):
   Parsing (frontend):            2.7 s
   Codegen & opts (backend):      2.8 s
 
 **** Files that took longest to parse (compiler frontend):
-   939 ms: tests/self-win-clang-cl-10.0rc2/main.json
-   922 ms: tests/self-win-clang-cl-10.0rc2/BuildEvents.json
-   656 ms: tests/self-win-clang-cl-10.0rc2/Allocator.json
-    98 ms: tests/self-win-clang-cl-10.0rc2/BuildEvents.json
-    46 ms: tests/self-win-clang-cl-10.0rc2/main.json
+  1021 ms: tests/self-win-clang-cl-10.0rc2/BuildEvents.json
+   986 ms: tests/self-win-clang-cl-10.0rc2/main.json
+   658 ms: tests/self-win-clang-cl-10.0rc2/Allocator.json
 
 **** Files that took longest to codegen (compiler backend):
   1916 ms: tests/self-win-clang-cl-10.0rc2/BuildEvents.json

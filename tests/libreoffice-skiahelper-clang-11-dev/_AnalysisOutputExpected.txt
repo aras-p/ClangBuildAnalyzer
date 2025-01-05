@@ -1,11 +1,10 @@
 **** Time summary:
-Compilation (2 times):
+Compilation (1 times):
   Parsing (frontend):            3.0 s
   Codegen & opts (backend):      0.2 s
 
 **** Files that took longest to parse (compiler frontend):
-  2876 ms: tests/libreoffice-skiahelper-clang-11-dev/SkiaHelper.json
-    83 ms: tests/libreoffice-skiahelper-clang-11-dev/SkiaHelper.json
+  2960 ms: tests/libreoffice-skiahelper-clang-11-dev/SkiaHelper.json
 
 **** Files that took longest to codegen (compiler backend):
    210 ms: tests/libreoffice-skiahelper-clang-11-dev/SkiaHelper.json

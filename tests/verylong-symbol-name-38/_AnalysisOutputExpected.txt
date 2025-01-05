@@ -1,11 +1,10 @@
 **** Time summary:
-Compilation (2 times):
+Compilation (1 times):
   Parsing (frontend):            0.4 s
   Codegen & opts (backend):      0.0 s
 
 **** Files that took longest to parse (compiler frontend):
-   367 ms: tests/verylong-symbol-name-38/test.json
-    34 ms: tests/verylong-symbol-name-38/test.json
+   402 ms: tests/verylong-symbol-name-38/test.json
 
 **** Files that took longest to codegen (compiler backend):
     23 ms: tests/verylong-symbol-name-38/test.json
