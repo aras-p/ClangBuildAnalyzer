@@ -33,6 +33,8 @@ struct Config
     int maxName = 70;
 
     bool onlyRootHeaders = true;
+
+    bool headerChainFullPath = false;
 };
 
 struct pair_hash
@@ -525,7 +527,8 @@ void Analysis::EndAnalysis()
                 fprintf(out, "  %ix: ", chain.count);
                 for (auto it = chain.files.rbegin(), itEnd = chain.files.rend(); it != itEnd; ++it)
                 {
-                    fprintf(out, "%s ", utils::GetFilename(GetBuildName(*it)).data());
+                    const auto buildName = GetBuildName(*it);
+                    fprintf(out, "%s ", (config.headerChainFullPath ? buildName : utils::GetFilename(buildName)).data());
                 }
                 if (chain.files.empty())
                     fprintf(out, "<direct include>");
@@ -567,17 +570,18 @@ void Analysis::ReadConfig()
 {
     INIReader ini("ClangBuildAnalyzer.ini");
 
-    config.fileParseCount   = (int)ini.GetInteger("counts", "fileParse",    config.fileParseCount);
-    config.fileCodegenCount = (int)ini.GetInteger("counts", "fileCodegen",  config.fileCodegenCount);
-    config.functionCount    = (int)ini.GetInteger("counts", "function",     config.functionCount);
-    config.templateCount    = (int)ini.GetInteger("counts", "template",     config.templateCount);
-    config.headerCount      = (int)ini.GetInteger("counts", "header",       config.headerCount);
-    config.headerChainCount = (int)ini.GetInteger("counts", "headerChain",  config.headerChainCount);
+    config.fileParseCount      = (int)ini.GetInteger("counts", "fileParse",    config.fileParseCount);
+    config.fileCodegenCount    = (int)ini.GetInteger("counts", "fileCodegen",  config.fileCodegenCount);
+    config.functionCount       = (int)ini.GetInteger("counts", "function",     config.functionCount);
+    config.templateCount       = (int)ini.GetInteger("counts", "template",     config.templateCount);
+    config.headerCount         = (int)ini.GetInteger("counts", "header",       config.headerCount);
+    config.headerChainCount    = (int)ini.GetInteger("counts", "headerChain",  config.headerChainCount);
 
-    config.minFileTime      = (int)ini.GetInteger("minTimes", "file",       config.minFileTime);
+    config.minFileTime         = (int)ini.GetInteger("minTimes", "file",       config.minFileTime);
 
-    config.maxName          = (int)ini.GetInteger("misc", "maxNameLength",  config.maxName);
-    config.onlyRootHeaders  =      ini.GetBoolean("misc", "onlyRootHeaders",config.onlyRootHeaders);
+    config.maxName             = (int)ini.GetInteger("misc", "maxNameLength",           config.maxName);
+    config.onlyRootHeaders     =      ini.GetBoolean("misc", "onlyRootHeaders",         config.onlyRootHeaders);
+    config.headerChainFullPath =      ini.GetBoolean("misc", "headerChainFullPath", config.headerChainFullPath);
 }
 
 
