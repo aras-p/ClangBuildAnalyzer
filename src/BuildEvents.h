@@ -80,6 +80,7 @@ struct BuildEvent
     int64_t ts = 0;
     int64_t dur = 0;
     DetailIndex detailIndex;
+    DetailIndex filenameDetailIndex;
     EventIndex parent{ -1 };
     char phase = 0;
     std::vector<EventIndex> children;

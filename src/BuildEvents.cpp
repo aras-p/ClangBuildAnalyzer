@@ -215,8 +215,10 @@ struct BuildEventsParser
             BuildEvent& ev = resultEvents[EventIndex(int(i))];
             if (ev.parent.idx >= 0)
                 ev.parent.idx += offset;
+
             for (auto& ch : ev.children)
                 ch.idx += offset;
+
             if (ev.detailIndex.idx != 0)
             {
                 assert(ev.detailIndex.idx >= 0);
@@ -224,6 +226,15 @@ struct BuildEventsParser
                 ev.detailIndex = detailRemap[ev.detailIndex];
                 assert(ev.detailIndex.idx >= 0);
                 assert(ev.detailIndex.idx < static_cast<int>(resultNameToIndex.size()));
+            }
+
+            if (ev.filenameDetailIndex.idx != 0)
+            {
+                assert(ev.filenameDetailIndex.idx >= 0);
+                assert(ev.filenameDetailIndex.idx < static_cast<int>(nameToIndex.size()));
+                ev.filenameDetailIndex = detailRemap[ev.filenameDetailIndex];
+                assert(ev.filenameDetailIndex.idx >= 0);
+                assert(ev.filenameDetailIndex.idx < static_cast<int>(resultNameToIndex.size()));
             }
         }
 
@@ -321,6 +332,7 @@ struct BuildEventsParser
         BuildEvent event;
         bool valid = true;
         std::string_view detailPtr;
+        std::string_view filenameDetailPtr;
         for (const simdjson::dom::key_value_pair& kv : node)
         {
             std::string_view nodeKey = kv.key;
@@ -400,20 +412,20 @@ struct BuildEventsParser
         if (event.type== BuildEventType::kUnknown || !valid)
             return;
 
-        // if the "compiler" event has no detail name, use the current json file name
-        if (detailPtr.empty() && event.type == BuildEventType::kCompiler)
-            detailPtr = curFileName;
-        if (!detailPtr.empty())
+        const auto processDetail = [this, &event, &nameToIndexLocal](std::string_view& theDetailPtr) -> DetailIndex
         {
+            if (theDetailPtr.empty())
+                return DetailIndex{};
+
             std::string detailString;
             if (event.type == BuildEventType::kParseFile || event.type == BuildEventType::kOptModule)
             {
                 // do various cleanups/nice-ifications of the detail name:
                 // make paths shorter (i.e. relative to project) where possible
-                detailString = utils::GetNicePath(detailPtr);
+                detailString = utils::GetNicePath(theDetailPtr);
             }
             else
-                detailString = detailPtr;
+                detailString = theDetailPtr;
 
             // don't report the clang trace .json file, instead get the object file at the same location if it's there
             if (utils::EndsWith(detailString, ".json"))
@@ -435,8 +447,20 @@ struct BuildEventsParser
             if (event.type == BuildEventType::kOptFunction)
                 detailString = llvm::demangle(detailString);
 
-            event.detailIndex = NameToIndex(detailString.c_str(), nameToIndexLocal);
-        }
+            return NameToIndex(detailString.c_str(), nameToIndexLocal);
+        };
+
+        // if the "compiler" event has no detail name, use the current json file name
+        if (detailPtr.empty() && event.type == BuildEventType::kCompiler)
+            detailPtr = curFileName;
+
+        event.detailIndex = processDetail(detailPtr);
+
+        // use the current json file name for the "instantiateX" event filename detail
+        if (event.type == BuildEventType::kInstantiateClass || event.type == BuildEventType::kInstantiateFunction)
+            filenameDetailPtr = curFileName;
+
+        event.filenameDetailIndex = processDetail(filenameDetailPtr);
 
         // starting with clang 19, some Source events are pairs of "b" immediately followed
         // by "e" events. Handle merging of those if needed; do not support other cases of
@@ -610,6 +634,7 @@ bool SaveBuildEvents(BuildEventsParser* parser, const std::string& fileName)
         w.Write(e.ts);
         w.Write(e.dur);
         w.Write(e.detailIndex.idx);
+        w.Write(e.filenameDetailIndex.idx);
         w.Write(e.parent.idx);
         int64_t childCount = e.children.size();
         w.Write(childCount);
@@ -670,6 +695,7 @@ bool LoadBuildEvents(const std::string& fileName, BuildEvents& outEvents, BuildN
         r.Read(e.ts);
         r.Read(e.dur);
         r.Read(e.detailIndex.idx);
+        r.Read(e.filenameDetailIndex.idx);
         r.Read(e.parent.idx);
         int64_t childCount = 0;
         r.Read(childCount);

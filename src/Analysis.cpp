@@ -21,16 +21,16 @@ struct IUnknown; // workaround for old Win SDK header failures when using /permi
 
 struct Config
 {
-    int fileParseCount = 10;
-    int fileCodegenCount = 10;
-    int templateCount = 30;
+    int fileParseCount = 20;
+    int fileCodegenCount = 20;
+    int templateCount = 50;
     int functionCount = 30;
-    int headerCount = 10;
-    int headerChainCount = 5;
+    int headerCount = 20;
+    int headerChainCount = 10;
 
     int minFileTime = 10;
 
-    int maxName = 70;
+    int maxName = 512;
 
     bool onlyRootHeaders = true;
 };
@@ -87,6 +87,8 @@ struct Analysis
     {
         int count = 0;
         int64_t us = 0;
+        DetailIndex file;
+        std::unordered_map<int, int> templateCount;
     };
     struct FileEntry
     {
@@ -115,6 +117,8 @@ struct Analysis
         const ska::bytell_hash_map<std::string_view, InstantiateEntry> &collapsed,
         const char *header_string);
 
+    void PrintSortedTemplateCounts(const InstantiateEntry& e);
+
     // key is (name,objfile), value is milliseconds
     typedef std::pair<DetailIndex, DetailIndex> IndexPair;
     ska::bytell_hash_map<IndexPair, int64_t, pair_hash> functions;
@@ -136,7 +140,6 @@ DetailIndex Analysis::FindPath(EventIndex eventIndex) const
     while(eventIndex > EventIndex())
     {
         const BuildEvent& ev = events[eventIndex];
-        if (ev.type == BuildEventType::kCompiler || ev.type == BuildEventType::kFrontend || ev.type == BuildEventType::kBackend || ev.type == BuildEventType::kOptModule)
             if (ev.detailIndex != DetailIndex())
                 return ev.detailIndex;
         eventIndex = ev.parent;
@@ -160,6 +163,7 @@ void Analysis::ProcessEvent(EventIndex eventIndex)
         auto& e = instantiations[eventIndex];
         ++e.count;
         e.us += event.dur;
+        e.file = event.filenameDetailIndex;
     }
 
     if (event.type == BuildEventType::kFrontend)
@@ -282,6 +286,33 @@ std::string_view Analysis::GetCollapsedName(DetailIndex detail)
     return name;
 }
 
+void Analysis::PrintSortedTemplateCounts(const InstantiateEntry& e)
+{
+    std::vector<std::pair<int, int>> templateCounts;
+    templateCounts.reserve(e.templateCount.size());
+
+    for (const auto& t : e.templateCount)
+    {
+        if (t.second < 3) // TODO: make customizable
+            continue;
+
+        templateCounts.emplace_back(t.first, t.second);
+    }
+
+    std::sort(templateCounts.begin(), templateCounts.end(), [](const auto& a, const auto& b)
+    {
+        if (a.second != b.second)
+            return a.second > b.second;
+
+        return a.first < b.first;
+    });
+
+    for (const auto& t : templateCounts)
+    {
+        fprintf(out, "  %s%6i%s time(s): %s\n", col::kBold, t.second, col::kReset, GetBuildName(DetailIndex{t.first}).data());
+    }
+}
+
 void Analysis::EmitCollapsedInfo(
     const ska::bytell_hash_map<std::string_view, InstantiateEntry> &collapsed,
     const char *header_string)
@@ -305,6 +336,8 @@ void Analysis::EmitCollapsedInfo(
         int ms = int(elt.second.us / 1000);
         int avg = int(ms / elt.second.count);
         fprintf(out, "%s%6i%s ms: %s (%i times, avg %i ms)\n", col::kBold, ms, col::kReset, dname.c_str(), elt.second.count, avg);
+
+        PrintSortedTemplateCounts(elt.second);
     }
     fprintf(out, "\n");
 }
@@ -336,6 +369,7 @@ void Analysis::EmitCollapsedTemplates()
         {
             stats.us += inst.second.us;
             stats.count += inst.second.count;
+            stats.templateCount[inst.second.file.idx] += 1;
         }
     }
     EmitCollapsedInfo(collapsed, "Template sets that took longest to instantiate");
@@ -423,6 +457,7 @@ void Analysis::EndAnalysis()
             instArray[d.idx].first = d;
             instArray[d.idx].second.us += inst.second.us;
             instArray[d.idx].second.count += inst.second.count;
+            instArray[d.idx].second.templateCount[inst.second.file.idx] += 1;
         }
         size_t n = std::min<size_t>(config.templateCount, instArray.size());
         auto cmp = [&](const auto&a, const auto &b) {
@@ -441,6 +476,8 @@ void Analysis::EndAnalysis()
             int ms = int(e.second.us / 1000);
             int avg = int(ms / std::max(e.second.count,1));
             fprintf(out, "%s%6i%s ms: %s (%i times, avg %i ms)\n", col::kBold, ms, col::kReset, dname.c_str(), e.second.count, avg);
+
+            PrintSortedTemplateCounts(e.second);
         }
         fprintf(out, "\n");
 
